@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.devserver*
+.wrangler
+.vinext
+.next
+dist
+node_modules
+backend
+seed-data
+scripts
+tests
+examples
+*.log
