@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import re
 from dataclasses import dataclass
 from hashlib import sha256
-from typing import Any
+from typing import Any, ClassVar
 from urllib.parse import urlparse
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,6 +33,7 @@ from app.agents.schemas import (
 )
 from app.agents.state import AgentState
 from app.services.container import ServiceContainer
+from app.services.embeddings import get_embedding_provider
 
 
 @dataclass
@@ -39,6 +41,21 @@ class AgentDependencies:
     session: AsyncSession
     services: ServiceContainer
     model: ModelGateway
+
+
+def accepted_search_results(state: AgentState) -> list[dict[str, Any]]:
+    """Return search results that the evidence curator actually accepted."""
+    accepted_urls = {
+        str(url)
+        for record in state.get("evidence_records", [])
+        for url in record.get("source_urls", [])
+        if url
+    }
+    return [
+        item
+        for item in state.get("search_results", [])
+        if str(item.get("url", "")) in accepted_urls
+    ]
 
 
 class SupervisorAgent:
@@ -167,6 +184,102 @@ class RequirementAnalystAgent:
 
 class ResearchAgent:
     name = "research_agent"
+    focus_terms: ClassVar[tuple[str, ...]] = (
+        "泵站",
+        "水泵",
+        "预测性维护",
+        "预防性维护",
+        "智能调度",
+        "数字孪生",
+        "农村饮水",
+        "城乡供水",
+        "供水",
+        "水库",
+        "大坝",
+        "水闸",
+        "灌溉",
+        "灌区",
+        "防洪",
+        "防渗",
+        "河道",
+        "水生态",
+        "污水处理",
+        "水处理",
+        "节水",
+    )
+    trusted_domains: ClassVar[set[str]] = {
+        "iwra.org",
+        "worldbank.org",
+        "unesco.org",
+        "aas.net.cn",
+        "ccn.ac.cn",
+    }
+
+    @classmethod
+    def _authority_score(cls, url: str) -> tuple[float, str]:
+        domain = (urlparse(url).hostname or "").lower().removeprefix("www.")
+        if domain.endswith((".gov.cn", ".edu.cn", ".ac.cn")):
+            return 1.0, "official_or_academic"
+        if domain.endswith((".edu", ".ac.uk")) or any(
+            domain == trusted or domain.endswith(f".{trusted}")
+            for trusted in cls.trusted_domains
+        ):
+            return 0.88, "academic_or_international"
+        if domain.endswith((".org", ".org.cn")):
+            return 0.72, "industry_or_nonprofit"
+        return 0.45, "general_web"
+
+    @classmethod
+    async def _rank_results(
+        cls,
+        results: list[dict[str, Any]],
+        user_request: str,
+    ) -> list[dict[str, Any]]:
+        if not results:
+            return []
+        active_focus = [term for term in cls.focus_terms if term in user_request]
+        passages = [
+            f"{item.get('title', '')}\n{item.get('snippet', '')}"
+            for item in results
+        ]
+        provider = get_embedding_provider()
+        relevance_scores = await asyncio.to_thread(
+            provider.rerank,
+            user_request,
+            passages,
+        )
+        year_match = re.search(r"(20\d{2})\s*年?以来", user_request)
+        minimum_year = int(year_match.group(1)) if year_match else None
+        ranked: list[dict[str, Any]] = []
+        for item, relevance in zip(results, relevance_scores, strict=True):
+            passage = f"{item.get('title', '')} {item.get('snippet', '')}"
+            matched_focus = [term for term in active_focus if term in passage]
+            if active_focus and not matched_focus:
+                continue
+            authority, authority_level = cls._authority_score(str(item.get("url", "")))
+            tavily_score = max(0.0, min(1.0, float(item.get("score", 0) or 0)))
+            ranking_score = relevance * 0.5 + tavily_score * 0.3 + authority * 0.2
+            source_years = [int(value) for value in re.findall(r"20\d{2}", passage)]
+            if minimum_year and source_years and max(source_years) < minimum_year:
+                ranking_score *= 0.72
+            enriched = {
+                **item,
+                "relevance_score": round(float(relevance), 4),
+                "authority_score": authority,
+                "authority_level": authority_level,
+                "matched_focus_terms": matched_focus,
+                "ranking_score": round(ranking_score, 4),
+            }
+            ranked.append(enriched)
+        ranked.sort(
+            key=lambda item: (
+                float(item["ranking_score"]),
+                float(item["authority_score"]),
+                float(item.get("score", 0) or 0),
+            ),
+            reverse=True,
+        )
+        return ranked[:12]
 
     async def plan(self, state: AgentState, deps: AgentDependencies) -> ResearchPlan:
         requirement = state.get("requirement_profile", {})
@@ -275,6 +388,7 @@ class ResearchAgent:
                         "score": item.score,
                     }
                 )
+        results = await self._rank_results(results, state["user_message"])
         if results:
             urls = [item["url"] for item in results[:10]]
             idempotency_key = sha256(
@@ -332,7 +446,7 @@ class ResearchAgent:
             }
             for item in results:
                 item["content"] = content_by_url.get(item["url"], item["snippet"])
-        return plan, results[:20]
+        return plan, results[:12]
 
 
 class EvidenceCuratorAgent:
@@ -349,14 +463,29 @@ class EvidenceCuratorAgent:
                 {
                     "title": item.get("title", ""),
                     "url": item.get("url", ""),
-                    "content": str(item.get("content") or item.get("snippet") or "")[:12_000],
+                    "authority_level": item.get("authority_level", "unknown"),
+                    "authority_score": item.get("authority_score", 0),
+                    "relevance_score": item.get("relevance_score", 0),
+                    # Keep the evidence request within a predictable latency and
+                    # context budget. The snippet carries the focused match and
+                    # extracted text supplies enough surrounding evidence.
+                    "content": (
+                        f"搜索摘要：{item.get('snippet', '')}\n"
+                        f"来源正文：{item.get('content') or ''}"
+                    )[:2_800],
                 }
-                for item in results[:8]
+                for item in results[:5]
             ]
             return await deps.model.structured(
                 CuratedAchievementBatch,
                 EVIDENCE_CURATOR_SYSTEM_PROMPT,
-                json.dumps(compact_sources, ensure_ascii=False),
+                json.dumps(
+                    {
+                        "user_request": state["user_message"],
+                        "sources": compact_sources,
+                    },
+                    ensure_ascii=False,
+                ),
                 session=deps.session,
                 run_id=state["run_id"],
                 agent_name=self.name,
@@ -625,10 +754,12 @@ class VerificationAgent:
 
     async def verify(self, state: AgentState, deps: AgentDependencies) -> VerificationResult:
         payload = {
+            "user_request": state["user_message"],
             "task_type": state.get("task_type"),
             "requirement": state.get("requirement_profile", {}),
             "sources": state.get("search_results", []),
             "evidence": state.get("evidence_records", []),
+            "rejected_sources": state.get("rejected_sources", []),
             "assessments": state.get("assessment_results", []),
         }
         if deps.model.configured:
@@ -670,13 +801,25 @@ class FinalReportAgent:
     name = "final_report_agent"
 
     async def render(self, state: AgentState, deps: AgentDependencies) -> str:
+        numbered_sources = [
+            {
+                "number": index,
+                "title": item.get("title", ""),
+                "url": item.get("url", ""),
+                "authority_level": item.get("authority_level", "unknown"),
+            }
+            for index, item in enumerate(accepted_search_results(state), start=1)
+        ]
         payload = {
+            "user_request": state["user_message"],
             "task_type": state.get("task_type"),
             "requirement": state.get("requirement_profile", {}),
             "evidence": state.get("evidence_records", []),
+            "rejected_sources": state.get("rejected_sources", []),
             "assessments": state.get("assessment_results", []),
             "verification": state.get("verification", {}),
             "human_decision": state.get("human_decision", {}),
+            "sources": numbered_sources,
         }
         if deps.model.configured:
             return await deps.model.text(

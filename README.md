@@ -155,7 +155,7 @@ docker compose up -d --build api worker scheduler
 
 ## 测试
 
-运行后端静态检查、22 项自动化测试、前端 ESLint、生产构建和服务端渲染测试：
+运行后端静态检查、24 项自动化测试、前端 ESLint、生产构建和服务端渲染测试：
 
 ```powershell
 .\scripts\test.ps1
@@ -175,6 +175,7 @@ docker compose up -d --build api worker scheduler
 - Redis 事件流
 - 水利 JSON 归一化导入
 - 离线向量与领域重排
+- 外部来源相关性/权威性排序与策展后引用过滤
 - 多 Agent 完整运行
 - 人工中断与检查点恢复
 - 任务取消与安全响应头

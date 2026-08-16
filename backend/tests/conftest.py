@@ -8,6 +8,12 @@ os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///./.test-hydrobridge.db"
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-that-is-long-enough-for-tests"
 os.environ["REDIS_RUNTIME_URL"] = "redis://localhost:6399/0"
 os.environ["REDIS_CACHE_URL"] = "redis://localhost:6399/1"
+# Unit and API tests must never inherit live provider credentials from the
+# developer's .env file. Provider integrations are exercised by explicit
+# live-smoke scripts instead.
+os.environ["LLM_API_KEY"] = ""
+os.environ["LLM_MODEL"] = ""
+os.environ["TAVILY_API_KEY"] = ""
 
 import httpx
 import pytest_asyncio

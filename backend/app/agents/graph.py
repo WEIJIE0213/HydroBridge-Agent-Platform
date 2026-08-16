@@ -15,6 +15,7 @@ from app.agents.specialists import (
     ResearchAgent,
     SupervisorAgent,
     VerificationAgent,
+    accepted_search_results,
 )
 from app.agents.state import AgentState
 from app.core.config import settings
@@ -199,6 +200,7 @@ class HydroBridgeGraph:
         )
         return {
             "evidence_records": [item.model_dump() for item in batch.achievements],
+            "rejected_sources": batch.rejected_sources,
             "next_step": next_step,
             "visited_agents": [*state.get("visited_agents", []), self.curator.name],
         }
@@ -324,7 +326,7 @@ class HydroBridgeGraph:
             )
         citations = [
             {"title": item.get("title", ""), "url": item.get("url", "")}
-            for item in state.get("search_results", [])
+            for item in accepted_search_results(state)
             if item.get("url")
         ][:20]
         await self._publish(

@@ -31,7 +31,10 @@ class ModelGateway:
                 temperature=settings.llm_temperature,
                 timeout=settings.llm_timeout_seconds,
                 max_retries=2,
-                streaming=True,
+                # Agent progress is streamed through Redis/SSE events rather than
+                # token chunks. Non-streaming responses reliably include provider
+                # usage metadata, which is persisted to ModelUsage.
+                streaming=False,
             )
 
     @property

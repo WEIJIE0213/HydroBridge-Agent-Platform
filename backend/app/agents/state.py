@@ -32,6 +32,7 @@ class AgentState(TypedDict, total=False):
     search_queries: list[str]
     search_results: list[dict[str, Any]]
     evidence_records: list[dict[str, Any]]
+    rejected_sources: list[dict[str, str]]
     retrieval_hits: list[dict[str, Any]]
     assessment_results: list[dict[str, Any]]
     verification: dict[str, Any]

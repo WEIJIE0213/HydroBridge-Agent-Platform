@@ -55,6 +55,7 @@ __pycache__/
 htmlcov/
 .venv/
 backend/.venv/
+backend/.test-hydrobridge.db
 *.egg-info/
 
 # Local services and generated data

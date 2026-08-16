@@ -60,7 +60,7 @@ class Settings(BaseSettings):
     llm_base_url: str | None = None
     llm_model: str | None = None
     llm_temperature: float = Field(default=0.1, ge=0, le=2)
-    llm_timeout_seconds: int = Field(default=90, ge=10, le=600)
+    llm_timeout_seconds: int = Field(default=180, ge=10, le=600)
 
     tavily_api_key: str | None = None
     tavily_search_depth: Literal["basic", "advanced"] = "advanced"
