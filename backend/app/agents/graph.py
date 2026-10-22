@@ -3,385 +3,383 @@ from __future__ import annotations
 from typing import Any
 
 from langgraph.graph import END, START, StateGraph
-from langgraph.types import interrupt
+from pydantic import BaseModel, Field
+from sqlalchemy import select
 
-from app.agents.model_gateway import ModelGateway
-from app.agents.specialists import (
-    AgentDependencies,
-    AssessmentMatchingAgent,
-    EvidenceCuratorAgent,
-    FinalReportAgent,
-    RequirementAnalystAgent,
-    ResearchAgent,
-    SupervisorAgent,
-    VerificationAgent,
-    accepted_search_results,
-)
+from app.agents.specialists import AgentDependencies
 from app.agents.state import AgentState
+from app.agents.workflows import DomainWorkflows
 from app.core.config import settings
-from app.core.exceptions import RunCancelledError
+from app.db.models.domain import Achievement, Requirement
 from app.db.session import AsyncSessionFactory
-from app.services.container import ServiceContainer
+from app.services.chunking import chunk_achievement
+from app.services.rag import AgenticRag
+from app.services.retrieval import visibility_filter
 
 
-class HydroBridgeGraph:
-    def __init__(self, services: ServiceContainer) -> None:
-        self.services = services
-        self.model = ModelGateway()
-        self.supervisor = SupervisorAgent()
-        self.requirement = RequirementAnalystAgent()
-        self.research = ResearchAgent()
-        self.curator = EvidenceCuratorAgent()
-        self.assessment = AssessmentMatchingAgent()
-        self.verifier = VerificationAgent()
-        self.report = FinalReportAgent()
+class SearchArguments(BaseModel):
+    query: str = Field(min_length=1, max_length=5000)
+    achievement_ids: list[str] | None = Field(default=None, max_length=20)
 
-    async def _publish(
-        self,
-        state: AgentState,
-        event_type: str,
-        agent: str,
-        data: dict[str, Any] | None = None,
-    ) -> None:
-        if event_type == "agent.started":
-            cancelled = await self.services.redis.runtime.get(
-                f"hb:{settings.app_env}:run:{state['run_id']}:cancelled"
-            )
-            if cancelled:
-                raise RunCancelledError("任务已由用户取消")
-            await self.services.trace.agent_started(
-                state["run_id"],
-                agent,
-                {
-                    "task_type": state.get("task_type"),
-                    "iteration": state.get("iteration_count", 0),
-                },
-            )
-        elif event_type == "agent.completed":
-            await self.services.trace.agent_completed(
-                state["run_id"],
-                agent,
-                data,
-            )
-        await self.services.events.publish(
-            state["run_id"],
-            event_type,
-            data or {},
-            agent=agent,
-            step=agent,
-        )
 
-    async def supervisor_node(self, state: AgentState) -> dict[str, Any]:
-        await self._publish(state, "agent.started", self.supervisor.name)
-        async with AsyncSessionFactory() as session:
-            decision = await self.supervisor.decide(
-                state,
-                AgentDependencies(session, self.services, self.model),
-            )
-        await self._publish(
-            state,
-            "plan.created",
-            self.supervisor.name,
-            decision.model_dump(),
-        )
-        await self._publish(
-            state,
-            "agent.completed",
-            self.supervisor.name,
-            {"task_type": decision.task_type, "plan": decision.plan},
-        )
-        return {
-            "task_type": decision.task_type,
-            "plan": decision.plan,
-            "next_step": (
-                "requirement_analyst"
-                if decision.task_type in {"matching", "requirement_analysis"}
-                else "research_agent"
-                if decision.task_type == "research"
-                else "assessment_matching_agent"
-            ),
-            "visited_agents": [*state.get("visited_agents", []), self.supervisor.name],
-            "iteration_count": state.get("iteration_count", 0) + 1,
-        }
+class MatchArguments(BaseModel):
+    query: str = Field(min_length=1, max_length=10000)
 
-    async def requirement_node(self, state: AgentState) -> dict[str, Any]:
-        await self._publish(state, "agent.started", self.requirement.name)
-        async with AsyncSessionFactory() as session:
-            profile = await self.requirement.analyze(
-                state,
-                AgentDependencies(session, self.services, self.model),
-            )
-        next_step = "human_review" if profile.requires_clarification else (
-            "final_report_agent"
-            if state.get("task_type") == "requirement_analysis"
-            else "assessment_matching_agent"
-        )
-        await self._publish(
-            state,
-            "agent.completed",
-            self.requirement.name,
-            {
-                "completeness_score": profile.completeness_score,
-                "requires_clarification": profile.requires_clarification,
-            },
-        )
-        if profile.requires_clarification:
-            await self._publish(
-                state,
-                "approval.required",
-                self.requirement.name,
-                {
-                    "reason": "需求关键信息不足",
-                    "payload": {
-                        "type": "clarification",
-                        "question": profile.clarification_question,
-                        "missing_fields": profile.missing_critical_fields,
+
+class DetailArguments(BaseModel):
+    achievement_id: str
+
+
+class CompareArguments(BaseModel):
+    achievement_ids: list[str] = Field(min_length=2, max_length=5)
+    question: str = Field(default="比较适用场景、技术指标与限制条件", max_length=5000)
+
+
+class UpdateArguments(BaseModel):
+    description: str = Field(min_length=1, max_length=10000)
+
+
+TOOL_SCHEMAS = {
+    "search_achievements": (SearchArguments, "搜索成果并根据原文回答问题；最多两轮检索"),
+    "match_achievements": (
+        MatchArguments,
+        "固定流程：需求解析、过滤、混合召回、成果聚合、重排、三态核验",
+    ),
+    "get_achievement": (DetailArguments, "读取已授权成果的结构化概览；不包含完整原件正文"),
+    "compare_achievements": (CompareArguments, "在给定成果范围内依据原文对比"),
+    "update_requirement": (UpdateArguments, "更新当前会话的需求；已有需求记录时保存新描述"),
+}
+TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": name,
+            "description": description,
+            "parameters": schema.model_json_schema(),
+        },
+    }
+    for name, (schema, description) in TOOL_SCHEMAS.items()
+]
+
+
+class HydroBridgeGraph(DomainWorkflows):
+    """One decision-making agent; domain workflows have fixed server-side steps."""
+
+    async def agent_node(self, state: AgentState) -> dict[str, Any]:
+        await self._publish(state, "agent.started", "hydrobridge_agent")
+        iterations = state.get("tool_iterations", 0)
+        task = state.get("task_type", "auto")
+        if not iterations and task in {"research", "evaluation", "requirement_analysis"}:
+            step = {
+                "research": "research_agent",
+                "evaluation": "achievement_evaluation_agent",
+                "requirement_analysis": "requirement_analyst",
+            }[task]
+            await self._publish(state, "agent.completed", "hydrobridge_agent", {"workflow": task})
+            return {"agent_route": "workflow", "workflow_step": step}
+        if iterations >= min(settings.agent_max_iterations, 4):
+            call = {}
+        elif self.model.configured:
+            async with AsyncSessionFactory() as session:
+                call = await self.model.choose_tool(
+                    TOOLS,
+                    {
+                        "request": state["user_message"],
+                        "task": task,
+                        "history": state.get("conversation_history", []),
+                        "scope": self._scope(state),
+                        "requirement": state.get("requirement_profile", {}),
+                        "results": state.get("tool_results", []),
                     },
-                },
-            )
-        return {
-            "requirement_profile": profile.model_dump(),
-            "clarification": {
-                "question": profile.clarification_question,
-                "missing_fields": profile.missing_critical_fields,
-            },
-            "needs_human_review": profile.requires_clarification,
-            "review_reason": "需求关键信息不足" if profile.requires_clarification else "",
-            "review_payload": (
-                {
-                    "type": "clarification",
-                    "question": profile.clarification_question,
-                    "missing_fields": profile.missing_critical_fields,
-                }
-                if profile.requires_clarification
-                else {}
-            ),
-            "next_step": next_step,
-            "visited_agents": [*state.get("visited_agents", []), self.requirement.name],
-        }
-
-    async def research_node(self, state: AgentState) -> dict[str, Any]:
-        await self._publish(state, "agent.started", self.research.name)
-        async with AsyncSessionFactory() as session:
-            plan, results = await self.research.research(
-                state,
-                AgentDependencies(session, self.services, self.model),
-            )
-        await self._publish(
-            state,
-            "agent.completed",
-            self.research.name,
-            {"queries": plan.queries, "result_count": len(results)},
-        )
-        return {
-            "search_queries": plan.queries,
-            "search_results": results,
-            "next_step": "evidence_curator",
-            "visited_agents": [*state.get("visited_agents", []), self.research.name],
-        }
-
-    async def curator_node(self, state: AgentState) -> dict[str, Any]:
-        await self._publish(state, "agent.started", self.curator.name)
-        async with AsyncSessionFactory() as session:
-            batch = await self.curator.curate(
-                state,
-                AgentDependencies(session, self.services, self.model),
-            )
-        next_step = (
-            "assessment_matching_agent"
-            if state.get("task_type") in {"matching", "evaluation"}
-            else "verification_agent"
-        )
-        await self._publish(
-            state,
-            "agent.completed",
-            self.curator.name,
-            {"achievement_count": len(batch.achievements)},
-        )
-        return {
-            "evidence_records": [item.model_dump() for item in batch.achievements],
-            "rejected_sources": batch.rejected_sources,
-            "next_step": next_step,
-            "visited_agents": [*state.get("visited_agents", []), self.curator.name],
-        }
-
-    async def assessment_node(self, state: AgentState) -> dict[str, Any]:
-        await self._publish(state, "agent.started", self.assessment.name)
-        async with AsyncSessionFactory() as session:
-            hits, batch = await self.assessment.match(
-                state,
-                AgentDependencies(session, self.services, self.model),
-            )
-        if (
-            state.get("task_type") in {"matching", "evaluation", "qa"}
-            and not hits
-            and self.services.search.configured
-            and "research_agent" not in state.get("visited_agents", [])
-        ):
-            next_step = "research_agent"
+                    session=session,
+                    run_id=state["run_id"],
+                )
         else:
-            next_step = "verification_agent"
+            call = {} if iterations else self._offline_tool(state)
+        # A grounded tool result is mandatory for catalog answers.
+        if not call and not iterations:
+            call = self._offline_tool(state)
+        if call and call.get("name") not in TOOL_SCHEMAS:
+            raise ValueError("Agent requested an unknown tool")
         await self._publish(
             state,
             "agent.completed",
-            self.assessment.name,
-            {"candidate_count": len(hits), "assessment_count": len(batch.results)},
+            "hydrobridge_agent",
+            {"tool": call.get("name"), "iteration": iterations},
         )
-        return {
-            "retrieval_hits": hits,
-            "assessment_results": [item.model_dump() for item in batch.results],
-            "next_step": next_step,
-            "visited_agents": [*state.get("visited_agents", []), self.assessment.name],
-        }
-
-    async def verifier_node(self, state: AgentState) -> dict[str, Any]:
-        await self._publish(state, "agent.started", self.verifier.name)
-        async with AsyncSessionFactory() as session:
-            result = await self.verifier.verify(
-                state,
-                AgentDependencies(session, self.services, self.model),
-            )
-        if result.decision == "human_review_required":
-            next_step = "human_review"
-        elif (
-            result.decision == "revision_required"
-            and state.get("iteration_count", 0) < settings.agent_max_iterations
-        ):
-            next_step = "research_agent"
-        else:
-            next_step = "final_report_agent"
-        await self._publish(
-            state,
-            "agent.completed",
-            self.verifier.name,
-            result.model_dump(),
-        )
-        if result.decision == "human_review_required":
-            await self._publish(
-                state,
-                "approval.required",
-                self.verifier.name,
-                {
-                    "reason": result.review_reason,
-                    "payload": {
-                        "type": "verification",
-                        "verification": result.model_dump(),
-                    },
-                },
-            )
-        return {
-            "verification": result.model_dump(),
-            "needs_human_review": result.decision == "human_review_required",
-            "review_reason": result.review_reason,
-            "review_payload": {
-                "type": "verification",
-                "verification": result.model_dump(),
-            },
-            "next_step": next_step,
-            "visited_agents": [*state.get("visited_agents", []), self.verifier.name],
-            "iteration_count": state.get("iteration_count", 0) + 1,
-        }
-
-    async def human_review_node(self, state: AgentState) -> dict[str, Any]:
-        decision = interrupt(
-            {
-                "run_id": state["run_id"],
-                "reason": state.get("review_reason", ""),
-                "payload": state.get("review_payload", {}),
-                "allowed_decisions": ["approve", "edit", "reject"],
-            }
-        )
-        decision_payload = (
-            decision if isinstance(decision, dict) else {"decision": str(decision)}
-        )
-        await self._publish(
-            state,
-            "run.resumed",
-            "human_review",
-            {"decision": decision_payload.get("decision", "")},
-        )
-        updates: dict[str, Any] = {}
-        edited_payload = decision_payload.get("edited_payload")
-        if isinstance(edited_payload, dict) and edited_payload.get("message"):
-            updates["user_message"] = str(edited_payload["message"])
-        next_step = (
-            "supervisor"
-            if decision_payload.get("decision") == "edit"
-            and state.get("review_payload", {}).get("type") == "clarification"
-            else "final_report_agent"
-        )
-        return {
-            **updates,
-            "human_decision": decision_payload,
-            "needs_human_review": False,
-            "next_step": next_step,
-        }
-
-    async def final_report_node(self, state: AgentState) -> dict[str, Any]:
-        await self._publish(state, "agent.started", self.report.name)
-        async with AsyncSessionFactory() as session:
-            report = await self.report.render(
-                state,
-                AgentDependencies(session, self.services, self.model),
-            )
-        citations = [
-            {"title": item.get("title", ""), "url": item.get("url", "")}
-            for item in accepted_search_results(state)
-            if item.get("url")
-        ][:20]
-        await self._publish(
-            state,
-            "agent.completed",
-            self.report.name,
-            {"citation_count": len(citations)},
-        )
-        return {
-            "final_answer": report,
-            "citations": citations,
-            "next_step": "end",
-            "visited_agents": [*state.get("visited_agents", []), self.report.name],
-        }
+        return {"pending_tool": call, "agent_route": "tools" if call else "respond"}
 
     @staticmethod
-    def route(state: AgentState) -> str:
-        return state.get("next_step", "final_report_agent")
+    def _scope(state):
+        context = state.get("context", {})
+        if "achievement_ids" in context:
+            return list(context["achievement_ids"])
+        if context.get("achievement_id"):
+            return [str(context["achievement_id"])]
+        if state.get("scope_is_set"):
+            return state.get("selected_achievement_ids", [])
+        return state.get("selected_achievement_ids") or None
+
+    @staticmethod
+    def _offline_tool(state):
+        message = state["user_message"]
+        scope = HydroBridgeGraph._scope(state)
+        if state.get("task_type") == "matching" or any(w in message for w in ("匹配", "推荐方案")):
+            return {"name": "match_achievements", "arguments": {"query": message}}
+        if scope and len(scope) >= 2 and any(w in message for w in ("对比", "比较")):
+            return {
+                "name": "compare_achievements",
+                "arguments": {"achievement_ids": scope[:5], "question": message},
+            }
+        return {
+            "name": "search_achievements",
+            "arguments": {"query": message, "achievement_ids": scope},
+        }
+
+    async def tools_node(self, state: AgentState) -> dict[str, Any]:
+        call = state["pending_tool"]
+        name = call["name"]
+        args = TOOL_SCHEMAS[name][0].model_validate(call.get("arguments", {}))
+        iteration = state.get("tool_iterations", 0) + 1
+        await self._publish(state, "agent.started", "tools", {"tool": name})
+        await self._publish(state, "tool.started", "tools", {"tool": name})
+        trace = None
+        if hasattr(self.services.trace, "tool_started"):
+            trace = await self.services.trace.tool_started(
+                state["run_id"], name, f"{state['run_id']}:{iteration}:{name}", args.model_dump()
+            )
+        try:
+            updates: dict[str, Any] = {}
+            if name == "match_achievements":
+                updates = {
+                    "task_type": "matching",
+                    "user_message": args.query,
+                    "workflow_step": "requirement_analyst",
+                    "agent_route": "workflow",
+                }
+                result = {"tool": name, "status": "workflow_started"}
+            else:
+                async with AsyncSessionFactory() as session:
+                    deps = AgentDependencies(session, self.services, self.model)
+                    scope = self._scope(state)
+                    if name in {"search_achievements", "compare_achievements"}:
+                        requested = args.achievement_ids
+                        allowed = (
+                            scope
+                            if requested is None
+                            else (
+                                [item for item in requested if item in scope]
+                                if scope is not None
+                                else requested
+                            )
+                        )
+                        result = await AgenticRag().answer(
+                            state,
+                            deps,
+                            query=args.query if name == "search_achievements" else args.question,
+                            achievement_ids=allowed,
+                        )
+                        updates = {
+                            "rag_result": result,
+                            "citations": result["citations"],
+                            "selected_achievement_ids": allowed
+                            if allowed is not None
+                            else result["achievement_ids"],
+                            "scope_is_set": allowed is not None or bool(result["achievement_ids"]),
+                            "agent_route": "respond",
+                        }
+                    elif name == "get_achievement":
+                        if scope is not None and args.achievement_id not in scope:
+                            raise ValueError("成果超出当前授权范围")
+                        item = await session.scalar(
+                            select(Achievement).where(
+                                Achievement.id == args.achievement_id,
+                                Achievement.status == "approved",
+                                visibility_filter(state.get("organization_id")),
+                            )
+                        )
+                        if item is None:
+                            raise ValueError("成果不存在或不可访问")
+                        chunks = [
+                            c
+                            for c in chunk_achievement(
+                                item, settings.chunk_size, settings.chunk_overlap
+                            )
+                            if c.document_id is None
+                        ][:24]
+                        citations = [
+                            {
+                                "title": item.title,
+                                "url": "",
+                                "chunk_id": c.id,
+                                "achievement_id": item.id,
+                                "version": item.version,
+                                "field": c.field,
+                                "quote": c.text,
+                            }
+                            for c in chunks
+                        ]
+                        result = {
+                            "answer": f"{item.title}\n\n"
+                            + "\n\n".join(f"{c.field}：{c.text}" for c in chunks),
+                            "citations": citations,
+                            "source_document_count": len(
+                                (item.structured_data or {}).get("source_documents", [])
+                            ),
+                            "detail_scope": (
+                                "结构化概览；完整原文请通过 search_achievements 工具定向检索"
+                            ),
+                        }
+                        updates = {"selected_achievement_ids": [item.id], "citations": citations}
+                        updates["scope_is_set"] = True
+                    else:
+                        requirement_id = state.get("context", {}).get("requirement_id")
+                        if requirement_id:
+                            requirement = await session.scalar(
+                                select(Requirement)
+                                .where(
+                                    Requirement.id == requirement_id,
+                                    Requirement.created_by == state["user_id"],
+                                )
+                                .with_for_update()
+                            )
+                            if requirement is None:
+                                raise ValueError("需求不存在或无权修改")
+                            requirement.raw_input = args.description
+                            requirement.normalized_description = ""
+                            requirement.scenario = ""
+                            requirement.problem = ""
+                            requirement.objectives = []
+                            requirement.hard_constraints = {}
+                            requirement.soft_preferences = {}
+                            requirement.known_conditions = {}
+                            requirement.search_terms = []
+                            requirement.completeness_score = 0
+                            requirement.status = "draft"
+                            await session.commit()
+                        updates = {"user_message": args.description, "requirement_profile": {}}
+                        result = {"answer": "需求描述已更新。", "description": args.description}
+            if trace:
+                await self.services.trace.tool_completed(*trace, {"result": result})
+            await self._publish(state, "tool.completed", "tools", {"tool": name})
+            await self._publish(state, "agent.completed", "tools", {"tool": name})
+            return {
+                "agent_route": "agent",
+                "tool_iterations": iteration,
+                "tool_results": [*state.get("tool_results", []), {"tool": name, **result}],
+                **updates,
+            }
+        except Exception as exc:
+            if trace:
+                await self.services.trace.tool_failed(*trace, exc)
+            await self._publish(state, "tool.failed", "tools", {"tool": name, "error": str(exc)})
+            raise
+
+    async def workflow_node(self, state):
+        methods = {
+            "requirement_analyst": self.requirement_node,
+            "research_agent": self.research_node,
+            "evidence_curator": self.curator_node,
+            "research_ingestion_agent": self.research_ingestion_node,
+            "achievement_evaluation_agent": self.achievement_evaluation_node,
+            "assessment_matching_agent": self.assessment_node,
+            "verification_agent": self.verifier_node,
+            "final_report_agent": self.final_report_node,
+        }
+        step = state["workflow_step"]
+        if step == "verification_agent" and state.get("task_type") == "matching":
+            await self._publish(state, "agent.started", "constraint_validation")
+            results = state.get("assessment_results", [])
+            unknown = [
+                c["constraint"]
+                for a in results
+                for c in a.get("constraint_checks", [])
+                if c["status"] == "unknown"
+            ]
+            updates = {
+                "verification": {
+                    "decision": "passed" if results else "rejected",
+                    "confidence": 0,
+                    "recommended_action": "按原文证据复核未知约束",
+                    "unknown_constraints": sorted(set(unknown)),
+                },
+                "next_step": "final_report_agent",
+            }
+            await self._publish(
+                state, "agent.completed", "constraint_validation", updates["verification"]
+            )
+        elif step == "final_report_agent" and state.get("task_type") == "matching":
+            await self._publish(state, "agent.started", "matching_report")
+            lines, citations = ["成果匹配结果（按检索相关度排序）", ""], []
+            labels = {"satisfied": "满足", "violated": "不满足", "unknown": "未知"}
+            for result in state.get("assessment_results", []):
+                lines.append(
+                    f"{result['rank']}. {result['title']}：相关度 {result['final_score']:.1f}，"
+                    f"硬约束{labels[result['eligibility']]}"
+                )
+                for check in result.get("constraint_checks", []):
+                    basis = "原文证据核验" if check.get("method") == "evidence" else "规则核验"
+                    line = (
+                        f"- {check['constraint']}：{labels[check['status']]}"
+                        f"（{basis}）。{check['reason']}"
+                    )
+                    if check.get("method") == "evidence" and check.get("quote"):
+                        line += f"\n  > {check['quote'][:200]}"
+                    lines.append(line)
+                for chunk in result.get("evidence", [])[:2]:
+                    number = len(citations) + 1
+                    lines.append(f"- 原文 [{number}]：{chunk['text'][:250]}")
+                    citations.append(
+                        {**chunk, "title": result["title"], "url": "", "quote": chunk["text"]}
+                    )
+            if not state.get("assessment_results"):
+                lines.append("当前范围内没有找到可核验的已审核成果。")
+            lines.append("相关度仅用于排序；未知约束需要补充资料，不能视为满足。")
+            updates = {"final_answer": "\n".join(lines), "citations": citations, "next_step": "end"}
+            await self._publish(state, "agent.completed", "matching_report")
+        else:
+            updates = await methods[step](state)
+        next_step = updates.get("next_step", "end")
+        route = (
+            "human_review"
+            if next_step == "human_review"
+            else ("respond" if next_step == "end" else "workflow")
+        )
+        return {**updates, "workflow_step": next_step, "agent_route": route}
+
+    async def review_node(self, state):
+        updates = await self.human_review_node(state)
+        next_step = updates.get("next_step", "final_report_agent")
+        if next_step == "supervisor":
+            next_step = "requirement_analyst"
+        return {**updates, "workflow_step": next_step, "agent_route": "workflow"}
+
+    async def respond_node(self, state):
+        if state.get("final_answer"):
+            return {}
+        results = state.get("tool_results", [])
+        return {
+            "final_answer": "\n\n".join(r["answer"] for r in results if r.get("answer"))
+            or "未获得足够证据，请补充成果名称或工程需求。"
+        }
 
     def build(self, checkpointer=None):
         graph = StateGraph(AgentState)
-        graph.add_node("supervisor", self.supervisor_node)
-        graph.add_node("requirement_analyst", self.requirement_node)
-        graph.add_node("research_agent", self.research_node)
-        graph.add_node("evidence_curator", self.curator_node)
-        graph.add_node("assessment_matching_agent", self.assessment_node)
-        graph.add_node("verification_agent", self.verifier_node)
-        graph.add_node("human_review", self.human_review_node)
-        graph.add_node("final_report_agent", self.final_report_node)
-        graph.add_edge(START, "supervisor")
-
-        route_map = {
-            "supervisor": "supervisor",
-            "requirement_analyst": "requirement_analyst",
-            "research_agent": "research_agent",
-            "evidence_curator": "evidence_curator",
-            "assessment_matching_agent": "assessment_matching_agent",
-            "verification_agent": "verification_agent",
-            "human_review": "human_review",
-            "final_report_agent": "final_report_agent",
-            "end": END,
-        }
-        for node in (
-            "supervisor",
-            "requirement_analyst",
-            "research_agent",
-            "evidence_curator",
-            "assessment_matching_agent",
-            "verification_agent",
-            "human_review",
-            "final_report_agent",
-        ):
-            graph.add_conditional_edges(node, self.route, route_map)
+        for name, method in {
+            "agent": self.agent_node,
+            "tools": self.tools_node,
+            "workflow": self.workflow_node,
+            "human_review": self.review_node,
+            "respond": self.respond_node,
+        }.items():
+            graph.add_node(name, method)
+        graph.add_edge(START, "agent")
+        routes = {name: name for name in ("agent", "tools", "workflow", "human_review", "respond")}
+        for name in ("agent", "tools", "workflow", "human_review"):
+            graph.add_conditional_edges(name, lambda state: state["agent_route"], routes)
+        graph.add_edge("respond", END)
         return graph.compile(checkpointer=checkpointer)
 
 
-def build_agent_graph(services: ServiceContainer, checkpointer=None):
-    return HydroBridgeGraph(services).build(checkpointer=checkpointer)
+def build_agent_graph(services, checkpointer=None, model=None):
+    return HydroBridgeGraph(services, model=model).build(checkpointer)

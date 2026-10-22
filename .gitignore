@@ -39,6 +39,7 @@ yarn-error.log*
 .vercel
 
 # typescript
+*.tsbuildinfo
 next-env.d.ts
 /dist/
 /.wrangler/
@@ -60,14 +61,23 @@ backend/.test-hydrobridge.db
 
 # Local services and generated data
 data/mysql/
+data/postgres/
 data/redis*/
 data/qdrant/
+data/elasticsearch/
 data/minio/
 data/prometheus/
 data/grafana/
 uploads/
 reports/
-models/
+/models/
+/tmp/corpus/
+/tmp/bge-wheels/
+/output/corpus/
+/output/backups/
+/output/bge-ui-original-*
+/tmp/image-cache/
+/tmp/frontend-cache/
 
 # IDE and OS
 .idea/

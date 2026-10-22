@@ -12,7 +12,7 @@
       "湖北省汉江河道管理局天门汉江管理分局",
       "湖北工业大学"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "",
     "advantages": [
       "结构布局与自适应地形创新；创新点：三割草轮一前二旁布置、轻量化设计、仿形贴地机构；创新性描述：首次在国内实现适用于堤坡便捷式除草工器具的小型化遥控割草机；具备凹凸表面通过能力和高效能输出,填补细分领域空白。",
@@ -53,6 +53,8 @@
     ],
     "structured_data": {
       "source_file": "仿形多软轴遥控割草机.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 1,
         "应用范围及前景": 1,
@@ -357,7 +359,7 @@
       "山东省水利科学研究院",
       "江苏永冠给排水设备有限公司"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "除氟处理成本；指标名称：除氟处理成本；指标值、单位：0.4-0.6 元/m³\n微污染水处理成本；指标名称：微污染水处理成本；指标值、单位：1.1-1.33 元/m³",
     "advantages": [
       "农村饮水安全工程五项主要创新点；创新点：羟基磷灰石吸附滤料氟吸附能力比活性氧化铝高4倍以上；一体化窖水生物慢滤为国内外首次提出并应用；新型次氯酸钠发生器盐耗电耗显著降低；咸淡水区矿化度定量评价系统填补空白；全国首个覆盖全流程的农村供水技术标准体系；创新性描述：多项技术属国内外首创,突破多个国际公认的技术难点,如高碱度高氟水长效处理、雨水窖水低成本净化、特殊地貌精准找水等；标准体系填补国内空白,信息化平台实现四级联动监管。",
@@ -418,6 +420,8 @@
     ],
     "structured_data": {
       "source_file": "农村饮水安全工程关键技术创新与应用.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 4,
         "应用范围及前景": 1,
@@ -948,7 +952,7 @@
     "organizations": [
       "水利部交通运输部国家能源局南京水利科学研究院"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "",
     "advantages": [
       "高寒区土体冻融特性测试技术创新；创新点：自主研发国内外首台能模拟土体冻融干湿耦合过程的超重力场试验系统，研制土体全断面冻胀变形和三维冻胀力监测设备，破解土体多维冻融特性测试难题；创新性描述：创新高寒区冻融特性测试技术，填补国内外冻融干湿耦合模拟及多维冻胀测试的空白，为高寒区岩土工程大尺度物理模型试验提供支撑",
@@ -1018,6 +1022,8 @@
     ],
     "structured_data": {
       "source_file": "复杂条件下土工多场多尺度测试关键技术及应用-94分.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 3,
         "应用范围及前景": 1,
@@ -1637,7 +1643,7 @@
     "organizations": [
       "黄河勘测规划设计有限公司、黄河水利委员会黄河水利科学研究院、水利部小浪底水利枢纽管理中心、水利部黄河水利委员会三门峡水利枢纽管理局、陕西省水利厅"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "累计增发电量；指标值：25.25亿；单位：kWh\n发电直接经济效益；指标值：9.95亿；单位：元\n多年平均减少滩区洪灾损失；指标值：8.87亿；单位：元/年",
     "advantages": [
       "多沙河流水库运用机理创新；创新点：揭示了以拦沙库容重复利用与下游河道减淤为核心的多沙河流水库运用机理，提出了水库汛期排沙及发电等综合利用以及非常排沙建筑物布置的方法与技术；创新性描述：在多沙河流水库运用机理方面实现突破，提出综合利用及建筑物布置技术，为国内外首创",
@@ -1702,6 +1708,8 @@
     ],
     "structured_data": {
       "source_file": "多沙河流水库运用理论与实践.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 5,
         "应用范围及前景": 1,
@@ -2137,7 +2145,7 @@
     "organizations": [
       "中国灌溉排水发展中心、北京恒宇伟业科技发展股份有限公司、扬州大学、武汉大学、润华农水实业开发公司"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "年增收节支额；指标值：5.67亿；单位：元\n泵站装置效率提升；指标值：山西尊村引黄工程的二级泵站装置效率达到76.7％，比应用前的66.2％高出10.5个百分点；单位：%",
     "advantages": [
       "大中型提灌泵站运行调度信息技术创新；创新点：设计了提灌泵站计算机监控系统及信息化系统结构、数据利用与发布方式，建设了信息化统一运行管理平台；构建了机组、泵站以及站间的科学运行管理模式，实现了泵组与泵站群静态特性、运行动态特性监测、泵组运行能耗与泵站装置实时性能特性曲线在线监测；研发出基于物联网的多目标梯级灌溉泵站系统优化运行、调度决策支持系统；提出了基于层次分析法与模糊聚类法的泵站自动化与信息化评价体系方法；研究并主编了该领域第一部行业标准《泵站计算机监控与信息系统技术导则》（SL583-2012）；创新性描述：借鉴物联网、大数据在其他领域的成功经验，将智能传感网技术和信息系统集成技术融入泵站管理系统；搭建多系统统一构架，形成自动化与信息化系统融合体系结构；相关技术居于国内领先水平，部分属国内外首创",
@@ -2219,6 +2227,8 @@
     ],
     "structured_data": {
       "source_file": "大中型提灌泵站运行调度信息技术.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 8,
         "应用范围及前景": 1,
@@ -2898,7 +2908,7 @@
     "organizations": [
       "河海大学，河北省石津灌区管理局，浙江水利水电学院，龙岩华禹水利水电建筑工程有限公司，鑫中坤建设工程有限公司"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "灌水效率显著提高；指标值：通过进行沟畦灌溉稳健设计和基于容差分析理论的灌水技术要素容差分析方法，增强了灌水质量对沟畦灌溉各因素变异性影响的抗干扰能力，提出沟畦灌溉稳健设计方案，提高田间灌水效率10％左右，作物水分生产率提高0.2～0.3kg/m³\n肥料利用率显著增加；指标值：通过建立的一维地表水流溶质运动的对流-弥散模型，提出了灌水施肥质量综合评价指标与非均匀灌水施肥技术，提高了灌水施肥技术水平，肥料利用率提高7％\n农民受益得到明显提升；指标值：本项目研究成果在河北省石津灌区覆盖的辛集市、宁晋县和深州市进行了大规模推广应用。2014年-2018年5年间，累计推广应用34.2万亩，与技术推广应用之前相比，亩均增产7%，累计直接增收11710万元、节省开支2097万元，合计13807万元",
     "advantages": [
       "沟畦灌溉稳健设计与容差分析创新；创新点：提出了基于损失模型的沟畦灌溉稳健设计方案和基于容差分析理论的灌水技术要素容差分析方法，解决了传统沟畦灌溉设计方法中难以应对参数空间变异的难题，提高了沟畦灌溉的灌水质量及其稳定性。；创新性描述：通过稳健设计和容差分析，增强了灌水质量对参数变异的抗干扰能力，提升了沟畦灌溉稳定性",
@@ -2952,6 +2962,8 @@
     ],
     "structured_data": {
       "source_file": "沟畦灌溉精准调控理论与技术.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 1,
         "应用范围及前景": 1,
@@ -3333,7 +3345,7 @@
     "organizations": [
       "中水东北勘测设计研究有限责任公司、中国水电基础局有限公司、水利部水利水电规划设计总院"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "投资节省指标；指标名称：工程投资节省额；指标值、单位：1.2亿元\n工期缩短指标；指标名称：建设工期缩短时间；指标值、单位：8个月\n发电量增加指标；指标名称：提前发电增加发电量；指标值、单位：3.5亿kWh\n年发电量指标；指标名称：年发电量；指标值、单位：6亿度",
     "advantages": [
       "特殊环境下深厚覆盖层钻孔技术创新；创新点：创造了特殊环境条件下深厚覆盖层钻孔最深记录。针对高寒高海拔地区深厚覆盖层，研究提出以钻探为主，辅以大地电磁等物探的综合勘察评价方法，覆盖层钻孔深度达315m、物探深度达420m。采用SM胶护壁、双管单动钻探等方法，芯样获取率达到80%以上。取得了钻探技术的革新。；创新性描述：在高寒高海拔地区实现深厚覆盖层超深勘察，钻探与物探结合方法及钻探技术革新为国内首创",
@@ -3404,6 +3416,8 @@
     ],
     "structured_data": {
       "source_file": "深厚覆盖层超深防渗墙关键技术研究与应用.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 1,
         "应用范围及前景": 1,
@@ -3893,7 +3907,7 @@
     "organizations": [
       "中水东北勘测设计研究有限责任公司"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "年均新增发电量；指标名称：年均新增发电量；指标值、单位：3.81亿度/年\n年产值增量；指标名称：年产值增量；指标值、单位：1.39亿元/年",
     "advantages": [
       "冲水排沙与岩塞爆破结合新理论及多项核心技术突破；创新点：提出冲水排沙与岩塞爆破相结合的新理论；首创‘陀螺分布式药室布置’和新型药量计算方法；发明爆破网络可靠性检验示踪法等5项独创技术。；创新性描述：系统构建适用于深水、厚淤积、大直径岩塞爆破的全新理论体系和技术标准,整体达到国际领先水平。",
@@ -3927,6 +3941,8 @@
     ],
     "structured_data": {
       "source_file": "深水厚覆盖大型岩塞爆破关键技术研究与应用.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 1,
         "应用范围及前景": 1,
@@ -4209,7 +4225,7 @@
     "organizations": [
       "科利尔环保科技有限责任公司"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "",
     "advantages": [
       "四项核心技术创新；创新点：提出基于‘液化度≤0.9’的抗震设计标准；研发系列环保加固新材料；构建水库智能管理平台；首创水文化与生态景观融合设计理念；创新性描述：首次将地震动力液化度量化为设计指标；开发出符合绿色建筑要求的无溶剂灌浆材料；实现从单一监测向智慧水利转型；推动护坡工程由功能导向转向生态人文复合价值导向。",
@@ -4235,6 +4251,8 @@
     ],
     "structured_data": {
       "source_file": "混凝土生态护坡技术.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 1,
         "应用范围及前景": 1,
@@ -4444,7 +4462,7 @@
     "organizations": [
       "长江勘测规划设计研究有限责任公司"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "节约工程投资；指标名称：节约投资额；指标值、单位：3900万元",
     "advantages": [
       "总体布置创新：一闸控两河；创新点：异地新建单闸控制双河流域；创新性描述：国内外老闸除险加固中尚无先例,突破传统一对一治理思路,节省投资约3900万元。",
@@ -4479,6 +4497,8 @@
     ],
     "structured_data": {
       "source_file": "湖南长沙沩水及三叉河水闸除险方案优化与新建沩水水闸关键技术.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 1,
         "应用范围及前景": 1,
@@ -4769,7 +4789,7 @@
     "organizations": [
       "长江空间信息技术工程有限公司(武汉)"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "新增产值；指标名称：推广应用带来的新增产值；指标值、单位：约23858万元",
     "advantages": [
       "糯扎渡大坝安全监测技术创新点；创新点：研制专用施工装置；首创以太网星型构网集成多源异构系统；开发强震智能触发加密观测；首次实现四大系统集成应用。；创新性描述：革新超高土石坝监测施工工艺；突破传统串行总线限制；建立无人值守应急监测机制；推动行业标准更新(SL725-2016)。",
@@ -4800,6 +4820,8 @@
     ],
     "structured_data": {
       "source_file": "糯扎渡大坝安全监测.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 1,
         "应用范围及前景": 1,
@@ -5118,7 +5140,7 @@
     "organizations": [
       "长江勘测规划设计研究有限责任公司"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "年平均防洪效益1084万元；指标名称：年平均防洪效益；指标值、单位：1084；万元\n每年节约费用开支700万元；指标名称：年节约费用；指标值、单位：700；万元",
     "advantages": [
       "四项主要创新点；创新点：① 土石坝压重抗震加固技术突破；② 水工混凝土加固系列新材料新技术；③ 水库信息化智能化管理系统；④ 生态景观坝设计理念创新；创新性描述：多个技术点为国内外未见,部分专利填补行业空白,总体达到国际先进水平。",
@@ -5194,6 +5216,8 @@
     ],
     "structured_data": {
       "source_file": "花凉亭水库除险加固工程关键技术研究及应用.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 2,
         "应用范围及前景": 1,
@@ -5768,7 +5792,7 @@
     "organizations": [
       "黄河勘测规划设计有限公司、清华大学"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "每方混凝土综合费用节约；指标值：40~60；单位：元",
     "advantages": [
       "超疏水混凝土外加剂技术创新；创新点：提出超疏水混凝土外加剂技术，将锁水和超疏水双重功效结合，针对水分在混凝土全生命周期（塑性、硬化、服役阶段）的作用解决耐久性问题；创新性描述：基于水分在混凝土全生命周期的作用，研发具有双重功效的外加剂，分阶段解决水分导致的早期收缩和服役期劣化问题",
@@ -5833,6 +5857,8 @@
     ],
     "structured_data": {
       "source_file": "超疏水混凝土外加剂关键技术研究及应用.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 1,
         "待解决问题": 1,
@@ -6127,7 +6153,7 @@
     "organizations": [
       "河海大学"
     ],
-    "maturity_level": 7,
+    "maturity_level": null,
     "cost_description": "",
     "advantages": [
       "近海环境混凝土性能评估理论创新；创新点：提出近海环境混凝土力学性能评估理论和技术方法体系，揭示混凝土结构腐蚀退化机理；建立多场耦合三轴拉压本构模型，解决长期服役结构性能全寿命周期评估难题；创新性描述：突破传统评估方法局限，通过多场耦合模型整合化学、力学、物理过程，为近海混凝土结构性能评估提供基础理论和分析手段",
@@ -6196,6 +6222,8 @@
     ],
     "structured_data": {
       "source_file": "近海工程混凝土结构性能评估与修复加固关键技术.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用实例": 1,
         "应用范围及前景": 1,
@@ -6606,7 +6634,7 @@
     "organizations": [
       "中信环境技术（广州）有限公司、中信环境技术有限公司"
     ],
-    "maturity_level": 5,
+    "maturity_level": null,
     "cost_description": "运营成本降低；指标值：较传统工艺及其他MBR工艺降低",
     "advantages": [
       "高效低能耗膜生物反应器污水处理技术创新；创新点：研发热致相成型PVDF中空纤维膜，耐氯性强、寿命长（大于10年）；独创高容积双层组合膜架工艺，提高曝气利用率，节省能耗10-30%；开发ESAS曝气技术，气水比低至3:1，仅为一般MBR的40-50%；提出原位组合自动清洗方案，有效控制膜污染，延长清洗周期至6个月以上；创新性描述：通过材料、工艺、设备及控制技术的创新，实现比传统工艺及其他MBR工艺更优的处理效果，显著降低能耗、占地面积和运营成本，提升膜寿命和系统稳定性",
@@ -6692,6 +6720,8 @@
     ],
     "structured_data": {
       "source_file": "高效低能耗膜生物反应器污水处理新技术及工程应用.json",
+      "maturity_basis": "not_stated",
+      "evidence_score_basis": "field_completeness_heuristic",
       "entity_counts": {
         "应用范围及前景": 1,
         "待解决问题": 1,

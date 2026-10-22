@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 
+from app.agents.checkpoint import checkpointer_context
 from app.api.router import api_router
 from app.core.config import settings
 from app.core.logging import configure_logging
@@ -34,6 +35,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.services = ServiceContainer.create()
     if settings.app_env != "test":
         await app.state.services.object_storage.ensure_buckets()
+        # Set up checkpoint tables before workers pass the API health gate.
+        async with checkpointer_context():
+            pass
     logger = structlog.get_logger("startup")
     logger.info(
         "application_started",
@@ -49,7 +53,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
-    description="水利科技情报发现与供需决策多 Agent 平台",
+    description="水利科技情报发现与供需决策单 Agent 平台",
     lifespan=lifespan,
 )
 
@@ -59,6 +63,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition", "X-Content-SHA256"],
 )
 
 

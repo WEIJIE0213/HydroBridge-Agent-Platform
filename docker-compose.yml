@@ -1,36 +1,33 @@
 name: hydrobridge-ai
 
 services:
-  mysql:
-    image: mysql:8.4
+  postgres:
+    image: postgres:16-alpine
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-hydrobridge}
-      MYSQL_USER: ${MYSQL_USER:-hydrobridge}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-change-me-local}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change-me-root}
-      TZ: Asia/Shanghai
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_0900_ai_ci
-      - --default-time-zone=+08:00
+      POSTGRES_DB: ${POSTGRES_DB:-hydrobridge}
+      POSTGRES_USER: ${POSTGRES_USER:-hydrobridge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-local}
     ports:
-      - "3307:3306"
+      - "127.0.0.1:5433:5432"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
       timeout: 5s
       retries: 20
     restart: unless-stopped
 
   redis-runtime:
-    image: redis/redis-stack-server:7.4.0-v8
-    environment:
-      REDIS_ARGS: >-
-        --appendonly yes
-        --appendfsync everysec
-        --maxmemory-policy noeviction
+    image: redis:7.4-alpine
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+      - --maxmemory-policy
+      - noeviction
     ports:
       - "6380:6379"
     volumes:
@@ -61,22 +58,27 @@ services:
       retries: 20
     restart: unless-stopped
 
-  qdrant:
-    image: qdrant/qdrant:v1.15.4
+  elasticsearch:
+    build:
+      context: ./infra/elasticsearch
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
     ports:
-      - "6333:6333"
-      - "6334:6334"
+      - "127.0.0.1:9200:9200"
     volumes:
-      - qdrant-data:/qdrant/storage
+      - elasticsearch-data:/usr/share/elasticsearch/data
     healthcheck:
-      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/6333'"]
+      test: ["CMD-SHELL", "curl -fsS 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s'"]
       interval: 10s
-      timeout: 5s
-      retries: 20
+      timeout: 10s
+      retries: 30
     restart: unless-stopped
 
   minio:
-    image: minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    build:
+      context: ./infra/minio
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-hydrobridge}
@@ -87,8 +89,29 @@ services:
     volumes:
       - minio-data:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/ready"]
       interval: 10s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  bge:
+    build:
+      context: ./infra/bge
+    image: hydrobridge-ai-bge
+    gpus: all
+    environment:
+      BGE_DEVICE: cuda
+      BGE_MAX_LENGTH: 1024
+      BGE_BATCH_SIZE: 8
+    volumes:
+      - ./models:/models:ro
+    ports:
+      - "127.0.0.1:8081:8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      start_period: 180s
+      interval: 15s
       timeout: 5s
       retries: 20
     restart: unless-stopped
@@ -99,21 +122,35 @@ services:
       dockerfile: Dockerfile
     env_file:
       - .env
+      - path: ${USERPROFILE:-}/.continuum/.env
+        required: false
     ports:
       - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-hydrobridge}:${POSTGRES_PASSWORD:-change-me-local}@postgres:5432/${POSTGRES_DB:-hydrobridge}
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_ANALYZER: ik_max_word
+      RETRIEVAL_BACKEND: elasticsearch
+      KNOWLEDGE_INDEX_VERSION: 4
+      ELASTICSEARCH_INDEX: hydrobridge-chunks-bge-v4
+      EMBEDDING_BACKEND: bge_service
+      BGE_SERVICE_URL: http://bge:8080
     volumes:
       - ./backend:/app
       - ./seed-data:/seed-data:ro
+      - ./evaluation:/evaluation
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
       redis-runtime:
         condition: service_healthy
       redis-cache:
         condition: service_healthy
-      qdrant:
+      elasticsearch:
         condition: service_healthy
       minio:
+        condition: service_healthy
+      bge:
         condition: service_healthy
     command: >
       sh -c "alembic upgrade head &&
@@ -132,12 +169,23 @@ services:
       dockerfile: Dockerfile
     env_file:
       - .env
+      - path: ${USERPROFILE:-}/.continuum/.env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-hydrobridge}:${POSTGRES_PASSWORD:-change-me-local}@postgres:5432/${POSTGRES_DB:-hydrobridge}
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_ANALYZER: ik_max_word
+      RETRIEVAL_BACKEND: elasticsearch
+      KNOWLEDGE_INDEX_VERSION: 4
+      ELASTICSEARCH_INDEX: hydrobridge-chunks-bge-v4
+      EMBEDDING_BACKEND: bge_service
+      BGE_SERVICE_URL: http://bge:8080
     volumes:
       - ./backend:/app
       - ./seed-data:/seed-data:ro
     depends_on:
       api:
-        condition: service_started
+        condition: service_healthy
     command: >-
       celery -A app.worker.celery_app worker
       --loglevel=INFO
@@ -151,11 +199,22 @@ services:
       dockerfile: Dockerfile
     env_file:
       - .env
+      - path: ${USERPROFILE:-}/.continuum/.env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-hydrobridge}:${POSTGRES_PASSWORD:-change-me-local}@postgres:5432/${POSTGRES_DB:-hydrobridge}
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_ANALYZER: ik_max_word
+      RETRIEVAL_BACKEND: elasticsearch
+      KNOWLEDGE_INDEX_VERSION: 4
+      ELASTICSEARCH_INDEX: hydrobridge-chunks-bge-v4
+      EMBEDDING_BACKEND: bge_service
+      BGE_SERVICE_URL: http://bge:8080
     volumes:
       - ./backend:/app
     depends_on:
       api:
-        condition: service_started
+        condition: service_healthy
     command: >-
       celery -A app.worker.celery_app beat
       --loglevel=INFO
@@ -178,8 +237,8 @@ services:
     restart: unless-stopped
 
 volumes:
-  mysql-data:
+  postgres-data:
   redis-runtime-data:
   redis-cache-data:
-  qdrant-data:
+  elasticsearch-data:
   minio-data:

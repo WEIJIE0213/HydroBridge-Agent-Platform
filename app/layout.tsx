@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: "%s｜HydroBridge AI",
   },
   description:
-    "面向水利科技成果发现、证据核验、供需匹配与工程决策的可恢复多 Agent 平台。",
+    "面向水利科技成果发现、证据核验、供需匹配与工程决策的可恢复Agent 平台。",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",

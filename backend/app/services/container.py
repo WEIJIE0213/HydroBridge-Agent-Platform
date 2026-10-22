@@ -10,7 +10,7 @@ from app.services.redis_service import RedisService
 from app.services.retrieval import RetrievalService
 from app.services.run_trace import RunTraceService
 from app.services.search import TavilySearchService
-from app.services.vector_store import VectorStoreService
+from app.services.search_index import SearchIndexService
 
 if TYPE_CHECKING:
     from app.services.agent_runtime import AgentRuntime
@@ -21,7 +21,7 @@ class ServiceContainer:
     redis: RedisService
     events: EventBus
     search: TavilySearchService
-    vector_store: VectorStoreService
+    search_index: SearchIndexService
     retrieval: RetrievalService
     object_storage: ObjectStorageService
     trace: RunTraceService
@@ -31,13 +31,13 @@ class ServiceContainer:
     def create(cls) -> ServiceContainer:
         redis_service = RedisService()
         prefix = f"hb:{settings.app_env}"
-        vector_store = VectorStoreService()
+        search_index = SearchIndexService()
         container = cls(
             redis=redis_service,
             events=EventBus(redis_service, prefix=prefix),
             search=TavilySearchService(redis_service),
-            vector_store=vector_store,
-            retrieval=RetrievalService(vector_store),
+            search_index=search_index,
+            retrieval=RetrievalService(search_index),
             object_storage=ObjectStorageService(),
             trace=RunTraceService(),
         )
@@ -48,5 +48,5 @@ class ServiceContainer:
 
     async def close(self) -> None:
         await self.search.close()
-        await self.vector_store.close()
+        await self.search_index.close()
         await self.redis.close()

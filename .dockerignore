@@ -9,7 +9,15 @@ dist
 node_modules
 backend
 seed-data
-scripts
+scripts/*
+!scripts/start-web.mjs
 tests
 examples
 *.log
+*.tgz
+*.db
+tmp
+output
+models
+infra
+evaluation

@@ -6,6 +6,8 @@ import re
 from collections import Counter
 from functools import lru_cache
 
+import httpx
+
 from app.core.config import settings
 from app.core.logging import get_logger
 
@@ -43,13 +45,19 @@ class HashEmbeddingProvider:
         counts = Counter(tokenize(text))
         values: dict[int, float] = {}
         for token, frequency in counts.items():
-            index = int.from_bytes(
-                hashlib.blake2b(token.encode("utf-8"), digest_size=8).digest(),
-                "big",
-            ) % 1_000_003
+            index = (
+                int.from_bytes(
+                    hashlib.blake2b(token.encode("utf-8"), digest_size=8).digest(),
+                    "big",
+                )
+                % 1_000_003
+            )
             values[index] = values.get(index, 0) + 1 + math.log(frequency)
         ordered = sorted(values.items())
         return [item[0] for item in ordered], [item[1] for item in ordered]
+
+    def embed_many(self, texts: list[str]) -> list[list[float]]:
+        return [self.embed(text) for text in texts]
 
     def rerank(self, query: str, passages: list[str]) -> list[float]:
         query_terms = set(tokenize(query))
@@ -79,6 +87,9 @@ class BgeM3EmbeddingProvider:
         output = self.model.encode([text], return_dense=True, return_sparse=True)
         return output["dense_vecs"][0].tolist()
 
+    def embed_many(self, texts: list[str]) -> list[list[float]]:
+        return self.model.encode(texts, return_dense=True)["dense_vecs"].tolist()
+
     def sparse(self, text: str) -> tuple[list[int], list[float]]:
         output = self.model.encode([text], return_dense=True, return_sparse=True)
         weights = output["lexical_weights"][0]
@@ -92,11 +103,80 @@ class BgeM3EmbeddingProvider:
             [[query, passage] for passage in passages],
             normalize=True,
         )
-        return [float(score) for score in raw]
+        return [float(score) for score in raw] if hasattr(raw, "__iter__") else [float(raw)]
+
+
+class BgeServiceEmbeddingProvider:
+    """Share one GPU model process across the API and Celery workers; fail closed."""
+
+    def __init__(self) -> None:
+        self.model_name = settings.embedding_model
+        self.dimension = settings.embedding_dimension
+        self.base_url = settings.bge_service_url.rstrip("/")
+
+    def _post(self, route: str, payload: dict, model: str) -> dict:
+        with httpx.Client(timeout=settings.bge_service_timeout, trust_env=False) as client:
+            response = client.post(self.base_url + route, json=payload)
+            response.raise_for_status()
+            data = response.json()
+        if data.get("model") != model:
+            raise ValueError("BGE service returned an unexpected model")
+        return data
+
+    def health(self) -> dict:
+        with httpx.Client(timeout=5, trust_env=False) as client:
+            response = client.get(self.base_url + "/health")
+            response.raise_for_status()
+            data = response.json()
+        if (
+            data.get("status") != "ready"
+            or data.get("embedding_model") != self.model_name
+            or data.get("reranker_model") != settings.reranker_model
+            or data.get("dimension") != self.dimension
+        ):
+            raise ValueError("BGE service health/model mismatch")
+        return data
+
+    def embed(self, text: str) -> list[float]:
+        return self.embed_many([text])[0]
+
+    def embed_many(self, texts: list[str]) -> list[list[float]]:
+        vectors = []
+        for offset in range(0, len(texts), 128):
+            batch = texts[offset : offset + 128]
+            data = self._post("/embed", {"texts": batch}, self.model_name)
+            values = data["vectors"]
+            if len(values) != len(batch) or any(
+                len(v) != self.dimension
+                or not all(math.isfinite(x) for x in v)
+                or not 0.99 < math.sqrt(sum(x * x for x in v)) < 1.01
+                for v in values
+            ):
+                raise ValueError("BGE service returned invalid vectors")
+            vectors.extend(values)
+        return vectors
+
+    def rerank(self, query: str, passages: list[str]) -> list[float]:
+        scores = []
+        for offset in range(0, len(passages), 200):
+            batch = passages[offset : offset + 200]
+            values = self._post(
+                "/rerank", {"query": query, "passages": batch}, settings.reranker_model
+            )["scores"]
+            if len(values) != len(batch) or any(
+                not math.isfinite(s) or not 0 <= s <= 1 for s in values
+            ):
+                raise ValueError("BGE service returned invalid reranker scores")
+            scores.extend(values)
+        return scores
 
 
 @lru_cache(maxsize=1)
-def get_embedding_provider() -> HashEmbeddingProvider | BgeM3EmbeddingProvider:
+def get_embedding_provider() -> (
+    HashEmbeddingProvider | BgeM3EmbeddingProvider | BgeServiceEmbeddingProvider
+):
+    if settings.embedding_backend == "bge_service":
+        return BgeServiceEmbeddingProvider()
     if settings.embedding_backend in {"auto", "bge_m3"}:
         try:
             provider = BgeM3EmbeddingProvider()

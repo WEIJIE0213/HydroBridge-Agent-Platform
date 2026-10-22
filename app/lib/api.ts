@@ -175,3 +175,18 @@ export async function downloadArtifact(
   link.remove();
   URL.revokeObjectURL(objectUrl);
 }
+
+export async function downloadSource(documentId: string, token: string): Promise<void> {
+  const response = await fetchWithAuthentication(`${API_BASE}/documents/${documentId}/download`, {}, token);
+  if (!response.ok) throw new ApiError(`原始文档下载失败（${response.status}）`, response.status);
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const name = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
+  const objectUrl = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = name ? decodeURIComponent(name) : `source-${documentId}`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(objectUrl);
+}

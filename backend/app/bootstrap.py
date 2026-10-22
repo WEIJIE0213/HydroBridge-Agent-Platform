@@ -41,9 +41,7 @@ async def bootstrap() -> None:
     configure_logging(settings.log_level)
     async with AsyncSessionFactory() as session:
         organization = (
-            await session.execute(
-                select(Organization).where(Organization.slug == "hydrobridge")
-            )
+            await session.execute(select(Organization).where(Organization.slug == "hydrobridge"))
         ).scalar_one_or_none()
         if organization is None:
             organization = Organization(
@@ -112,6 +110,41 @@ async def bootstrap() -> None:
                     ],
                 )
             )
+        intrinsic_rubric = (
+            await session.execute(
+                select(EvaluationRubric).where(
+                    EvaluationRubric.name == "水利科技成果自身质量评价",
+                    EvaluationRubric.version == 1,
+                )
+            )
+        ).scalar_one_or_none()
+        if intrinsic_rubric is None:
+            session.add(
+                EvaluationRubric(
+                    name="水利科技成果自身质量评价",
+                    version=1,
+                    dimensions=[
+                        {"key": "innovation", "name": "创新性", "weight": 0.20},
+                        {"key": "effectiveness", "name": "技术有效性", "weight": 0.20},
+                        {"key": "maturity", "name": "工程成熟度", "weight": 0.15},
+                        {
+                            "key": "evidence_quality",
+                            "name": "证据充分性",
+                            "weight": 0.20,
+                        },
+                        {
+                            "key": "promotion_value",
+                            "name": "推广复制价值",
+                            "weight": 0.15,
+                        },
+                        {
+                            "key": "implementation_feasibility",
+                            "name": "经济与实施可行性",
+                            "weight": 0.10,
+                        },
+                    ],
+                )
+            )
         await session.commit()
         seed_result = {"created": 0, "skipped": 0}
         seed_path = Path(settings.bootstrap_seed_path)
@@ -130,9 +163,7 @@ async def bootstrap() -> None:
                 organization.id,
             )
         approved_achievements = (
-            await session.execute(
-                select(Achievement).where(Achievement.status == "approved")
-            )
+            await session.execute(select(Achievement).where(Achievement.status == "approved"))
         ).scalars()
         reindex_created = 0
         for achievement in approved_achievements:
@@ -145,7 +176,7 @@ async def bootstrap() -> None:
                 )
             )
             if reindex_exists is None:
-                achievement.qdrant_indexed = False
+                achievement.search_indexed = False
                 session.add(
                     OutboxEvent(
                         aggregate_type="achievement",

@@ -52,6 +52,17 @@ async def create_run(
 ) -> AgentRun:
     if services.agent_runtime is None:
         raise HTTPException(status_code=503, detail="Agent Runtime 未初始化")
+    if {"domain_action", "evaluation_id", "refinement_id", "match_id"} & payload.context.keys():
+        raise HTTPException(status_code=400, detail="业务记录关联只能通过对应业务接口创建")
+    from app.api.routes.achievements import get_achievement
+
+    ids = payload.context.get("achievement_ids", [])
+    if not isinstance(ids, list) or len(ids) > 20:
+        raise HTTPException(status_code=422, detail="成果范围必须是最多20个ID的数组")
+    if payload.context.get("achievement_id"):
+        ids = [*ids, payload.context["achievement_id"]]
+    for achievement_id in ids:
+        await get_achievement(str(achievement_id), session, user)
     try:
         run = await services.agent_runtime.create_run(
             session,
@@ -116,16 +127,12 @@ async def get_run_trace(
     run = await owned_run(run_id, session, user)
     steps = (
         await session.execute(
-            select(AgentStep)
-            .where(AgentStep.run_id == run_id)
-            .order_by(AgentStep.sequence)
+            select(AgentStep).where(AgentStep.run_id == run_id).order_by(AgentStep.sequence)
         )
     ).scalars()
     tools = (
         await session.execute(
-            select(ToolCall)
-            .where(ToolCall.run_id == run_id)
-            .order_by(ToolCall.created_at)
+            select(ToolCall).where(ToolCall.run_id == run_id).order_by(ToolCall.created_at)
         )
     ).scalars()
     return RunTraceResponse(
@@ -150,9 +157,7 @@ async def stream_run_events(
     async def is_terminal() -> bool:
         async with AsyncSessionFactory() as fresh_session:
             current = await fresh_session.get(AgentRun, run_id)
-            return bool(
-                current and current.status in {"completed", "failed", "cancelled"}
-            )
+            return bool(current and current.status in {"completed", "failed", "cancelled"})
 
     return StreamingResponse(
         services.events.stream(run_id, cursor, is_terminal),
@@ -196,6 +201,8 @@ async def decide_run(
     services: Services,
 ) -> StatusResponse:
     run = await owned_run(run_id, session, user)
+    if services.agent_runtime is None:
+        raise HTTPException(status_code=503, detail="Agent Runtime 未初始化")
     approval = await session.get(ApprovalTask, payload.approval_id)
     if approval is None or approval.run_id != run.id:
         raise HTTPException(status_code=404, detail="审核任务不存在")
@@ -206,15 +213,20 @@ async def decide_run(
     approval.decision_comment = payload.comment
     approval.decided_by = user.id
     run.status = "queued"
+    await services.agent_runtime.set_domain_status(session, run, "queued")
     await session.commit()
 
+    approval_payload = approval.payload if isinstance(approval.payload, dict) else {}
+    workflow_payload = approval_payload.get("payload", {})
     resume_payload = {
         "decision": payload.decision,
         "comment": payload.comment,
         "edited_payload": payload.edited_payload,
+        "reviewer_id": user.id,
+        "review_type": (
+            workflow_payload.get("type") if isinstance(workflow_payload, dict) else None
+        ),
     }
-    if services.agent_runtime is None:
-        raise HTTPException(status_code=503, detail="Agent Runtime 未初始化")
     if settings.agent_execution_mode == "inline":
         background_tasks.add_task(services.agent_runtime.execute, run.id, resume_payload)
     else:
@@ -240,9 +252,7 @@ async def list_approvals(
                 ApprovalTask.assigned_to == user.id,
             )
         )
-    total = await session.scalar(
-        select(func.count()).select_from(ApprovalTask).where(*filters)
-    )
+    total = await session.scalar(select(func.count()).select_from(ApprovalTask).where(*filters))
     result = await session.execute(
         select(ApprovalTask)
         .where(*filters)
@@ -266,9 +276,7 @@ async def list_conversations(
     page_size: int = Query(default=20, ge=1, le=100),
 ) -> Page[ConversationResponse]:
     filters = [Conversation.user_id == user.id]
-    total = await session.scalar(
-        select(func.count()).select_from(Conversation).where(*filters)
-    )
+    total = await session.scalar(select(func.count()).select_from(Conversation).where(*filters))
     result = await session.execute(
         select(Conversation)
         .where(*filters)

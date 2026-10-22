@@ -49,11 +49,7 @@ def _as_text(value: Any) -> str:
     if isinstance(value, list):
         return "；".join(filter(None, (_as_text(item) for item in value)))
     if isinstance(value, dict):
-        return "；".join(
-            f"{key}：{text}"
-            for key, raw in value.items()
-            if (text := _as_text(raw))
-        )
+        return "；".join(f"{key}：{text}" for key, raw in value.items() if (text := _as_text(raw)))
     return str(value)
 
 
@@ -96,24 +92,16 @@ def normalize_document(document: dict[str, Any], source_name: str) -> dict[str, 
     background = _as_text(root_attributes.get("立项背景"))
     problem_text = "\n".join(_entity_text(item) for item in problems)
     abstract = "\n".join(filter(None, (background, problem_text)))[:8_000]
-    technical_principle = "\n".join(
-        _entity_text(item) for item in core_technologies
-    )[:20_000]
+    technical_principle = "\n".join(_entity_text(item) for item in core_technologies)[:20_000]
     application_scenarios = [
         _entity_text(item)[:1_000]
         for item in [*applications, *application_ranges]
         if _entity_text(item)
     ][:20]
     advantages = [
-        _entity_text(item)[:1_000]
-        for item in [*innovations, *benefits]
-        if _entity_text(item)
+        _entity_text(item)[:1_000] for item in [*innovations, *benefits] if _entity_text(item)
     ][:20]
-    limitations = [
-        _entity_text(item)[:1_000]
-        for item in difficulties
-        if _entity_text(item)
-    ][:10]
+    limitations = [_entity_text(item)[:1_000] for item in difficulties if _entity_text(item)][:10]
     for problem in problems:
         challenges = (problem.get("attributes") or {}).get("挑战因素", [])
         if isinstance(challenges, list):
@@ -151,11 +139,7 @@ def normalize_document(document: dict[str, Any], source_name: str) -> dict[str, 
             taxonomy_code = code
             break
 
-    tags = [
-        item.strip()
-        for item in re.split(r"[,，、;/；\s]+", field_text)
-        if item.strip()
-    ]
+    tags = [item.strip() for item in re.split(r"[,，、;/；\s]+", field_text) if item.strip()]
     if not tags:
         tags = [taxonomy_code]
     evidence_dimensions = sum(
@@ -170,7 +154,14 @@ def normalize_document(document: dict[str, Any], source_name: str) -> dict[str, 
         )
     )
     evidence_score = round(min(0.96, 0.45 + evidence_dimensions * 0.075), 2)
-    maturity_level = min(9, 4 + bool(applications) * 2 + bool(metric_entities))
+    # Application cases do not establish a technology readiness level.
+    # Only an explicit, numeric TRL in the supplied source can populate it.
+    source_trl = root_attributes.get("TRL", root_attributes.get("技术成熟度等级"))
+    maturity_level = (
+        source_trl
+        if isinstance(source_trl, int) and not isinstance(source_trl, bool) and 1 <= source_trl <= 9
+        else None
+    )
 
     return {
         "title": title,
@@ -180,18 +171,18 @@ def normalize_document(document: dict[str, Any], source_name: str) -> dict[str, 
         "application_scenarios": application_scenarios,
         "organizations": organizations,
         "maturity_level": maturity_level,
-        "cost_description": "\n".join(
-            _entity_text(item) for item in grouped.get("经济指标", [])
-        )[:8_000],
+        "cost_description": "\n".join(_entity_text(item) for item in grouped.get("经济指标", []))[
+            :8_000
+        ],
         "advantages": advantages,
         "limitations": limitations[:20],
         "metrics": metrics[:50],
         "tags": tags[:20],
         "structured_data": {
             "source_file": source_name,
-            "entity_counts": {
-                key: len(value) for key, value in sorted(grouped.items())
-            },
+            "maturity_basis": "source_explicit" if maturity_level is not None else "not_stated",
+            "evidence_score_basis": "field_completeness_heuristic",
+            "entity_counts": {key: len(value) for key, value in sorted(grouped.items())},
             "original": document,
         },
         "evidence_score": evidence_score,
@@ -232,9 +223,7 @@ async def import_seed_records(
     records: list[dict[str, Any]],
     organization_id: str,
 ) -> dict[str, int]:
-    taxonomy_rows = (
-        await session.execute(select(Taxonomy.id, Taxonomy.code))
-    ).all()
+    taxonomy_rows = (await session.execute(select(Taxonomy.id, Taxonomy.code))).all()
     taxonomy_ids = {row.code: row.id for row in taxonomy_rows}
     created = 0
     skipped = 0

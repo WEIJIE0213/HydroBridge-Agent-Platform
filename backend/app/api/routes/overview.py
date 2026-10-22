@@ -33,14 +33,10 @@ async def overview(
         )
     ).all()
     requirement_count = await session.scalar(
-        select(func.count(Requirement.id)).where(
-            Requirement.created_by == user.id
-        )
+        select(func.count(Requirement.id)).where(Requirement.created_by == user.id)
     )
     approval_count = await session.scalar(
-        select(func.count(ApprovalTask.id)).where(
-            ApprovalTask.status == "pending"
-        )
+        select(func.count(ApprovalTask.id)).where(ApprovalTask.status == "pending")
     )
     return {
         "achievements": {

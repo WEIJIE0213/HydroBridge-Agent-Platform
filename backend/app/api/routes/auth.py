@@ -114,9 +114,7 @@ async def refresh_tokens(
 @router.post("/logout", response_model=StatusResponse)
 async def logout(payload: LogoutRequest, session: DatabaseSession) -> StatusResponse:
     fingerprint = token_fingerprint(payload.refresh_token)
-    await session.execute(
-        delete(RefreshToken).where(RefreshToken.token_hash == fingerprint)
-    )
+    await session.execute(delete(RefreshToken).where(RefreshToken.token_hash == fingerprint))
     await session.commit()
     return StatusResponse(status="ok", message="已退出登录")
 

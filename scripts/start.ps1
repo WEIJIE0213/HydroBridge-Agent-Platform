@@ -14,6 +14,9 @@ if (-not (Test-Path -LiteralPath $envFile)) {
 
 Push-Location $projectRoot
 try {
+    if (-not (Test-Path -LiteralPath (Join-Path $projectRoot "models\manifest.json"))) {
+        throw "BGE models are missing. Run backend\.venv\Scripts\python.exe scripts\download-bge-models.py first."
+    }
     docker info | Out-Null
     if ($LASTEXITCODE -ne 0) {
         throw "Docker Desktop is not running."

@@ -1,205 +1,183 @@
 # HydroBridge Agent Platform
 
-HydroBridge 是一个可直接在本机体验的水利科技成果发现、证据核验和工程供需匹配多 Agent 平台。项目以 Python/FastAPI 和 LangGraph 为核心，完整使用 MySQL、两套 Redis、Qdrant、MinIO、Celery，并提供中文 Web 工作台、人工审核、实时轨迹、断点恢复和可下载报告。
+水利科技成果检索、证据问答与工程需求匹配平台。当前实现以 **PostgreSQL + Elasticsearch + 一个工具调用 Agent** 为核心，保留中文工作台、JWT 登录、Celery、SSE 实时轨迹、人工审核和 MinIO 报告下载。
 
-项目默认导入本机整理后的 15 项真实水利科技成果。即使未配置外部 API Key，也可以使用离线推理与混合检索完成全链路体验；配置模型和 Tavily 后会启用真实大模型推理及联网调研。
+本机已导入经确认范围内的完整水利成果资料：**3,860 项成果、324 份去重原始文档**，包括成果目录、申请材料、研究报告、评价意见及对应结构化 JSON。原件保存在 MinIO，精确片段与来源保存在 PostgreSQL，检索使用 **BGE-M3 + Elasticsearch IK/BM25 + BGE-reranker-v2-m3**。仓库仍只附带 15 项种子数据；本机原始资料与导入缓存不提交 Git。
 
-## 一键启动
+## 启动
 
-前置条件：
-
-- Windows 10/11 与 Docker Desktop
-- Docker Desktop 已切换到 Linux Containers
-- 建议预留 8 GB 以上内存
-
-在 PowerShell 中运行：
+当前默认配置需要支持 CUDA 的 NVIDIA GPU（本机为 8 GB 显存 RTX 4060）、Docker Desktop 的 Linux 容器 GPU 支持，以及已下载的模型。本机以 16 GB 内存、约 8 GB Docker 内存完成验收。PowerShell：
 
 ```powershell
-Set-Location E:\HydroBridge-Agent-Platform
+.\backend\.venv\Scripts\python.exe scripts\download-bge-models.py
 .\scripts\start.ps1 -Build
 ```
 
-首次启动会构建镜像、创建数据库结构、创建对象存储桶、导入成果数据并建立向量索引。所有容器就绪后访问：
+下载脚本按固定 Hugging Face revision 下载两份 BGE 权重并核对 SHA-256，总计约 4.5 GB；重复执行会复用已验证文件。可用 `MODEL_DOWNLOAD_PROXY` 设置下载代理。启动脚本在缺少 `.env` 时从 `.env.example` 创建文件；已有 `.env` 保留。Compose 显式设置容器内 PG/ES 地址和 BGE 服务。首次启动构建带 **IK 8.19.3** 的 Elasticsearch 8.19.3 镜像，执行 Alembic、初始化账号、幂等导入种子数据，再由 Outbox worker 建立分块索引。
 
-| 入口 | 地址 | 用途 |
-| --- | --- | --- |
-| Web 工作台 | http://localhost:3000 | 主要体验入口 |
-| OpenAPI 文档 | http://localhost:8000/docs | 调试后端接口 |
-| MinIO 控制台 | http://localhost:9001 | 查看资料与报告文件 |
-| Qdrant Dashboard | http://localhost:6333/dashboard | 查看向量集合 |
-| API 健康检查 | http://localhost:8000/api/v1/readiness | 查看依赖状态 |
+已有镜像时运行 `.\scripts\start.ps1` 即可。前端使用 Debian Node 镜像以满足 workerd 的 glibc 要求；MinIO 从官方固定提交构建，运行时 Redis 使用普通 Redis 7.4。MinIO 上游源码已归档，此配置用于本地开发，后续生产部署需单独评估维护方案。
 
-默认本地管理员：
+| 入口 | 地址 |
+| --- | --- |
+| 中文工作台 | http://localhost:3000 |
+| API 文档 | http://localhost:8000/docs |
+| 依赖状态 | http://localhost:8000/api/v1/readiness |
+| Elasticsearch | http://localhost:9200 |
+| PostgreSQL | localhost:5433 |
+| MinIO 控制台 | http://localhost:9001 |
+| BGE 模型健康状态（仅本机） | http://127.0.0.1:8081/health |
 
-```text
-账号：admin@hydrobridge.cn
-密码：ChangeMe123!
-```
+本地演示账号为 `admin@hydrobridge.cn` / `ChangeMe123!`。共享环境需更改 `.env` 中的账号、JWT 与服务密码。运行 `scripts/stop.ps1` 只停止容器；不要用 `down -v` 清理已有数据。
 
-这是本地演示账号。若用于共享环境，请先修改 `.env` 中的密码、JWT 密钥以及 MySQL/MinIO 密码。
+**旧数据库说明：** PostgreSQL 使用新的 `postgres-data` 数据卷；旧 MySQL/Qdrant 数据卷未被自动删除，也不会自动导入 PostgreSQL。旧库中的业务记录需要先备份，再迁移；当前启动流程导入仓库内 15 项种子成果。原 Redis 检查点不能直接用于新的单 Agent 图，旧审核中任务需在旧版结束，或在新版新建任务。
 
-停止服务：
-
-```powershell
-.\scripts\stop.ps1
-```
-
-默认只停止容器，不删除 MySQL、Redis、Qdrant 和 MinIO 数据卷。
-
-## 可以体验什么
-
-- 在 Agent 工作台输入水利工程问题，观察 Supervisor 自动规划并调度专业 Agent。
-- 通过 SSE 实时查看 Agent 开始、完成、工具调用、审核等待和最终完成事件。
-- 对水利科技成果执行稠密向量、中文稀疏词项、RRF 融合与业务重排。
-- 查看候选成果的适用性、成熟度、证据质量、实施风险和最终评分。
-- 当关键需求信息不足时进入人工审核；提交补充信息后从 Redis 检查点继续执行。
-- 在运行记录中检查 AgentStep、ToolCall、耗时、Token 和错误信息。
-- 将最终 Markdown 报告保存到 MinIO，并通过鉴权接口下载且校验 SHA-256。
-- 新建成果、审核成果并通过事务 outbox 异步更新 Qdrant 索引。
-- 新建工程需求，并直接带入成果匹配工作台。
-- 查看 MySQL、Redis、Qdrant、MinIO、LLM 和 Tavily 的实时就绪状态。
-
-## 多 Agent 架构
+## 当前架构
 
 ```mermaid
 flowchart LR
-    UI["中文 Web 工作台"] --> API["FastAPI / JWT / SSE"]
-    API --> QUEUE["Celery 任务队列"]
-    QUEUE --> SUP["Supervisor"]
-    SUP --> REQ["需求分析 Agent"]
-    SUP --> RES["科技情报 Agent"]
-    RES --> TAVILY["Tavily 搜索工具"]
-    SUP --> EVID["证据整理 Agent"]
-    SUP --> MATCH["评估匹配 Agent"]
-    SUP --> VERIFY["独立核验 Agent"]
-    SUP --> REPORT["报告生成 Agent"]
-    REQ -.信息不足.-> HUMAN["人工审核"]
-    HUMAN -.Redis 检查点恢复.-> SUP
-
-    API --> MYSQL[("MySQL")]
-    API --> RR[("Redis Runtime")]
-    API --> RC[("Redis Cache")]
-    MATCH --> QDRANT[("Qdrant")]
-    REPORT --> MINIO[("MinIO")]
+    UI[中文工作台] --> API[FastAPI / JWT / SSE]
+    API --> Q[Celery + Redis Runtime]
+    Q --> A[单一工具调用 Agent]
+    A --> S[成果搜索与证据问答]
+    A --> M[固定成果匹配流程]
+    A --> D[成果详情]
+    A --> C[限定成果对比]
+    A --> U[需求更新]
+    S --> ES[Elasticsearch: IK BM25 + dense_vector]
+    C --> ES
+    M --> ES
+    ES --> R[RRF / 重排 / 成果聚合]
+    S --> B[BGE-M3 / CUDA 模型服务]
+    R --> BR[BGE-reranker-v2-m3 / CUDA]
+    R --> PG[(PostgreSQL 事实与片段校验)]
+    API --> PG
+    PG --> O[事务 Outbox]
+    O --> ES
+    A --> CP[PostgreSQL 检查点 / 人工审核恢复]
+    A --> OBJ[MinIO 原始文档与报告]
+    API --> CACHE[Redis Cache: 外部搜索缓存]
 ```
 
-Agent 分工：
+活动图只有 `agent → tools/workflow → respond` 和审核节点。模型通过原生 function calling 从以下五个工具中选择；模型未配置时使用明确的确定性路由和原文摘录模式。
 
-1. **Supervisor**：识别任务类型、制定计划、选择下一节点、控制最大迭代次数。
-2. **需求分析 Agent**：把自然语言问题转为场景、目标、硬约束、软偏好和检索词。
-3. **科技情报 Agent**：只通过 Tavily 执行外部搜索，并保留来源和检索轨迹。
-4. **证据整理 Agent**：去重、分级、保留可追溯来源，避免把弱证据包装为确定事实。
-5. **评估匹配 Agent**：调用 Qdrant 混合检索，按场景、效果、成熟度、风险和成本评分。
-6. **独立核验 Agent**：检查引用覆盖、分数一致性、约束冲突与结论风险。
-7. **报告生成 Agent**：输出结构化 Markdown 报告、引用、候选排序和下一步建议。
+| 工具 | 行为 |
+| --- | --- |
+| `search_achievements` | 最多两轮检索、证据充分性判断、带逐字引用的问答 |
+| `match_achievements` | 固定的需求解析、过滤、混合召回、重排、成果聚合与硬约束核验流程 |
+| `get_achievement` | 读取有权访问的已审核成果详情 |
+| `compare_achievements` | 在指定成果 ID 范围内检索并对比 |
+| `update_requirement` | 更新当前需求描述；持久化时验证需求归属 |
 
-## MySQL 和 Redis 在项目中的真实作用
+原有联网调研、成果评价、需求规范化仍作为显式业务流程保留。其辅助类名称保留部分历史 `Agent` 命名，但不再由 Supervisor 动态调度。联网调研仍使用 Tavily，并保留证据策展、质量分流及灰区批量审核。
 
-这不是为了“把技术栈写进简历”而接入数据库；各组件承担不同一致性和性能职责。
+同一会话可继续追问已检索成果，服务端读取此前完成轮次的历史与成果范围。每个运行使用独立的 PostgreSQL 检查点 ID，恢复审核时复用该运行 ID。点击“新建会话”可开始新的检索范围。
 
-### MySQL：事实来源与审计底座
+## 证据与检索规则
 
-- 用户、角色、组织和刷新令牌
-- 成果、证据、需求、评估规则与匹配结果
-- 对话、AgentRun、AgentStep、ToolCall 和模型用量
-- 人工审核任务与决策记录
-- 报告 Artifact 元数据及 SHA-256
-- 事务 outbox：成果审核与索引更新同事务提交，避免数据库成功但向量库漏更新
+1. PostgreSQL 保存成果、来源、版本、精确片段、业务记录、对话与审计轨迹。
+2. 对结构化字段和原始文档正文切块，默认 700 字符、100 字符重叠。片段保留字段名、起止字符位置、SHA-256、成果版本及确定性 ID。原文片段还保留文档 ID、PDF 页码或工作表行号等定位信息；扫描文档使用中文 OCR。位置对应解析后的规范化文本，原件可从引用处下载核对。
+3. 审核或修改与 Outbox 同事务提交。worker 锁定成果，幂等写入片段与 ES，成功后标记事件；失败退避重试，过期 processing 事件可重新领取。
+4. ES 的两路召回都带审批状态、组织、显式成果范围和可计算的约束过滤。数值 TRL 低于要求时排除，TRL 缺失时保留待核验。
+5. BM25 和 dense_vector 的候选按 chunk ID 进行 RRF，重排后聚合为成果。返回前再次读取 PostgreSQL，核对权限、审批、版本和片段哈希，拒绝滞后索引中的旧证据。
+6. 问答事实携带 chunk ID 与原文 quote。服务端剔除未知片段和不在原文中的引文；若仍不足，最多追加一次检索并说明缺口。逐字引文校验不能证明模型释义必然正确，关键工程结论仍须人工复核。
+7. 硬约束使用 `satisfied / violated / unknown` 三态，分两级核验：先按字段规则核验有证据的 TRL、同口径数值范围及布尔值；规则无法判定的自然语言约束（如不停水施工、高寒地区），对排名前 `MATCH_EVIDENCE_VERIFY_LIMIT`（默认 5）项成果在该成果范围内按约束检索原文片段，由模型给出判断，且必须引用片段中逐字存在、不少于 6 个字的原文，否则仍为未知。规则结果不会被模型覆盖；结果标注 `method=rule/evidence`。
+8. 匹配分标记为 `retrieval_relevance`，仅用于相关度排序。未知成本与效果不伪装为已验证的业务评分，推荐文案同时考虑约束状态。
 
-### Redis Runtime：不可随意丢失的运行状态
+原始资料未明确给出 TRL 时，导入器不会根据“存在应用案例”推算成熟度。`evidence_score` 是资料字段完整度启发式分，不是经专家标定的真实性概率；其计算依据写入 `structured_data`。
 
-- Celery Broker 与任务结果
-- LangGraph 检查点和人工审核后的恢复
-- SSE 事件流及断线续传游标
-- AOF 每秒持久化与 `noeviction`，避免检查点因内存策略被淘汰
-
-### Redis Cache：允许丢失、可重建的缓存
-
-- Tavily 搜索结果缓存
-- 与运行态 Redis 物理隔离
-- `volatile-lfu` 淘汰策略；缓存故障不会破坏 MySQL 事实数据或 LangGraph 检查点
-
-这种拆分能在面试中清楚回答：为什么不能把缓存、任务队列和 Agent 检查点混在一套随时淘汰数据的 Redis 中。
-
-## 检索与数据链路
-
-1. 启动时从 `seed-data/achievements.json` 幂等导入成果。
-2. MySQL 保存完整结构化记录，并写入 outbox。
-3. Celery 定时领取 outbox，写入版本化 Qdrant 索引。
-4. 查询时同时执行稠密和稀疏检索，通过 RRF 融合并进行领域重排。
-5. Agent 对候选成果进行多维评分；核验 Agent 检查证据与结论。
-6. 报告元数据进入 MySQL，正文进入 MinIO，前端通过鉴权下载。
-
-未安装本地 BGE 模型时，平台使用确定性的离线向量与重排器，便于无 Key 启动和自动测试。安装 `backend` 的 `rag-local` 可选依赖后，可以启用 BGE-M3 与 BGE Reranker。
-
-## 配置真实 LLM 与 Tavily
-
-编辑项目根目录 `.env`：
+## 模型与检索配置
 
 ```dotenv
-LLM_API_KEY=你的模型服务密钥
-LLM_BASE_URL=https://你的-openai-compatible-endpoint/v1
-LLM_MODEL=你的模型名称
-TAVILY_API_KEY=你的-tavily-key
+LLM_API_KEY=你的密钥
+LLM_BASE_URL=https://你的兼容服务/v1
+LLM_MODEL=你的模型
+TAVILY_API_KEY=你的搜索密钥
+
+RETRIEVAL_BACKEND=elasticsearch
+RETRIEVAL_ALLOW_FALLBACK=false
+ELASTICSEARCH_VECTOR_INDEX_TYPE=int8_hnsw   # 新建索引的 HNSW 类型；等同 ES 8.x 默认
+ELASTICSEARCH_HNSW_M=16
+ELASTICSEARCH_HNSW_EF_CONSTRUCTION=100
+KNN_NUM_CANDIDATES_FACTOR=3                 # num_candidates = k × 3
+MATCH_EVIDENCE_VERIFY_LIMIT=5
+ELASTICSEARCH_INDEX=hydrobridge-chunks-bge-v4
+ELASTICSEARCH_ANALYZER=ik_max_word
+KNOWLEDGE_INDEX_VERSION=4
+EMBEDDING_BACKEND=bge_service
+BGE_SERVICE_URL=http://bge:8080
 ```
 
-如果使用 OpenAI 兼容供应商，`LLM_BASE_URL`、`LLM_MODEL` 必须与该供应商文档一致。联网搜索只使用 Tavily，不混入第二套搜索提供商。
+Compose 默认启用独立 `bge` 服务：BGE-M3 输出 1024 维归一化向量，BGE-reranker-v2-m3 对混合召回片段进行重排；使用 CUDA FP16、batch 8、最多 1024 token。只有一个进程持有 GPU 模型，API 与 Celery 通过 HTTP 共用，避免各 worker 重复加载显存。PyTorch 2.6.0 cu124 与本机驱动兼容，权重由本地目录只读挂载，推理不联网。
 
-修改后重新创建后端容器：
+`bge_service` 加载或调用失败会明确报错，不退回 hash。`hash` 仅供独立开发测试；旧 `auto` / 本地 `bge_m3` 模式仍可用于特定环境，但不是当前 Compose 的生产预览配置。宿主机运行后端命令时用 `scripts/backend-local.py`，它会设置正确的本地 PG/ES/MinIO/BGE 端口并加载现有密钥，不输出密钥。
+
+`RETRIEVAL_BACKEND=local` 是独立的本地冒烟检索；不是 ES BM25/IK。ES 故障默认向上报错，仅显式开启 fallback 时才退回本地，并在结果记录后端和降级原因。
+
+改变向量模型、维度或切块规则后，应换新的 `ELASTICSEARCH_INDEX` 并增加 `KNOWLEDGE_INDEX_VERSION`，然后重启 bootstrap 触发重建。不同模型的向量不得混用。`cjk` 分词仅供没有 IK 的独立开发环境使用。
+
+Compose 也会可选读取 `%USERPROFILE%\.continuum\.env`，其中 `CONTINUUM_LLM_*` 优先，无需把密钥复制进仓库。测试会清空真实模型密钥。
+
+## 验证与可复现评测
+
+当前 BGE 和完整文档库的清单、逐题检索结果、真实问答与浏览器验证见 [BGE 全库验收记录](docs/BGE_FULL_CORPUS_VERIFICATION.md)。前一阶段的架构迁移、人工审核恢复和 15 项种子数据验证保留在 [PG/ES 历史验收记录](docs/PG_ES_VERIFICATION.md)。
 
 ```powershell
-docker compose up -d --build api worker scheduler
-```
-
-然后打开“系统状态”，确认 LLM 和 Tavily 均显示正常配置。
-
-## 测试
-
-运行后端静态检查、24 项自动化测试、前端 ESLint、生产构建和服务端渲染测试：
-
-```powershell
+# 后端静态检查/离线测试、前端 lint/生产构建/渲染测试
 .\scripts\test.ps1
+
+# 服务启动后检查所有容器与 readiness
+.\scripts\test.ps1 -Smoke
+
+# 在临时 schema 和临时索引上验证真实 PG、ES/IK、Outbox 重放与检查点重连
+docker compose exec api python -m app.verify_infrastructure
+
+# 不依赖 Docker 的检索消融
+Set-Location backend
+$env:DATABASE_URL = 'sqlite+aiosqlite:///:memory:'
+.\.venv\Scripts\python.exe -m app.evaluate_retrieval
 ```
 
-服务已经启动时，可追加容器健康冒烟测试：
+对当前完整文档库执行只读的真实 ES/BGE 消融：
 
 ```powershell
-.\scripts\test.ps1 -Smoke
+.\backend\.venv\Scripts\python.exe scripts\backend-local.py app.evaluate_live_corpus --cases evaluation\full_corpus_cases.json --output evaluation\results\full-corpus-bge.json
 ```
 
-当前自动化覆盖：
+40 道验收问题分别执行 BM25、BGE dense、RRF hybrid、hybrid + BGE reranker。指标使用 Hit@1/5/10（前 k 名中至少命中一个标注目标）与 MRR@10，逐题排名、来源证据、标签 SHA-256 和耗时保存在 `evaluation/results/full-corpus-bge.json`。标签在运行前固定，属于开发验收集，未经过专家独立验证，也不是穷尽式相关性标注，不能作为线上准确率。
 
-- JWT 登录、当前用户、刷新令牌轮换、防重放与退出撤销
-- 成果、需求、概览和健康接口
-- Artifact 元数据、鉴权下载和 SHA-256
-- Redis 事件流
-- 水利 JSON 归一化导入
-- 离线向量与领域重排
-- 外部来源相关性/权威性排序与策展后引用过滤
-- 多 Agent 完整运行
-- 人工中断与检查点恢复
-- 任务取消与安全响应头
+`app.evaluate_retrieval` 和 `evaluation/retrieval_cases.json` 保留用于旧 15 项种子数据的隔离测试；历史 hash 结果不代表当前全库 BGE 效果。
 
-交付验收还实际执行过 Redis Cache 停机/恢复和 Redis Runtime 重启测试：API 能正确降级再恢复，AOF 数据保留，Celery 能自动重连并继续消费任务。
+## 完整文档库导入与核验
 
-## 目录
+范围是 `E:\水利部` 下的成果原始材料、成果目录和结构化 JSON；排除代码、开发说明、汇报稿及知识图谱学习论文。重复文件按 SHA-256 合并，成果按规范化后的精确标题合并，异名成果不凭相似度强行合并。原件不修改，转换与 OCR 缓存放在 `tmp/corpus/`。
 
-```text
-app/                         Web 界面与 API 客户端
-backend/app/agents/          LangGraph 状态、节点和路由
-backend/app/api/             FastAPI 路由与鉴权
-backend/app/db/              SQLAlchemy 模型与数据库会话
-backend/app/services/        Redis、Qdrant、MinIO、检索和运行服务
-backend/app/worker/          Celery 配置与任务
-backend/tests/               后端自动化测试
-seed-data/                   已归一化水利成果
-scripts/                     启动、停止和测试脚本
-docs/                        架构、测试和面试说明
-docker-compose.yml           本地完整基础设施
+本机已完成以下流程，无须再次导入。重新导入前先备份 PG，并暂时停止 `worker`、`scheduler`，避免批量导入事件与离线索引器同时处理：
+
+```powershell
+# 需要 backend[corpus]、LibreOffice、Tesseract chi_sim+eng；工具路径见准备脚本
+.\backend\.venv\Scripts\python.exe scripts\prepare-water-corpus.py --source E:\水利部
+.\backend\.venv\Scripts\python.exe scripts\assemble-water-corpus.py
+.\backend\.venv\Scripts\python.exe scripts\backend-local.py app.importers.corpus --package output\corpus\corpus-package.json --report output\corpus\full-import.json
+.\backend\.venv\Scripts\python.exe scripts\backend-local.py app.index_corpus --progress output\corpus\bge-index-progress.json
+.\backend\.venv\Scripts\python.exe scripts\backend-local.py app.verify_corpus --package output\corpus\corpus-package.json --output output\corpus\verification-final.json --verify-index
+docker compose up -d api worker scheduler frontend
 ```
 
-更深入的实现说明见：
+`evaluation/water_corpus_mappings.json` 保存已人工核对的 10 个申请材料包归属、排除理由及通用附件规则。原目录 3,966 个序号由原始 XLSX、HTML 和 PDF 交叉核对，重复标题合并后为 3,824 项；补充原始成果材料后共 3,860 项。原件、导入包、数据库备份均只留在本机。改用另一套资料时必须重新核对文件映射，不能沿用现有归属假设。
 
-- [架构说明](docs/ARCHITECTURE.md)
-- [测试与验收](docs/TESTING.md)
-- [面试讲解提纲](docs/INTERVIEW_GUIDE.md)
+## 主要代码
+
+- `backend/app/agents/graph.py`：单 Agent 与五个工具
+- `backend/app/agents/workflows.py`：业务流程、审核和报告
+- `backend/app/agents/checkpoint.py`：PostgreSQL 检查点
+- `backend/app/services/chunking.py`：可定位原文片段
+- `backend/app/services/retrieval.py`：检索、RRF、重排、PG 再校验
+- `backend/app/services/matching.py`：三态约束与证据匹配
+- `backend/app/services/rag.py`：两轮受限检索和引用校验
+- `backend/app/worker/tasks.py`：事务 Outbox 消费
+- `backend/alembic/versions/20261018_0003_chunk_retrieval.py`：证据表与字段迁移
+- `app/HydroBridgeApp.tsx`：追问、引用展开、约束状态和结果工作台
+
+历史学习手册描述的是改造前架构，当前实现以本 README 和代码为准。
+
+Windows 本地生产预览通过 `npm start` 运行。`scripts/start-web.mjs` 对当前固定版本 vinext 0.0.50 的 Windows 静态资源缓存路径作兼容处理，避免脚本 404 导致页面一直等待连接；Linux 容器仍使用同一 vinext 服务实现。回归测试会实际请求生产 HTTP 页面及其脚本、CSS。

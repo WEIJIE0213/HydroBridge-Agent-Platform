@@ -33,8 +33,16 @@ class AgentState(TypedDict, total=False):
     search_results: list[dict[str, Any]]
     evidence_records: list[dict[str, Any]]
     rejected_sources: list[dict[str, str]]
+    ingestion_candidates: list[dict[str, Any]]
+    ingestion_review_completed: bool
+    ingestion_approved_candidate_ids: list[str]
+    ingestion_reviewer_id: str | None
+    ingested_achievement_ids: list[str]
+    ingestion_summary: dict[str, Any]
     retrieval_hits: list[dict[str, Any]]
     assessment_results: list[dict[str, Any]]
+    assessment_generation_mode: str
+    achievement_evaluation: dict[str, Any]
     verification: dict[str, Any]
 
     needs_human_review: bool
@@ -45,3 +53,12 @@ class AgentState(TypedDict, total=False):
     final_answer: str
     citations: list[dict[str, Any]]
     errors: list[dict[str, Any]]
+    conversation_history: list[dict[str, str]]
+    selected_achievement_ids: list[str]
+    scope_is_set: bool
+    pending_tool: dict[str, Any]
+    tool_results: list[dict[str, Any]]
+    tool_iterations: int
+    agent_route: str
+    workflow_step: str
+    rag_result: dict[str, Any]

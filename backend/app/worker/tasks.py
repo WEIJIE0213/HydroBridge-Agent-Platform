@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from celery.utils.log import get_task_logger
-from sqlalchemy import select
+from sqlalchemy import or_, select, update
 
 from app.db.models.domain import Achievement
 from app.db.models.knowledge import OutboxEvent
@@ -25,9 +25,24 @@ async def _run_isolated(awaitable):
 
 async def _claim_outbox_batch(limit: int = 20) -> list[str]:
     async with AsyncSessionFactory() as session:
+        now = datetime.now(UTC)
+        await session.execute(
+            update(OutboxEvent)
+            .where(
+                OutboxEvent.status == "processing",
+                OutboxEvent.updated_at < now - timedelta(minutes=10),
+            )
+            .values(status="pending")
+        )
         result = await session.execute(
             select(OutboxEvent)
-            .where(OutboxEvent.status == "pending")
+            .where(
+                OutboxEvent.status == "pending",
+                or_(
+                    OutboxEvent.available_at.is_(None),
+                    OutboxEvent.available_at <= now.isoformat(),
+                ),
+            )
             .order_by(OutboxEvent.created_at)
             .limit(limit)
             .with_for_update(skip_locked=True)
@@ -49,14 +64,13 @@ async def _mark_outbox_result(
         event = await session.get(OutboxEvent, event_id)
         if event is None:
             return
-        event.status = (
-            "completed"
-            if success
-            else "failed"
-            if event.attempts >= 8
-            else "pending"
-        )
+        event.status = "completed" if success else "failed" if event.attempts >= 8 else "pending"
         event.last_error = error[:20_000]
+        event.available_at = (
+            None
+            if success
+            else (datetime.now(UTC) + timedelta(seconds=min(300, 2**event.attempts))).isoformat()
+        )
         if success:
             event.payload = {
                 **event.payload,
@@ -78,20 +92,21 @@ async def _process_outbox() -> dict[str, int]:
                     if event is None:
                         continue
                     if event.aggregate_type != "achievement":
-                        raise ValueError(
-                            f"Unsupported outbox aggregate: {event.aggregate_type}"
-                        )
-                    achievement = await session.get(Achievement, event.aggregate_id)
+                        raise ValueError(f"Unsupported outbox aggregate: {event.aggregate_type}")
+                    achievement = await session.scalar(
+                        select(Achievement)
+                        .where(Achievement.id == event.aggregate_id)
+                        .with_for_update()
+                    )
                     if achievement is None:
-                        await services.retrieval.delete_achievement(event.aggregate_id)
+                        await services.retrieval.delete_achievement(event.aggregate_id, session)
                     elif achievement.status == "approved":
-                        await services.retrieval.index_achievement(achievement)
-                        achievement.qdrant_indexed = True
-                        await session.commit()
+                        await services.retrieval.index_achievement(achievement, session)
+                        achievement.search_indexed = True
                     else:
-                        await services.retrieval.delete_achievement(achievement.id)
-                        achievement.qdrant_indexed = False
-                        await session.commit()
+                        await services.retrieval.delete_achievement(achievement.id, session)
+                        achievement.search_indexed = False
+                    await session.commit()
                 await _mark_outbox_result(event_id, True)
                 completed += 1
             except Exception as exc:

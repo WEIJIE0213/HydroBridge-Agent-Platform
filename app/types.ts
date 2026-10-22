@@ -42,7 +42,7 @@ export interface Achievement extends Timestamped {
   evidence_score: number;
   status: string;
   version: number;
-  qdrant_indexed: boolean;
+  search_indexed: boolean;
 }
 
 export interface Requirement extends Timestamped {
@@ -50,11 +50,98 @@ export interface Requirement extends Timestamped {
   raw_input: string;
   normalized_description: string;
   scenario: string;
+  problem: string;
+  objectives: string[];
   hard_constraints: Record<string, unknown>;
   soft_preferences: Record<string, unknown>;
+  known_conditions: Record<string, unknown>;
+  search_terms: string[];
   missing_fields: string[];
   completeness_score: number;
   status: string;
+}
+
+export interface AchievementEvaluation extends Timestamped {
+  achievement_id: string;
+  rubric_id: string;
+  agent_run_id: string | null;
+  evaluation_version: number;
+  status: string;
+  dimension_scores: Record<string, number>;
+  dimension_details: Record<string, string>;
+  total_score: number;
+  level: string;
+  summary: string;
+  strengths: string[];
+  risks: string[];
+  evidence: Array<Record<string, unknown>>;
+  missing_information: string[];
+  recommendations: string[];
+  confidence: number;
+  model_name: string;
+  rubric_snapshot: Record<string, unknown>;
+  verification_status: string;
+}
+
+export interface AchievementWorkflowSummary {
+  achievement_id: string;
+  evaluation: AchievementEvaluation | null;
+}
+
+export interface RequirementRefinement extends Timestamped {
+  requirement_id: string;
+  agent_run_id: string | null;
+  refinement_version: number;
+  status: string;
+  profile: Record<string, unknown>;
+  completeness_score: number;
+  confirmed: boolean;
+}
+
+export interface RequirementWorkflowSummary {
+  requirement_id: string;
+  latest_refinement_status: string | null;
+  latest_match_id: string | null;
+  latest_match_status: string | null;
+  latest_match_score: number | null;
+  latest_match_candidate_count: number;
+  latest_match_at: string | null;
+}
+
+export interface MatchRunSummary extends Timestamped {
+  requirement_id: string;
+  agent_run_id: string | null;
+  status: string;
+  summary: string;
+  confidence: number;
+  candidate_count: number;
+  top_score: number | null;
+}
+
+export interface MatchItem extends Timestamped {
+  match_id: string;
+  achievement_id: string;
+  achievement_title: string;
+  rank: number;
+  final_score: number;
+  hard_constraints_passed: boolean;
+  eligibility: "satisfied" | "violated" | "unknown";
+  score_kind: string;
+  constraint_checks: Array<{constraint: string; status: "satisfied" | "violated" | "unknown"; reason: string; quote: string}>;
+  dimension_scores: Record<string, number>;
+  hard_constraint_violations: string[];
+  reasons: string[];
+  gaps: string[];
+  risks: string[];
+  evidence: Array<Record<string, unknown>>;
+  recommendation: string;
+  decision_status: string;
+  decided_at: string | null;
+}
+
+export interface MatchRunDetail extends MatchRunSummary {
+  rubric_snapshot: Record<string, unknown>;
+  items: MatchItem[];
 }
 
 export interface Run extends Timestamped {
@@ -70,9 +157,12 @@ export interface Run extends Timestamped {
   };
   output_payload: {
     answer?: string;
-    citations?: Array<{ title: string; url: string }>;
+    citations?: Array<{ title: string; url: string; chunk_id?: string; field?: string; version?: number; quote?: string; document_id?: string; locator?: string }>;
     verification?: Record<string, unknown>;
     assessments?: Array<Record<string, unknown>>;
+    achievement_evaluation?: Record<string, unknown>;
+    research_ingestion?: Record<string, unknown>;
+    ingested_achievement_ids?: string[];
     artifact_id?: string | null;
   };
   error_code: string | null;
@@ -145,7 +235,7 @@ export interface Readiness {
   checks: {
     database: boolean;
     redis: { runtime: boolean; cache: boolean } | boolean;
-    qdrant: boolean;
+    elasticsearch: boolean;
     minio: boolean;
     tavily_configured: boolean;
     model_configured: boolean;

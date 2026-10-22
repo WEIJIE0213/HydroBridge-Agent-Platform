@@ -63,7 +63,7 @@ class AchievementResponse(TimestampedModel):
     evidence_score: float
     status: str
     version: int
-    qdrant_indexed: bool
+    search_indexed: bool
 
 
 class AchievementDecision(BaseModel):

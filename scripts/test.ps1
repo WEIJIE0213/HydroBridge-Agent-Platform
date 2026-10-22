@@ -43,11 +43,12 @@ try {
 
     if ($Smoke) {
         $expectedServices = @(
-            "mysql",
+            "postgres",
             "redis-runtime",
             "redis-cache",
-            "qdrant",
+            "elasticsearch",
             "minio",
+            "bge",
             "api",
             "worker",
             "scheduler",
@@ -65,7 +66,7 @@ try {
         if ($readiness.status -ne "ready") {
             throw "Core readiness is $($readiness.status): $($readiness.checks | ConvertTo-Json -Compress)"
         }
-        Write-Host "Docker smoke checks passed: all 9 services are running and core readiness is ready."
+        Write-Host "Docker smoke checks passed: all 10 services are running and core readiness is ready."
     }
 } finally {
     Pop-Location

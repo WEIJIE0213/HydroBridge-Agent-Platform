@@ -45,7 +45,17 @@ def test_normalize_water_achievement_document() -> None:
     assert result["normalized_title"] == normalize_title("农村供水智能监测技术")
     assert result["taxonomy_code"] == "water-supply"
     assert result["organizations"] == ["某水利科研院"]
-    assert result["maturity_level"] == 7
+    assert result["maturity_level"] is None
+    assert result["structured_data"]["maturity_basis"] == "not_stated"
     assert result["metrics"][0]["value"] == "≤ 5 min"
     assert "通信条件不稳定" in result["limitations"]
     assert result["status"] == "approved"
+
+
+def test_import_preserves_only_explicit_numeric_trl() -> None:
+    document = {
+        "entities": [{"type": "科技成果", "name": "已声明成熟度的技术", "attributes": {"TRL": 8}}]
+    }
+    result = normalize_document(document, "explicit.json")
+    assert result["maturity_level"] == 8
+    assert result["structured_data"]["maturity_basis"] == "source_explicit"

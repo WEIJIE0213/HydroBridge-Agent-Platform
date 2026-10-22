@@ -12,6 +12,10 @@ os.environ["REDIS_CACHE_URL"] = "redis://localhost:6399/1"
 # developer's .env file. Provider integrations are exercised by explicit
 # live-smoke scripts instead.
 os.environ["LLM_API_KEY"] = ""
+os.environ["CONTINUUM_LLM_API_KEY"] = ""
+os.environ["CONTINUUM_LLM_MODEL"] = ""
+os.environ["EMBEDDING_BACKEND"] = "hash"
+os.environ["RETRIEVAL_BACKEND"] = "local"
 os.environ["LLM_MODEL"] = ""
 os.environ["TAVILY_API_KEY"] = ""
 
