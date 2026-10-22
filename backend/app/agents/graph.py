@@ -4,17 +4,19 @@ from typing import Any
 
 from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 
 from app.agents.specialists import AgentDependencies
 from app.agents.state import AgentState
 from app.agents.workflows import DomainWorkflows
 from app.core.config import settings
 from app.db.models.domain import Achievement, Requirement
+from app.db.models.identity import User
 from app.db.session import AsyncSessionFactory
 from app.services.chunking import chunk_achievement
 from app.services.rag import AgenticRag
 from app.services.retrieval import visibility_filter
+from app.services.workflow_records import bind_workflow
 
 
 class SearchArguments(BaseModel):
@@ -39,7 +41,18 @@ class UpdateArguments(BaseModel):
     description: str = Field(min_length=1, max_length=10000)
 
 
+class EvaluateArguments(BaseModel):
+    achievement_id: str | None = None
+    title: str | None = Field(default=None, max_length=300)
+
+
 TOOL_SCHEMAS = {
+    "research_achievements": (MatchArguments, "联网搜寻新成果、提取证据并按规则入库或转人工审核"),
+    "evaluate_achievement": (
+        EvaluateArguments,
+        "评价一项成果自身质量；提供已知成果ID或准确名称，未指定时使用当前唯一成果",
+    ),
+    "normalize_requirement": (MatchArguments, "只整理和澄清工程需求，本次不执行成果匹配"),
     "search_achievements": (SearchArguments, "搜索成果并根据原文回答问题；最多两轮检索"),
     "match_achievements": (
         MatchArguments,
@@ -69,14 +82,12 @@ class HydroBridgeGraph(DomainWorkflows):
         await self._publish(state, "agent.started", "hydrobridge_agent")
         iterations = state.get("tool_iterations", 0)
         task = state.get("task_type", "auto")
-        if not iterations and task in {"research", "evaluation", "requirement_analysis"}:
-            step = {
-                "research": "research_agent",
-                "evaluation": "achievement_evaluation_agent",
-                "requirement_analysis": "requirement_analyst",
-            }[task]
+        if not iterations and task in {
+            "research", "evaluation", "requirement_analysis", "matching"
+        }:
+            updates = await self._start_workflow(state, task, state["user_message"])
             await self._publish(state, "agent.completed", "hydrobridge_agent", {"workflow": task})
-            return {"agent_route": "workflow", "workflow_step": step}
+            return updates
         if iterations >= min(settings.agent_max_iterations, 4):
             call = {}
         elif self.model.configured:
@@ -124,6 +135,15 @@ class HydroBridgeGraph(DomainWorkflows):
     def _offline_tool(state):
         message = state["user_message"]
         scope = HydroBridgeGraph._scope(state)
+        if any(w in message for w in ("联网", "上网", "调研", "搜寻")):
+            return {"name": "research_achievements", "arguments": {"query": message}}
+        if "规范化" in message or ("整理" in message and "需求" in message):
+            return {"name": "normalize_requirement", "arguments": {"query": message}}
+        if any(w in message for w in ("评价", "评估")):
+            return {
+                "name": "evaluate_achievement",
+                "arguments": {"achievement_id": scope[0]} if scope and len(scope) == 1 else {},
+            }
         if state.get("task_type") == "matching" or any(w in message for w in ("匹配", "推荐方案")):
             return {"name": "match_achievements", "arguments": {"query": message}}
         if scope and len(scope) >= 2 and any(w in message for w in ("对比", "比较")):
@@ -134,6 +154,60 @@ class HydroBridgeGraph(DomainWorkflows):
         return {
             "name": "search_achievements",
             "arguments": {"query": message, "achievement_ids": scope},
+        }
+
+    async def _start_workflow(self, state, task, message, evaluation_args=None):
+        context = dict(state.get("context", {}))
+        updates = {}
+        if task == "evaluation":
+            args = evaluation_args or EvaluateArguments(
+                achievement_id=context.get("achievement_id")
+            )
+            scope = self._scope(state)
+            achievement_id = args.achievement_id
+            if not achievement_id and not args.title and scope and len(scope) == 1:
+                achievement_id = scope[0]
+            async with AsyncSessionFactory() as session:
+                user = await session.get(User, state["user_id"])
+                organization_id = state.get("organization_id")
+                access = and_(
+                    Achievement.organization_id.is_(None), Achievement.status == "approved"
+                )
+                if organization_id:
+                    access = or_(access, Achievement.organization_id == organization_id)
+                statement = select(Achievement)
+                if not (user and user.is_superuser):
+                    statement = statement.where(access)
+                if scope is not None:
+                    statement = statement.where(Achievement.id.in_(scope))
+                if achievement_id:
+                    statement = statement.where(Achievement.id == achievement_id)
+                elif args.title:
+                    statement = statement.where(Achievement.title == args.title.strip())
+                else:
+                    statement = statement.where(Achievement.title == message.strip())
+                candidates = list((await session.scalars(statement.limit(2))).all())
+            if len(candidates) != 1:
+                return {
+                    "agent_route": "respond",
+                    "final_answer": "请提供要评价的成果准确名称，或先检索并选定一项成果后再评价。",
+                }
+            achievement_id = candidates[0].id
+            context["achievement_id"] = achievement_id
+            updates = {"selected_achievement_ids": [achievement_id], "scope_is_set": True}
+        context = await bind_workflow(state, task, message, context)
+        return {
+            **updates,
+            "context": context,
+            "task_type": task,
+            "user_message": message,
+            "workflow_step": {
+                "research": "research_agent",
+                "evaluation": "achievement_evaluation_agent",
+                "requirement_analysis": "requirement_analyst",
+                "matching": "requirement_analyst",
+            }[task],
+            "agent_route": "workflow",
         }
 
     async def tools_node(self, state: AgentState) -> dict[str, Any]:
@@ -150,14 +224,20 @@ class HydroBridgeGraph(DomainWorkflows):
             )
         try:
             updates: dict[str, Any] = {}
-            if name == "match_achievements":
-                updates = {
-                    "task_type": "matching",
-                    "user_message": args.query,
-                    "workflow_step": "requirement_analyst",
-                    "agent_route": "workflow",
-                }
-                result = {"tool": name, "status": "workflow_started"}
+            workflow_tasks = {
+                "research_achievements": "research",
+                "evaluate_achievement": "evaluation",
+                "normalize_requirement": "requirement_analysis",
+                "match_achievements": "matching",
+            }
+            if name in workflow_tasks:
+                updates = await self._start_workflow(
+                    state,
+                    workflow_tasks[name],
+                    state["user_message"] if name == "evaluate_achievement" else args.query,
+                    args if name == "evaluate_achievement" else None,
+                )
+                result = {"tool": name, "status": updates["agent_route"]}
             else:
                 async with AsyncSessionFactory() as session:
                     deps = AgentDependencies(session, self.services, self.model)

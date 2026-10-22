@@ -79,10 +79,10 @@ const navigation: Array<{
   icon: typeof Bot;
 }> = [
   { key: "workbench", label: "Agent 工作台", icon: BrainCircuit },
-  { key: "achievements", label: "科技成果库", icon: Library },
-  { key: "requirements", label: "需求规范化", icon: FileSearch },
+  { key: "achievements", label: "成果库管理", icon: Library },
+  { key: "requirements", label: "需求与匹配", icon: FileSearch },
   { key: "runs", label: "运行记录", icon: Activity },
-  { key: "approvals", label: "人工审核", icon: ClipboardCheck },
+  { key: "approvals", label: "审核中心", icon: ClipboardCheck },
   { key: "system", label: "系统状态", icon: ServerCog },
 ];
 
@@ -97,8 +97,8 @@ const taskTypes = [
 
 const prompts = [
   "为高寒地区农村供水工程匹配低维护、成熟度高的技术成果",
-  "评估超疏水混凝土外加剂在水工结构修复中的适用性",
-  "调研近三年智慧泵站运行调度技术，并核验来源",
+  "先帮我整理农村供水泵站的改造需求，暂时不要匹配",
+  "联网搜寻近三年智慧泵站运行调度成果，并核验来源",
 ];
 
 const eventLabels: Record<string, string> = {
@@ -112,6 +112,7 @@ const eventLabels: Record<string, string> = {
   "tool.completed": "工具调用完成",
   "tool.failed": "工具调用失败",
   "approval.required": "等待人工审核",
+  "run.waiting_review": "等待补充信息或审核",
   "run.completed": "任务已完成",
   "run.failed": "任务失败",
   "run.cancelled": "任务已取消",
@@ -475,6 +476,25 @@ export default function HydroBridgeApp() {
     }
   };
 
+  const followRun = async (runId: string) => {
+    const controller = new AbortController();
+    abortRef.current = controller;
+    await streamRunEvents(
+      runId,
+      token,
+      (event) => setEvents((current) => [...current, event]),
+      controller.signal,
+    );
+    const [updated, updatedTrace] = await Promise.all([
+      api<Run>(`/runs/${runId}`, {}, token),
+      api<RunTrace>(`/runs/${runId}/trace`, {}, token),
+    ]);
+    setSelectedRun(updated);
+    setTrace(updatedTrace);
+    await refreshAll(token);
+    return updated;
+  };
+
   const executeRun = async () => {
     if (!prompt.trim() || running) return;
     setRunning(true);
@@ -482,6 +502,22 @@ export default function HydroBridgeApp() {
     setEvents([]);
     setTrace(null);
     try {
+      if (selectedRun?.status === "waiting_review") {
+        const approval = approvals.find((item) => item.run_id === selectedRun.id && item.status === "pending");
+        const clarification = approval && clarificationReviewPayload(approval);
+        if (!approval || !clarification) {
+          notify("当前任务需要在审核中心确认，或点击新建会话开始其他任务");
+          return;
+        }
+        const message = [
+          `原始需求：${clarification.original_message || selectedRun.input_payload.message || ""}`,
+          `用户补充信息：${prompt.trim()}`,
+        ].join("\n\n");
+        await decideApproval(approval, "edit", { message });
+        setPrompt("");
+        return;
+      }
+
       const run = await api<Run>(
         "/runs",
         {
@@ -497,24 +533,11 @@ export default function HydroBridgeApp() {
       );
       setSelectedRun(run);
       setRuns((current) => [run, ...current.filter((item) => item.id !== run.id)]);
-      const controller = new AbortController();
-      abortRef.current = controller;
-      await streamRunEvents(
-        run.id,
-        token,
-        (event) => setEvents((current) => [...current, event]),
-        controller.signal,
-      );
-      const [updated, updatedTrace] = await Promise.all([
-        api<Run>(`/runs/${run.id}`, {}, token),
-        api<RunTrace>(`/runs/${run.id}/trace`, {}, token),
-      ]);
-      setSelectedRun(updated);
-      setTrace(updatedTrace);
-      await refreshAll(token);
+      setPrompt("");
+      const updated = await followRun(run.id);
       notify(
         updated.status === "waiting_review"
-          ? "任务已转入人工审核"
+          ? "任务需要补充信息或审核，请查看当前提示"
           : updated.status === "completed"
             ? "Agent 分析已经完成"
             : statusLabel(updated.status),
@@ -542,32 +565,43 @@ export default function HydroBridgeApp() {
     decision: "approve" | "edit" | "reject",
     editedPayload?: Record<string, unknown>,
   ) => {
-    await api(
-      `/runs/${approval.run_id}/decisions`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          approval_id: approval.id,
-          decision,
-          comment:
-            decision === "edit"
-              ? "已补充需求信息，请继续执行"
-              : decision === "approve"
-                ? "已核对信息，同意继续"
-                : "取消当前人工审核任务",
-          edited_payload: editedPayload,
-        }),
-      },
-      token,
-    );
-    notify(
-      decision === "edit"
-        ? "补充信息已提交，正在自动重新规范化需求"
-        : decision === "approve"
-          ? "已批准，Agent 将继续运行"
-          : "已取消当前审核任务",
-    );
-    await refreshAll(token);
+    const inCurrentChat = view === "workbench" && selectedRun?.id === approval.run_id;
+    if (inCurrentChat) setRunning(true);
+    try {
+      await api(
+        `/runs/${approval.run_id}/decisions`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            approval_id: approval.id,
+            decision,
+            comment:
+              decision === "edit"
+                ? "已补充需求信息，请继续执行"
+                : decision === "approve"
+                  ? "已核对信息，同意继续"
+                  : "取消当前人工审核任务",
+            edited_payload: editedPayload,
+          }),
+        },
+        token,
+      );
+      notify(
+        decision === "edit"
+          ? "补充信息已提交，正在自动重新规范化需求"
+          : decision === "approve"
+            ? "已批准，Agent 将继续运行"
+            : "已取消当前审核任务",
+      );
+      if (inCurrentChat) {
+        setEvents([]);
+        await followRun(approval.run_id);
+      } else {
+        await refreshAll(token);
+      }
+    } finally {
+      if (inCurrentChat) setRunning(false);
+    }
   };
 
   const createAchievement = async (form: HTMLFormElement) => {
@@ -1016,9 +1050,11 @@ export default function HydroBridgeApp() {
               setTaskType={setTaskType}
               running={running}
               executeRun={executeRun}
-              newConversation={() => { setSelectedRun(null); setPrompt(""); setEvents([]); setTrace(null); }}
+              newConversation={() => { setSelectedRun(null); setPrompt(""); setEvents([]); setTrace(null); setTaskType("auto"); }}
               cancelRun={cancelRun}
               selectedRun={selectedRun}
+              approvals={approvals}
+              decideApproval={decideApproval}
               events={events}
               trace={trace}
               openRun={openRun}
@@ -1188,6 +1224,8 @@ function Workbench({
   newConversation,
   cancelRun,
   selectedRun,
+  approvals,
+  decideApproval,
   events,
   trace,
   openRun,
@@ -1205,12 +1243,19 @@ function Workbench({
   newConversation: () => void;
   cancelRun: () => void;
   selectedRun: Run | null;
+  approvals: Approval[];
+  decideApproval: ApprovalDecision;
   events: RunEvent[];
   trace: RunTrace | null;
   openRun: (run: Run) => void;
   downloadReport: (artifactId: string) => void;
   downloadDocument: (documentId: string) => void;
 }) {
+  const pendingApproval = selectedRun?.status === "waiting_review"
+    ? approvals.find((item) => item.run_id === selectedRun.id && item.status === "pending")
+    : undefined;
+  const clarification = pendingApproval && clarificationReviewPayload(pendingApproval);
+  const waitingForReview = selectedRun?.status === "waiting_review" && !clarification;
   const activeEvents =
     events.length > 0
       ? events
@@ -1230,29 +1275,50 @@ function Workbench({
             <span className="live-chip"><Sparkles size={15} /> Agent 决策引擎</span>
             <h2>今天需要分析哪项水利工程问题？</h2>
             {selectedRun && <p>继续当前会话，可追问已找到的成果。<button className="text-button" disabled={running} onClick={newConversation}>新建会话</button></p>}
-            <p>根据问题选择检索、匹配或对比工具，结合成果原文说明结论与信息缺口。</p>
-          </div>
-          <div className="prompt-box">
-            <div className="task-select">
-              <GitBranch size={16} />
-              <select value={taskType} onChange={(event) => setTaskType(event.target.value)}>
-                {taskTypes.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
-              </select>
-              <ChevronDown size={15} />
+            <p>直接描述你要做的事，助手会选择相应流程；资料维护、入库审核和候选决策可在管理页面处理。</p>
+            <div className="capability-grid">
+              <div><strong>成果搜寻与评价</strong><span>联网搜寻 · 入库处理 · 成果评价</span></div>
+              <div><strong>需求分析与匹配</strong><span>需求整理 · 信息澄清 · 匹配与调整</span></div>
+              <div><strong>成果知识问答</strong><span>库内检索 · 详情解读 · 追问与对比</span></div>
             </div>
+          </div>
+          {pendingApproval && clarification && (
+            <section className="chat-clarification" aria-live="polite">
+              <strong><MessageSquareText size={17} />请补充当前需求</strong>
+              <p>{clarification.question}</p>
+              <p>直接在下方回复，补充后继续本次任务。</p>
+              <details>
+                <summary>也可以按字段补充</summary>
+                <ClarificationApprovalCard key={pendingApproval.id} item={pendingApproval} decide={decideApproval} compact />
+              </details>
+            </section>
+          )}
+          {waitingForReview && <p className="chat-clarification">本次任务等待入库或结果审核，请在审核中心确认。也可以新建会话继续其他任务。</p>}
+          <div className="prompt-box">
+            {!clarification && <details className="task-options">
+              <summary>{taskType === "auto" ? "自动选择任务 · 高级选项" : `指定任务：${taskTypes.find((item) => item.value === taskType)?.label}`}</summary>
+              <div className="task-select">
+                <GitBranch size={16} />
+                <select aria-label="指定任务类型" disabled={running || waitingForReview} value={taskType} onChange={(event) => setTaskType(event.target.value)}>
+                  {taskTypes.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                </select>
+                <ChevronDown size={15} />
+              </div>
+            </details>}
             <textarea
               aria-label="输入 Agent 任务"
               value={prompt}
               onChange={(event) => setPrompt(event.target.value)}
-              placeholder="描述工程场景、现有问题、技术约束或需要调研的主题…"
+              disabled={running || waitingForReview}
+              placeholder={clarification ? "补充工程条件、说明限制或回答上方问题…" : "搜寻成果、评价技术、整理需求、匹配方案，或直接提问…"}
             />
             <div className="prompt-footer">
               <span><ShieldCheck size={15} /> 结论附原文证据，未知约束保留待确认</span>
               {running ? (
                 <button className="stop-button" onClick={cancelRun}><Square size={14} fill="currentColor" />停止</button>
               ) : (
-                <button className="send-button" onClick={executeRun} disabled={!prompt.trim()}>
-                  开始分析 <Send size={17} />
+                <button className="send-button" onClick={executeRun} disabled={!prompt.trim() || waitingForReview}>
+                  {clarification ? "补充并继续" : "发送任务"} <Send size={17} />
                 </button>
               )}
             </div>
@@ -1349,7 +1415,7 @@ function Workbench({
         <div className="agent-roster">
           <p>成果助手可用工具</p>
           <div className="tool-labels">
-            {["成果搜索", "需求匹配", "成果详情", "成果对比", "需求更新"].map((label) => (
+            {["联网搜寻", "成果评价", "需求规范化", "成果搜索", "需求匹配", "成果详情", "成果对比", "需求更新"].map((label) => (
               <span key={label}>{label}</span>
             ))}
           </div>
@@ -1508,7 +1574,7 @@ function RequirementsView({
   return (
     <div className="page-stack">
       <section className="page-intro">
-        <div><p className="eyebrow">DEMAND INTELLIGENCE</p><h2>需求规范化中心</h2><p>将模糊工程描述整理为可复用、可追踪、可直接用于成果匹配的规范化需求。</p></div>
+        <div><p className="eyebrow">DEMAND INTELLIGENCE</p><h2>需求与匹配管理</h2><p>将模糊工程描述整理为可复用、可追踪、可直接用于成果匹配的规范化需求。</p></div>
         <button className="primary-button" onClick={create}><Plus size={17} />新建需求</button>
       </section>
       <section className="table-panel">
@@ -2112,7 +2178,7 @@ function AchievementDrawer({
               </div>
             )}
             {latest?.status === "waiting_review" && (
-              <div className="workflow-progress-card warning"><CircleAlert size={24} /><div><strong>评价结果等待人工审核</strong><p>证据或风险需要专家确认，可以到“人工审核”中处理。</p></div></div>
+              <div className="workflow-progress-card warning"><CircleAlert size={24} /><div><strong>评价结果等待人工审核</strong><p>证据或风险需要专家确认，可以到“审核中心”中处理。</p></div></div>
             )}
             {latest?.status === "failed" && (
               <div className="workflow-progress-card danger"><XCircle size={24} /><div><strong>本次评价失败</strong><p>可重新评价；原有成功版本不会被覆盖。</p></div></div>

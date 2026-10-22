@@ -9,7 +9,7 @@ from sqlalchemy.orm import defer
 
 from app.api.deps import CurrentUser, DatabaseSession, Services, require_roles
 from app.api.routes.workflow_helpers import dispatch_agent_run
-from app.db.models.domain import Achievement, AchievementEvaluation, EvaluationRubric
+from app.db.models.domain import Achievement, AchievementEvaluation
 from app.db.models.identity import User
 from app.db.models.knowledge import OutboxEvent
 from app.schemas.achievement import (
@@ -23,6 +23,7 @@ from app.schemas.workflow import (
     AchievementEvaluationResponse,
     AchievementWorkflowSummary,
 )
+from app.services.workflow_records import create_evaluation
 
 router = APIRouter(prefix="/achievements", tags=["achievements"])
 Reviewer = Annotated[User, Depends(require_roles("admin", "expert", "operator"))]
@@ -196,60 +197,7 @@ async def create_achievement_evaluation(
     services: Services,
 ) -> AchievementEvaluation:
     achievement = await get_achievement(achievement_id, session, user)
-    rubric = (
-        (
-            await session.execute(
-                select(EvaluationRubric)
-                .where(
-                    EvaluationRubric.name == "水利科技成果自身质量评价",
-                    EvaluationRubric.enabled.is_(True),
-                )
-                .order_by(EvaluationRubric.version.desc())
-            )
-        )
-        .scalars()
-        .first()
-    )
-    if rubric is None:
-        rubric = EvaluationRubric(
-            name="水利科技成果自身质量评价",
-            version=1,
-            dimensions=[
-                {"key": "innovation", "name": "创新性", "weight": 0.20},
-                {"key": "effectiveness", "name": "技术有效性", "weight": 0.20},
-                {"key": "maturity", "name": "工程成熟度", "weight": 0.15},
-                {"key": "evidence_quality", "name": "证据充分性", "weight": 0.20},
-                {"key": "promotion_value", "name": "推广复制价值", "weight": 0.15},
-                {
-                    "key": "implementation_feasibility",
-                    "name": "经济与实施可行性",
-                    "weight": 0.10,
-                },
-            ],
-        )
-        session.add(rubric)
-        await session.flush()
-    version = (
-        await session.scalar(
-            select(func.count())
-            .select_from(AchievementEvaluation)
-            .where(AchievementEvaluation.achievement_id == achievement_id)
-        )
-        or 0
-    ) + 1
-    evaluation = AchievementEvaluation(
-        achievement_id=achievement.id,
-        rubric_id=rubric.id,
-        evaluation_version=version,
-        status="queued",
-        rubric_snapshot={
-            "name": rubric.name,
-            "version": rubric.version,
-            "dimensions": rubric.dimensions,
-        },
-    )
-    session.add(evaluation)
-    await session.flush()
+    evaluation = await create_evaluation(session, achievement)
     if services.agent_runtime is None:
         raise HTTPException(status_code=503, detail="Agent Runtime 未初始化")
     run = await services.agent_runtime.create_run(

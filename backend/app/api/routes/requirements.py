@@ -25,6 +25,7 @@ from app.schemas.workflow import (
     RequirementRefinementResponse,
     RequirementWorkflowSummary,
 )
+from app.services.workflow_records import create_match, create_refinement
 
 router = APIRouter(prefix="/requirements", tags=["requirements"])
 
@@ -177,21 +178,7 @@ async def refine_requirement(
     services: Services,
 ) -> RequirementRefinement:
     requirement = await get_owned_requirement(requirement_id, session, user)
-    version = (
-        await session.scalar(
-            select(func.count())
-            .select_from(RequirementRefinement)
-            .where(RequirementRefinement.requirement_id == requirement.id)
-        )
-        or 0
-    ) + 1
-    refinement = RequirementRefinement(
-        requirement_id=requirement.id,
-        refinement_version=version,
-        status="queued",
-    )
-    session.add(refinement)
-    await session.flush()
+    refinement = await create_refinement(session, requirement)
     if services.agent_runtime is None:
         raise HTTPException(status_code=503, detail="Agent Runtime 未初始化")
     run = await services.agent_runtime.create_run(
@@ -246,23 +233,7 @@ async def create_requirement_match(
     services: Services,
 ) -> MatchRunSummary:
     requirement = await get_owned_requirement(requirement_id, session, user)
-    match = MatchRun(
-        requirement_id=requirement.id,
-        status="queued",
-        rubric_snapshot={
-            "dimensions": [
-                "scenario_fit",
-                "effectiveness",
-                "maturity",
-                "evidence_quality",
-                "cost_fit",
-                "implementation_risk",
-            ],
-            "hard_constraints": requirement.hard_constraints,
-        },
-    )
-    session.add(match)
-    await session.flush()
+    match = await create_match(session, requirement)
     if services.agent_runtime is None:
         raise HTTPException(status_code=503, detail="Agent Runtime 未初始化")
     message = requirement.normalized_description or requirement.raw_input

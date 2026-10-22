@@ -84,6 +84,10 @@ class EventBus:
                         f"event: {event['event_type']}\n"
                         f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
                     )
+                if events[-1][1].get("event_type") in {
+                    "run.completed", "run.failed", "run.cancelled", "run.waiting_review"
+                } and await is_terminal():
+                    break
             elif await is_terminal():
                 idle_after_terminal += 1
                 if idle_after_terminal >= 1:

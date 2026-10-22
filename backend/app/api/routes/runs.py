@@ -11,6 +11,7 @@ from app.db.models.runtime import (
     AgentStep,
     ApprovalTask,
     Conversation,
+    Message,
     ToolCall,
 )
 from app.db.session import AsyncSessionFactory
@@ -63,6 +64,10 @@ async def create_run(
         ids = [*ids, payload.context["achievement_id"]]
     for achievement_id in ids:
         await get_achievement(str(achievement_id), session, user)
+    if payload.context.get("requirement_id"):
+        from app.api.routes.requirements import get_owned_requirement
+
+        await get_owned_requirement(str(payload.context["requirement_id"]), session, user)
     try:
         run = await services.agent_runtime.create_run(
             session,
@@ -157,7 +162,9 @@ async def stream_run_events(
     async def is_terminal() -> bool:
         async with AsyncSessionFactory() as fresh_session:
             current = await fresh_session.get(AgentRun, run_id)
-            return bool(current and current.status in {"completed", "failed", "cancelled"})
+            return bool(
+                current and current.status in {"completed", "failed", "cancelled", "waiting_review"}
+            )
 
     return StreamingResponse(
         services.events.stream(run_id, cursor, is_terminal),
@@ -181,6 +188,18 @@ async def cancel_run(
     if run.status in {"completed", "failed", "cancelled"}:
         return StatusResponse(status=run.status, message="任务已经结束")
     run.status = "cancelled"
+    pending_approvals = await session.scalars(
+        select(ApprovalTask).where(
+            ApprovalTask.run_id == run.id, ApprovalTask.status == "pending"
+        )
+    )
+    for approval in pending_approvals:
+        approval.status = "completed"
+        approval.decision = "reject"
+        approval.decision_comment = "任务已取消"
+        approval.decided_by = user.id
+    if services.agent_runtime:
+        await services.agent_runtime.set_domain_status(session, run, "cancelled")
     await session.commit()
     await services.redis.runtime.set(
         f"hb:{settings.app_env}:run:{run_id}:cancelled",
@@ -203,21 +222,52 @@ async def decide_run(
     run = await owned_run(run_id, session, user)
     if services.agent_runtime is None:
         raise HTTPException(status_code=503, detail="Agent Runtime 未初始化")
-    approval = await session.get(ApprovalTask, payload.approval_id)
+    approval = await session.scalar(
+        select(ApprovalTask).where(ApprovalTask.id == payload.approval_id).with_for_update()
+    )
     if approval is None or approval.run_id != run.id:
         raise HTTPException(status_code=404, detail="审核任务不存在")
     if approval.status != "pending":
         raise HTTPException(status_code=409, detail="审核任务已经处理")
+    if run.status != "waiting_review":
+        raise HTTPException(status_code=409, detail="当前任务不在等待补充或审核状态")
+    approval_payload = approval.payload if isinstance(approval.payload, dict) else {}
+    workflow_payload = approval_payload.get("payload", {})
+    if (
+        isinstance(workflow_payload, dict)
+        and workflow_payload.get("type") == "clarification"
+        and payload.decision == "edit"
+        and isinstance(payload.edited_payload, dict)
+        and payload.edited_payload.get("message")
+    ):
+        session.add(
+            Message(
+                conversation_id=run.conversation_id,
+                run_id=run.id,
+                role="user",
+                content=str(payload.edited_payload["message"]),
+            )
+        )
     approval.status = "completed"
     approval.decision = payload.decision
     approval.decision_comment = payload.comment
     approval.decided_by = user.id
+    if (
+        isinstance(workflow_payload, dict)
+        and workflow_payload.get("type") == "clarification"
+        and payload.decision == "reject"
+    ):
+        run.status = "cancelled"
+        run.current_agent = None
+        run.current_step = "cancelled"
+        await services.agent_runtime.set_domain_status(session, run, "cancelled")
+        await session.commit()
+        await services.events.publish(run.id, "run.cancelled", {"by": user.id})
+        return StatusResponse(status="cancelled", message="需求补充已取消，任务已结束")
     run.status = "queued"
     await services.agent_runtime.set_domain_status(session, run, "queued")
     await session.commit()
 
-    approval_payload = approval.payload if isinstance(approval.payload, dict) else {}
-    workflow_payload = approval_payload.get("payload", {})
     resume_payload = {
         "decision": payload.decision,
         "comment": payload.comment,

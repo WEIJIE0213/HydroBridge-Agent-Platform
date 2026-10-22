@@ -389,6 +389,8 @@ async def test_intrinsic_achievement_evaluation_uses_dedicated_dimensions(
     state.update(
         {
             "task_type": "evaluation",
+            "user_id": seeded_user.id,
+            "organization_id": seeded_user.organization_id,
             "context": {"achievement_id": achievement.id},
         }
     )

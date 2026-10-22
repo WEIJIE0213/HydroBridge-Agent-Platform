@@ -273,6 +273,9 @@ class AgentRuntime:
                         )
                     await self.set_domain_status(session, run, "waiting_review")
                     await session.commit()
+                    await self.services.events.publish(
+                        run_id, "run.waiting_review", {"reason": reason}
+                    )
                     return
 
                 final_answer = str(result.get("final_answer", ""))
@@ -322,6 +325,9 @@ class AgentRuntime:
                     "achievement_evaluation": result.get("achievement_evaluation", {}),
                     "requirement": result.get("requirement_profile", {}),
                     "requirement_id": result.get("context", {}).get("requirement_id"),
+                    "refinement_id": result.get("context", {}).get("refinement_id"),
+                    "match_id": result.get("context", {}).get("match_id"),
+                    "evaluation_id": result.get("context", {}).get("evaluation_id"),
                     "research_ingestion": result.get("ingestion_summary", {}),
                     "ingested_achievement_ids": result.get("ingested_achievement_ids", []),
                     "artifact_id": artifact_id,
@@ -482,20 +488,7 @@ class AgentRuntime:
             refinement.profile = profile
             refinement.completeness_score = float(profile.get("completeness_score", 0))
             refinement.confirmed = True
-            requirement.title = str(profile.get("title") or requirement.title)[:300]
-            requirement.normalized_description = str(
-                profile.get("normalized_description", requirement.raw_input)
-            )
-            requirement.scenario = str(profile.get("scenario", ""))[:200]
-            requirement.problem = str(profile.get("problem", ""))
-            requirement.objectives = list(profile.get("objectives", []))
-            requirement.hard_constraints = dict(profile.get("hard_constraints", {}))
-            requirement.soft_preferences = dict(profile.get("soft_preferences", {}))
-            requirement.known_conditions = dict(profile.get("known_conditions", {}))
-            requirement.search_terms = list(profile.get("search_terms", []))
-            requirement.missing_fields = list(profile.get("missing_critical_fields", []))
-            requirement.completeness_score = float(profile.get("completeness_score", 0))
-            requirement.status = "ready" if requirement.completeness_score >= 0.6 else "draft"
+            self._apply_requirement_profile(requirement, profile, result)
             return
 
         if action != "requirement_matching":
@@ -503,6 +496,13 @@ class AgentRuntime:
         match = await session.get(MatchRun, context.get("match_id"))
         if match is None:
             return
+        profile = result.get("requirement_profile", {})
+        requirement = await session.get(Requirement, match.requirement_id)
+        if requirement is not None and profile:
+            self._apply_requirement_profile(requirement, profile, result)
+            match.rubric_snapshot = {
+                **match.rubric_snapshot, "hard_constraints": profile.get("hard_constraints", {}),
+            }
         assessments = list(result.get("assessment_results", []))
         persisted = 0
         for assessment in assessments:
@@ -558,3 +558,21 @@ class AgentRuntime:
         requirement = await session.get(Requirement, match.requirement_id)
         if requirement is not None:
             requirement.status = "matched"
+
+    @staticmethod
+    def _apply_requirement_profile(requirement, profile, result):
+        requirement.raw_input = str(result.get("user_message") or requirement.raw_input)
+        requirement.title = str(profile.get("title") or requirement.title)[:300]
+        requirement.normalized_description = str(
+            profile.get("normalized_description", requirement.raw_input)
+        )
+        requirement.scenario = str(profile.get("scenario", ""))[:200]
+        requirement.problem = str(profile.get("problem", ""))
+        requirement.objectives = list(profile.get("objectives", []))
+        requirement.hard_constraints = dict(profile.get("hard_constraints", {}))
+        requirement.soft_preferences = dict(profile.get("soft_preferences", {}))
+        requirement.known_conditions = dict(profile.get("known_conditions", {}))
+        requirement.search_terms = list(profile.get("search_terms", []))
+        requirement.missing_fields = list(profile.get("missing_critical_fields", []))
+        requirement.completeness_score = float(profile.get("completeness_score", 0))
+        requirement.status = "ready" if requirement.completeness_score >= 0.6 else "draft"

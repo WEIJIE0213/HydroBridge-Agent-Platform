@@ -58,17 +58,28 @@ flowchart LR
     API --> CACHE[Redis Cache: 外部搜索缓存]
 ```
 
-活动图只有 `agent → tools/workflow → respond` 和审核节点。模型通过原生 function calling 从以下五个工具中选择；模型未配置时使用明确的确定性路由和原文摘录模式。
+活动图只有 `agent → tools/workflow → respond` 和审核节点。模型通过原生 function calling 从以下八个工具中选择；模型未配置时使用明确的确定性路由和原文摘录模式。
 
 | 工具 | 行为 |
 | --- | --- |
+| `research_achievements` | 联网搜寻、证据提取与质量分流，高置信度入库、灰区转审核 |
+| `evaluate_achievement` | 按成果 ID、准确名称或当前唯一成果启动自身质量评价；对象不明确时先澄清 |
+| `normalize_requirement` | 独立整理和澄清需求，本次不自动执行匹配 |
 | `search_achievements` | 最多两轮检索、证据充分性判断、带逐字引用的问答 |
 | `match_achievements` | 固定的需求解析、过滤、混合召回、重排、成果聚合与硬约束核验流程 |
 | `get_achievement` | 读取有权访问的已审核成果详情 |
 | `compare_achievements` | 在指定成果 ID 范围内检索并对比 |
 | `update_requirement` | 更新当前需求描述；持久化时验证需求归属 |
 
-原有联网调研、成果评价、需求规范化仍作为显式业务流程保留。其辅助类名称保留部分历史 `Agent` 命名，但不再由 Supervisor 动态调度。联网调研仍使用 Tavily，并保留证据策展、质量分流及灰区批量审核。
+联网调研、成果评价、需求规范化既能由聊天中的工具调用触发，也可通过显式任务类型直接启动固定流程。其辅助类名称保留部分历史 `Agent` 命名，但不再由 Supervisor 动态调度。联网调研仍使用 Tavily，并保留证据策展、质量分流及灰区批量审核。
+
+### 聊天入口与管理页面
+
+聊天工作台按三个业务方向组织：成果搜寻与评价、需求分析与匹配、成果知识问答。默认自动选择任务，手动任务类型放在高级选项。成果库和需求页面保留评价、规范化、匹配快捷按钮；聊天和页面共用业务记录创建与结果保存逻辑，评价记录、需求画像、匹配历史与候选决策可以在管理页继续查看和处理。
+
+聊天首次整理或匹配需求时会建立当前用户的需求记录，后续轮次延续该需求；新建会话可开始独立需求。评价对象必须来自有权访问的成果，模型不得编造成果 ID。入围、淘汰、采纳及入库审批仍由用户在页面上明确操作。
+
+需求信息不足时，工作台显示本次任务的澄清问题，既可直接在输入框补充，也可展开字段表单。提交后恢复同一运行及检查点，不会创建另一条匹配任务；审核中心也保留集中处理入口。等待补充时结束当前事件流，提交补充后重新订阅并显示后续结果。
 
 同一会话可继续追问已检索成果，服务端读取此前完成轮次的历史与成果范围。每个运行使用独立的 PostgreSQL 检查点 ID，恢复审核时复用该运行 ID。点击“新建会话”可开始新的检索范围。
 
@@ -167,7 +178,8 @@ docker compose up -d api worker scheduler frontend
 
 ## 主要代码
 
-- `backend/app/agents/graph.py`：单 Agent 与五个工具
+- `backend/app/agents/graph.py`：单 Agent 与八个工具
+- `backend/app/services/workflow_records.py`：聊天与页面共用业务记录及运行关联
 - `backend/app/agents/workflows.py`：业务流程、审核和报告
 - `backend/app/agents/checkpoint.py`：PostgreSQL 检查点
 - `backend/app/services/chunking.py`：可定位原文片段
