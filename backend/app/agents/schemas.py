@@ -202,6 +202,7 @@ class MatchAssessmentBatch(BaseModel):
     generation_mode: str = "llm"
     results: list[MatchAssessment] = Field(default_factory=list, max_length=20)
     overall_summary: str = ""
+    retrieval_warnings: list[str] = Field(default_factory=list)
 
 
 class VerificationResult(BaseModel):

@@ -41,7 +41,7 @@ flowchart LR
     H --> A[Agent 决策]
     A --> X[成果搜寻与评价子图]
     A --> M[需求分析与匹配子图]
-    A --> S[成果检索与问答子图]
+    A --> S[成果答疑问答子图]
     X --> K[收集并保存动作结果]
     M --> K
     S --> K
@@ -61,24 +61,21 @@ flowchart LR
     API --> CACHE[Redis Cache: 外部搜索缓存]
 ```
 
-新运行使用 `3.0.0-agent-subgraphs` 图。主路径是 `prepare_context → agent → dispatch → 业务子图 → collect → agent`；模型判断完成时进入 `respond`。三个业务子图都是独立编译的 LangGraph 图，共享状态并继承父图检查点。子图内部的 `END` 返回父图，不结束整个任务。
+新运行使用 `3.1.0-three-business-tools` 图。主路径是 `prepare_context → agent → dispatch → 业务子图 → collect → agent`；模型判断完成时进入 `respond`。三个业务子图都是独立编译的 LangGraph 图，共享状态并继承父图检查点。子图内部的 `END` 返回父图，不结束整个任务。
 
-模型通过原生 Function Calling 选择业务动作，再由服务端分派到三个子图。以下八个名称是动作接口，不是八个独立 Agent：
+模型通过原生 Function Calling 选择三个业务工具之一，再由服务端校验模式并分派到对应子图：
 
 | 工具 | 行为 |
 | --- | --- |
-| `research_achievements` | 联网搜寻、证据提取与质量分流，高置信度入库、灰区转审核 |
-| `evaluate_achievement` | 按成果 ID、准确名称或当前唯一成果启动自身质量评价；对象不明确时先澄清 |
-| `normalize_requirement` | 独立整理和澄清需求，本次不自动执行匹配 |
-| `search_achievements` | 最多两轮检索、证据充分性判断、带逐字引用的问答 |
-| `match_achievements` | 固定的需求解析、过滤、混合召回、重排、成果聚合与硬约束核验流程 |
-| `get_achievement` | 读取有权访问的已审核成果详情 |
-| `compare_achievements` | 在指定成果 ID 范围内检索并对比 |
-| `update_requirement` | 更新当前需求描述；持久化时验证需求归属 |
+| `research_achievements` | `research` 联网搜寻与入库；`evaluate` 单项成果自身评价 |
+| `match_achievements` | `analyze` 独立分析；`match` 分析并匹配；`refine` 字段级更新已有需求，可选择是否匹配 |
+| `ask_achievements` | `search` 原文答疑；`detail` 结构化概览；`compare` 指定成果对比 |
 
-成果搜寻与评价子图承接联网搜寻、入库与自身评价；需求分析与匹配子图承接需求更新、独立分析、澄清与匹配；成果检索与问答子图承接详情、原文问答与指定成果对比。模型未配置时使用确定性首步路由和原文摘录，完成首项后明确提示无法继续模型规划。
+成果搜寻与评价子图承接联网搜寻、入库与自身评价；需求分析与匹配子图承接需求更新、独立分析、澄清与匹配；成果答疑问答子图承接详情、原文问答与指定成果对比。模型未配置时使用确定性首步路由和原文摘录，完成首项后明确提示无法继续模型规划。内部细分动作名保留用于业务记录和旧检查点，不作为额外工具暴露给模型。
 
-显式任务类型或管理页面快捷按钮只确定第一个动作；动作执行完仍回到主 Agent。它根据原始目标、已完成动作、候选排名及真实成果 ID 决定下一步。例如“先匹配，再比较前两项”会先收到匹配结果，再选择对比动作。每项动作单独保存业务结果，最终报告合并各项输出并调整引用编号。动作次数默认上限为 12，同参数同范围的重复动作会停止，总超时默认 600 秒。
+显式任务类型为首个动作提供意图；已有需求的分析/匹配请求由模型判断是否局部更新。动作执行完仍回到主 Agent。它根据原始目标、已完成动作和有序候选决定下一步。例如“先匹配，再比较前两项”可先收到匹配结果，再选择对比模式，序号由服务端映射为真实 ID。每项动作单独保存业务结果，最终报告合并各项输出并调整引用编号。动作次数默认上限为 12，同参数同范围的重复动作会停止，总超时默认 600 秒。
+
+需求补丁按约束键合并，未传字段保留；语义不明的修改应先澄清。参数校验错误返回 Agent，基础设施异常仍按运行层失败策略处理。ES 降级信息会进入匹配和问答报告，空结果也保留提示。当前面试口径见 [41 题面试问答](docs/INTERVIEW_QA.md)。
 
 ### 上下文管理
 
@@ -202,7 +199,7 @@ docker compose up -d api worker scheduler frontend
 
 ## 主要代码
 
-- `backend/app/agents/graph.py`：单 Agent 与八个工具
+- `backend/app/agents/graph.py`：单 Agent 图入口；`tools.py` 定义三个业务工具
 - `backend/app/services/workflow_records.py`：聊天与页面共用业务记录及运行关联
 - `backend/app/agents/workflows.py`：业务流程、审核和报告
 - `backend/app/agents/checkpoint.py`：PostgreSQL 检查点

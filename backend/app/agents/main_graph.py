@@ -7,11 +7,19 @@ import json
 import re
 
 from langgraph.graph import END, START, StateGraph
+from pydantic import ValidationError
 from sqlalchemy import and_, or_, select
 
 from app.agents.state import AgentState
 from app.agents.subgraphs import BusinessSubgraphs
-from app.agents.tools import ACTION_GRAPHS, ACTION_TASKS, TOOL_SCHEMAS, TOOLS, achievement_scope
+from app.agents.tools import (
+    ACTION_GRAPHS,
+    ACTION_SCHEMAS,
+    ACTION_TASKS,
+    TOOLS,
+    achievement_scope,
+    normalize_public_call,
+)
 from app.core.config import settings
 from app.db.models.domain import Achievement
 from app.db.models.identity import User
@@ -20,7 +28,8 @@ from app.services.action_results import completed_action, persist_action
 from app.services.conversation_context import ConversationContext, decision_observations
 from app.services.workflow_records import bind_workflow
 
-GRAPH_VERSION = "3.0.0-agent-subgraphs"
+GRAPH_VERSION = "3.1.0-three-business-tools"
+AGENT_GRAPH_VERSIONS = {"3.0.0-agent-subgraphs", GRAPH_VERSION}
 ACTION_LABELS = {
     "research_achievements": "成果搜寻与入库",
     "evaluate_achievement": "成果评价",
@@ -40,6 +49,7 @@ RESULT_FIELDS = (
     "ingestion_summary",
     "ingested_achievement_ids",
     "rag_result",
+    "retrieval_warnings",
     "selected_achievement_ids",
     "scope_is_set",
     "user_message",
@@ -56,7 +66,8 @@ class HydroBridgeGraph(BusinessSubgraphs):
         elif context.get("achievement_id"):
             ceiling = [str(context["achievement_id"])]
         elif state.get("scope_is_set"):
-            ceiling = list(state.get("selected_achievement_ids", []))
+            # v3 checkpoints did not persist the boundary separately from candidates.
+            ceiling = state.get("scope_limit", state.get("selected_achievement_ids", []))
         else:
             ceiling = None
         await self._publish(state, "agent.started", "context_summary")
@@ -68,6 +79,11 @@ class HydroBridgeGraph(BusinessSubgraphs):
             "requested_task_type": state.get("requested_task_type", state.get("task_type", "auto")),
             "scope_limit": ceiling,
             "selected_achievement_ids": ceiling if ceiling is not None else [],
+            "active_candidates": [
+                item
+                for item in state.get("active_candidates", [])
+                if ceiling is None or item["id"] in ceiling
+            ],
             "scope_is_set": ceiling is not None,
             "tool_results": state.get("tool_results", []),
             "tool_iterations": state.get("tool_iterations", 0),
@@ -114,7 +130,8 @@ class HydroBridgeGraph(BusinessSubgraphs):
     async def agent_node(self, state):
         await self._publish(state, "agent.started", "hydrobridge_agent")
         iterations = state.get("tool_iterations", 0)
-        call, stop = {}, ""
+        call, stop, question = {}, "", ""
+        public_call = False
         task = state.get("requested_task_type", "auto")
         initial_tools = {
             "research": "research_achievements",
@@ -124,7 +141,16 @@ class HydroBridgeGraph(BusinessSubgraphs):
         }
         if iterations >= settings.agent_max_iterations:
             stop = "已达到本次动作次数上限，返回已完成的结果，本轮不再继续调用。"
-        elif iterations == 0 and task in initial_tools:
+        elif (
+            iterations == 0
+            and task in initial_tools
+            and not (
+                self.model.configured
+                and state.get("requirement_profile")
+                and task in {"requirement_analysis", "matching"}
+                and not state.get("context", {}).get("domain_action")
+            )
+        ):
             arguments = {"query": state["user_message"]}
             if task == "evaluation":
                 scope = achievement_scope(state)
@@ -141,6 +167,7 @@ class HydroBridgeGraph(BusinessSubgraphs):
                         "history_summary": state.get("conversation_summary", ""),
                         "history": state.get("conversation_history", []),
                         "scope": achievement_scope(state),
+                        "active_candidates": state.get("active_candidates", []),
                         "requirement": state.get("requirement_profile", {}),
                         "results": decision_observations(state.get("tool_results", [])),
                         "remaining_actions": settings.agent_max_iterations - iterations,
@@ -148,17 +175,38 @@ class HydroBridgeGraph(BusinessSubgraphs):
                     session=session,
                     run_id=state["run_id"],
                 )
+            question = str(call.get("question", ""))
+            if question:
+                call = {}
+            public_call = bool(call)
         elif iterations == 0:
             call = self._offline_tool(state)
         else:
             stop = "未配置决策模型，已返回可执行步骤的结果，未继续自动规划其他操作。"
-        if not call and not iterations and not stop:
+        if not call and not iterations and not stop and not question:
             call = self._offline_tool(state)
-        if call and call.get("name") not in TOOL_SCHEMAS:
-            raise ValueError("Agent requested an unknown tool")
         if call:
-            args = TOOL_SCHEMAS[call["name"]][0].model_validate(call.get("arguments", {}))
-            call = {"name": call["name"], "arguments": args.model_dump()}
+            try:
+                if public_call:
+                    call = normalize_public_call(call, state)
+                else:
+                    args = ACTION_SCHEMAS[call["name"]][0].model_validate(call.get("arguments", {}))
+                    call = {"name": call["name"], "arguments": args.model_dump()}
+            except (ValidationError, ValueError) as exc:
+                # Reject before dispatching any business side effects, but let the Agent correct it.
+                error = (
+                    "; ".join(
+                        f"{'.'.join(map(str, item['loc']))}: {item['msg']}" for item in exc.errors()
+                    )
+                    if isinstance(exc, ValidationError)
+                    else str(exc)
+                )
+                call = {
+                    "name": "invalid_tool",
+                    "arguments": {},
+                    "public_call": call,
+                    "error": error[:1200],
+                }
         await self._publish(
             state,
             "agent.completed",
@@ -173,6 +221,7 @@ class HydroBridgeGraph(BusinessSubgraphs):
             "pending_tool": call,
             "agent_route": "dispatch" if call else "respond",
             "stop_reason": stop,
+            "agent_question": question,
         }
 
     async def _evaluation_target(self, state, args):
@@ -204,7 +253,12 @@ class HydroBridgeGraph(BusinessSubgraphs):
         call = state["pending_tool"]
         name, args = call["name"], call["arguments"]
         serialized = json.dumps(
-            {**call, "scope": achievement_scope(state)}, ensure_ascii=False, sort_keys=True
+            {
+                **(call if call.get("error") else {"name": name, "arguments": args}),
+                "scope": achievement_scope(state),
+            },
+            ensure_ascii=False,
+            sort_keys=True,
         )
         fingerprint = hashlib.sha256(serialized.encode()).hexdigest()
         if fingerprint in state.get("executed_actions", []):
@@ -234,14 +288,14 @@ class HydroBridgeGraph(BusinessSubgraphs):
         }
         message = args.get("query", args.get("description", state["user_message"]))
         updates = {
-            "task_type": ACTION_TASKS[name],
+            "task_type": ACTION_TASKS.get(name, state.get("task_type", "auto")),
             "user_message": message,
             "context": context,
             "tool_iterations": iteration,
             "action_id": action_id,
             "action_fingerprint": fingerprint,
             "action_status": "completed",
-            "action_route": ACTION_GRAPHS[name],
+            "action_route": ACTION_GRAPHS.get(name, "collect"),
             "replayed_action": {},
             "final_answer": "",
             "citations": [],
@@ -249,6 +303,9 @@ class HydroBridgeGraph(BusinessSubgraphs):
             "assessment_results": [],
             "achievement_evaluation": {},
             "verification": {},
+            "retrieval_hits": [],
+            "retrieval_warnings": [],
+            "requirement_change_summary": "",
             "search_queries": [],
             "search_results": [],
             "evidence_records": [],
@@ -269,6 +326,11 @@ class HydroBridgeGraph(BusinessSubgraphs):
             "selected_achievement_ids": achievement_scope(state) or [],
             "scope_is_set": achievement_scope(state) is not None,
         }
+        if call.get("error"):
+            updates.update(
+                action_status="error",
+                final_answer=f"工具参数未通过校验：{call['error']}。请修正参数，无法确定时向用户澄清。",
+            )
         if name == "evaluate_achievement":
             achievement_id = await self._evaluation_target(state, args)
             if achievement_id is None:
@@ -303,7 +365,7 @@ class HydroBridgeGraph(BusinessSubgraphs):
             {
                 "tool": name,
                 "action_id": action_id,
-                "subgraph": ACTION_GRAPHS[name],
+                "subgraph": ACTION_GRAPHS.get(name),
             },
         )
         return updates
@@ -351,6 +413,7 @@ class HydroBridgeGraph(BusinessSubgraphs):
                 "fingerprint": state["action_fingerprint"],
                 "tool": state["pending_tool"]["name"],
                 "arguments": state["pending_tool"]["arguments"],
+                "public_call": state["pending_tool"].get("public_call", {}),
                 "status": state["action_status"],
                 "answer": state.get("final_answer", ""),
                 "citations": state.get("citations", []),
@@ -361,13 +424,18 @@ class HydroBridgeGraph(BusinessSubgraphs):
             }
             await persist_action(state, entry)
             if state.get("action_trace"):
-                await self.services.trace.tool_completed(
-                    *state["action_trace"],
-                    {"status": entry["status"], "record_ids": entry["record_ids"]},
-                )
+                if entry["status"] == "error":
+                    await self.services.trace.tool_failed(
+                        *state["action_trace"], ValueError(entry["answer"])
+                    )
+                else:
+                    await self.services.trace.tool_completed(
+                        *state["action_trace"],
+                        {"status": entry["status"], "record_ids": entry["record_ids"]},
+                    )
             await self._publish(
                 state,
-                "tool.completed",
+                "tool.failed" if entry["status"] == "error" else "tool.completed",
                 "hydrobridge_agent",
                 {
                     "tool": entry["tool"],
@@ -395,9 +463,24 @@ class HydroBridgeGraph(BusinessSubgraphs):
         ceiling = state.get("scope_limit")
         if ceiling is not None:
             candidates = [identity for identity in candidates if identity in ceiling]
+        active = state.get("active_candidates", [])
+        if entry["status"] == "completed" and (
+            entry["tool"] == "match_achievements"
+            or (
+                entry["tool"] == "search_achievements"
+                and not entry["arguments"].get("achievement_ids")
+            )
+        ):
+            # Detail/compare must not change what "the second result" refers to.
+            active = [
+                item
+                for item in entry.get("achievement_choices", [])
+                if ceiling is None or item["id"] in ceiling
+            ]
         return {
             "tool_results": [*results, entry],
             "selected_achievement_ids": candidates,
+            "active_candidates": active,
             "scope_is_set": ceiling is not None
             or state.get("scope_is_set", False)
             or bool(candidates),
@@ -410,6 +493,12 @@ class HydroBridgeGraph(BusinessSubgraphs):
         answers, citations, restored, context = [], [], {}, dict(state.get("context", {}))
         results = state.get("tool_results", [])
         for index, item in enumerate(results):
+            if (
+                item.get("status") == "error"
+                and item["tool"] == "invalid_tool"
+                and any(later.get("status") == "completed" for later in results[index + 1 :])
+            ):
+                continue
             if item.get("status") == "needs_input" and any(
                 later["tool"] == item["tool"] and later.get("status") == "completed"
                 for later in results[index + 1 :]
@@ -448,6 +537,16 @@ class HydroBridgeGraph(BusinessSubgraphs):
                     restored[key] = value
         if state.get("stop_reason"):
             answers.append(state["stop_reason"])
+        if state.get("agent_question"):
+            answers.append(state["agent_question"])
+        if state.get("active_candidates"):
+            answers.append(
+                "当前候选序号（后续可按序号追问）：\n\n"
+                + "\n".join(
+                    f"- 成果 {item['rank']}：{item.get('title') or item['id']}"
+                    for item in state["active_candidates"]
+                )
+            )
         return {
             **restored,
             "context": context,
@@ -500,7 +599,7 @@ class HydroBridgeGraph(BusinessSubgraphs):
 
 
 def build_agent_graph(services, checkpointer=None, model=None, *, version=GRAPH_VERSION):
-    if version != GRAPH_VERSION:
+    if version not in AGENT_GRAPH_VERSIONS:
         # Already-paused v2 runs must resume their original node layout.
         from app.agents.legacy_graph import build_agent_graph as build_legacy_graph
 

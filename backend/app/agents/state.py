@@ -29,6 +29,7 @@ class AgentState(TypedDict, total=False):
 
     requirement_profile: dict[str, Any]
     requirement_description: str
+    requirement_change_summary: str
     clarification: dict[str, Any]
     search_queries: list[str]
     search_results: list[dict[str, Any]]
@@ -56,6 +57,7 @@ class AgentState(TypedDict, total=False):
     errors: list[dict[str, Any]]
     conversation_history: list[dict[str, str]]
     selected_achievement_ids: list[str]
+    active_candidates: list[dict[str, Any]]
     scope_is_set: bool
     pending_tool: dict[str, Any]
     tool_results: list[dict[str, Any]]
@@ -74,6 +76,7 @@ class AgentState(TypedDict, total=False):
     replayed_action: dict[str, Any]
     executed_actions: list[str]
     stop_reason: str
+    agent_question: str
     conversation_summary: str
     memory: dict[str, Any]
     context_prepared: bool
@@ -86,3 +89,4 @@ class AgentState(TypedDict, total=False):
     rag_missing: list[str]
     rag_sufficient: bool
     rag_next_query: str
+    retrieval_warnings: list[str]

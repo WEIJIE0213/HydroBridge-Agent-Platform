@@ -92,7 +92,7 @@ const taskTypes = [
   { value: "matching", label: "成果匹配" },
   { value: "research", label: "联网调研" },
   { value: "evaluation", label: "成果评估" },
-  { value: "qa", label: "知识问答" },
+  { value: "qa", label: "成果答疑问答" },
 ];
 
 const prompts = [
@@ -127,6 +127,7 @@ const agentNames: Record<string, string> = {
   qa_validate: "引用与充分性核验",
   get_achievement: "成果详情",
   update_requirement: "需求更新",
+  requirement_patch: "需求局部更新",
   tools: "工具执行",
   match_achievements: "成果匹配",
   constraint_validation: "约束核验",
@@ -1285,7 +1286,7 @@ function Workbench({
             <div className="capability-grid">
               <div><strong>成果搜寻与评价</strong><span>联网搜寻 · 入库处理 · 成果评价</span></div>
               <div><strong>需求分析与匹配</strong><span>需求整理 · 信息澄清 · 匹配与调整</span></div>
-              <div><strong>成果知识问答</strong><span>库内检索 · 详情解读 · 追问与对比</span></div>
+              <div><strong>成果答疑问答</strong><span>库内检索 · 详情解读 · 追问与对比</span></div>
             </div>
           </div>
           {pendingApproval && clarification && (

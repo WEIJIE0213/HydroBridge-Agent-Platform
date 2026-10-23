@@ -12,7 +12,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agents.checkpoint import checkpointer_context
-from app.agents.graph import GRAPH_VERSION, build_agent_graph
+from app.agents.graph import AGENT_GRAPH_VERSIONS, GRAPH_VERSION, build_agent_graph
 from app.agents.model_gateway import ModelGateway
 from app.core.config import settings
 from app.core.exceptions import RunCancelledError
@@ -198,6 +198,11 @@ class AgentRuntime:
                     "selected_achievement_ids", []
                 )
                 initial_state["scope_is_set"] = previous.output_payload.get("scope_is_set", False)
+                if "scope_limit" in previous.output_payload:
+                    initial_state["scope_limit"] = previous.output_payload["scope_limit"]
+                initial_state["active_candidates"] = previous.output_payload.get(
+                    "active_candidates", []
+                )
                 initial_state["requirement_profile"] = previous.output_payload.get(
                     "requirement", {}
                 )
@@ -246,7 +251,7 @@ class AgentRuntime:
                     "configurable": {"thread_id": run.id},
                     "recursion_limit": settings.agent_max_iterations * 24 + 32,
                 }
-                if resume_payload is not None and graph_version == GRAPH_VERSION:
+                if resume_payload is not None and graph_version in AGENT_GRAPH_VERSIONS:
                     checkpoint = await graph.aget_state(config)
                     if not checkpoint.values or not checkpoint.next:
                         raise ValueError(
@@ -263,7 +268,7 @@ class AgentRuntime:
                 except KeyError as error:
                     if not (
                         error.args == ("run_id",)
-                        and graph_version != GRAPH_VERSION
+                        and graph_version not in AGENT_GRAPH_VERSIONS
                         and clarification_recovery_message
                         and resume_payload is not None
                     ):
@@ -364,8 +369,7 @@ class AgentRuntime:
                 run.current_agent = None
                 run.current_step = "completed"
                 action_statuses = {
-                    item.get("tool"): item.get("status")
-                    for item in result.get("tool_results", [])
+                    item.get("tool"): item.get("status") for item in result.get("tool_results", [])
                 }
                 run.output_payload = {
                     **run.output_payload,
@@ -385,21 +389,33 @@ class AgentRuntime:
                     "artifact_id": artifact_id,
                     "selected_achievement_ids": result.get("selected_achievement_ids", []),
                     "scope_is_set": result.get("scope_is_set", False),
+                    "scope_limit": result.get(
+                        "scope_limit",
+                        result.get("selected_achievement_ids", [])
+                        if result.get("scope_is_set")
+                        else None,
+                    ),
+                    "active_candidates": result.get("active_candidates", []),
                     "rag": result.get("rag_result", {}),
                     "tools": [item.get("tool") for item in result.get("tool_results", [])],
                     "actions": result.get("tool_results", []),
                     "memory": result.get("memory", {}),
                     "stop_reason": result.get("stop_reason", ""),
+                    "clarification_question": result.get("agent_question", ""),
                     "task_completion": (
                         "partial"
                         if result.get("stop_reason")
+                        or (
+                            result.get("tool_results", [])
+                            and result["tool_results"][-1].get("status") == "error"
+                        )
                         else "needs_input"
-                        if "needs_input" in action_statuses.values()
+                        if "needs_input" in action_statuses.values() or result.get("agent_question")
                         else "completed"
                     ),
                     "graph_version": graph_version,
                 }
-                if graph_version != GRAPH_VERSION:
+                if graph_version not in AGENT_GRAPH_VERSIONS:
                     await self._persist_domain_result(session, run, result)
                 run.latency_ms = int((datetime.now(UTC) - started).total_seconds() * 1000)
                 session.add(

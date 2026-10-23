@@ -436,6 +436,7 @@ class DomainWorkflows:
             "retrieval_hits": hits,
             "assessment_results": [item.model_dump() for item in batch.results],
             "assessment_generation_mode": batch.generation_mode,
+            "retrieval_warnings": batch.retrieval_warnings,
             "selected_achievement_ids": explicit_scope
             if explicit_scope is not None
             else [item.achievement_id for item in batch.results],

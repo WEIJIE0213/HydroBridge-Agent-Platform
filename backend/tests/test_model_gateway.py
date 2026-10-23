@@ -147,14 +147,14 @@ async def test_model_requests_survive_sequential_worker_event_loops(monkeypatch)
 async def test_agent_decision_uses_native_function_calling():
     gateway = UsageFreeGateway()
     response = SimpleNamespace(
-        tool_calls=[{"name": "search_achievements", "args": {"query": "泵站监测"}}]
+        tool_calls=[{"name": "ask_achievements", "args": {"query": "泵站监测"}}]
     )
     runnable = SimpleNamespace(ainvoke=AsyncMock(return_value=response))
     binding = Mock(return_value=runnable)
     gateway._model = SimpleNamespace(bind_tools=binding)
     call = await gateway.choose_tool(TOOLS, {"request": "泵站监测"}, session=None, run_id="test")
     binding.assert_called_once_with(TOOLS, parallel_tool_calls=False)
-    assert call == {"name": "search_achievements", "arguments": {"query": "泵站监测"}}
+    assert call == {"name": "ask_achievements", "arguments": {"query": "泵站监测"}}
 
 
 async def test_model_gateway_records_usage_and_updates_run_totals(

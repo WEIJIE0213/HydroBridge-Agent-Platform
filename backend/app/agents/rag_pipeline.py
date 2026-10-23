@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.db.models.domain import Achievement
 from app.db.session import AsyncSessionFactory
 from app.services.rag import GroundedAnswer, locate_original_quote, validate_claims
+from app.services.retrieval import retrieval_notices
 
 
 class RagPipeline:
@@ -38,6 +39,7 @@ class RagPipeline:
             "rag_sufficient": False,
             "rag_next_query": "",
             "rag_answer": {},
+            "retrieval_warnings": [],
         }
 
     async def retrieve(self, state):
@@ -61,6 +63,14 @@ class RagPipeline:
         )
         return {
             "rag_evidence": evidence,
+            "retrieval_warnings": list(
+                dict.fromkeys(
+                    [
+                        *state.get("retrieval_warnings", []),
+                        *retrieval_notices(hits),
+                    ]
+                )
+            ),
             "rag_queries": [*state.get("rag_queries", []), query],
             "rag_next_query": "",
         }
@@ -184,6 +194,7 @@ class RagPipeline:
                 + "；".join(state["rag_missing"] or ["未找到足以回答该问题的成果原文"])
             )
         ids = list(dict.fromkeys(chunk["achievement_id"] for chunk in evidence.values()))
+        lines.extend(state.get("retrieval_warnings", []))
         result = {
             "answer": "\n".join(lines),
             "citations": citations,
@@ -192,6 +203,7 @@ class RagPipeline:
             "rounds": len(state["rag_queries"]),
             "achievement_ids": ids,
             "mode": "grounded_llm" if self.workflows.model.configured else "extractive",
+            "retrieval_warnings": state.get("retrieval_warnings", []),
         }
         allowed = state.get("rag_scope")
         return {

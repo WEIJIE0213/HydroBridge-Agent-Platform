@@ -191,6 +191,12 @@ def decision_observations(results: list[dict]) -> list[dict]:
         {
             "action_id": item["action_id"],
             "tool": item["tool"],
+            "public_tool": item.get("public_call", {}).get("name"),
+            "mode": (
+                item.get("public_call", {}).get("arguments", {}).get("mode")
+                if isinstance(item.get("public_call", {}).get("arguments", {}), dict)
+                else None
+            ),
             "status": item.get("status", "completed"),
             "arguments": {
                 key: bounded_text(value, 350) if isinstance(value, str) else value

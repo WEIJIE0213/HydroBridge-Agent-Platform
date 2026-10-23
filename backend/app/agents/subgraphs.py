@@ -4,6 +4,7 @@ from langgraph.graph import END, START, StateGraph
 from sqlalchemy import select
 
 from app.agents.rag_pipeline import RagPipeline
+from app.agents.requirement_patch import RequirementChanges, describe_changes, merge_requirement
 from app.agents.state import AgentState
 from app.agents.tools import achievement_scope
 from app.agents.workflows import DomainWorkflows
@@ -17,6 +18,23 @@ from app.services.retrieval import visibility_filter
 
 class BusinessSubgraphs(DomainWorkflows):
     async def analyze_requirement(self, state):
+        patch = state.get("pending_tool", {}).get("arguments", {}).get("requirement_patch")
+        if patch is not None:
+            await self._publish(state, "agent.started", "requirement_patch")
+            profile = merge_requirement(
+                state.get("requirement_profile", {}), RequirementChanges.model_validate(patch)
+            )
+            description = profile["normalized_description"]
+            await self._publish(state, "agent.completed", "requirement_patch")
+            return {
+                "requirement_profile": profile,
+                "user_message": description,
+                "requirement_description": description,
+                "requirement_change_summary": describe_changes(patch),
+                "next_step": "final_report_agent"
+                if state["task_type"] == "requirement_analysis"
+                else "assessment_matching_agent",
+            }
         result = await self.requirement_node(state)
         return {**result, "requirement_description": state["user_message"]}
 
@@ -87,9 +105,16 @@ class BusinessSubgraphs(DomainWorkflows):
 
     async def requirement_report(self, state):
         if state["task_type"] == "requirement_analysis":
-            return await self.final_report_node(state)
+            result = await self.final_report_node(state)
+            if state.get("requirement_change_summary"):
+                result["final_answer"] = (
+                    state["requirement_change_summary"] + "\n\n" + result["final_answer"]
+                )
+            return result
         await self._publish(state, "agent.started", "matching_report")
         lines, citations = ["成果匹配结果（按检索相关度排序）", ""], []
+        if state.get("requirement_change_summary"):
+            lines.append(state["requirement_change_summary"])
         labels = {"satisfied": "满足", "violated": "不满足", "unknown": "未知"}
         for item in state.get("assessment_results", []):
             lines.append(
@@ -113,6 +138,7 @@ class BusinessSubgraphs(DomainWorkflows):
         if not state.get("assessment_results"):
             lines.append("当前范围内没有找到可核验的已审核成果。")
         lines.append("相关度仅用于排序；未知约束需要补充资料，不能视为满足。")
+        lines.extend(state.get("retrieval_warnings", []))
         await self._publish(state, "agent.completed", "matching_report")
         return {"final_answer": "\n".join(lines), "citations": citations}
 
@@ -121,7 +147,10 @@ class BusinessSubgraphs(DomainWorkflows):
         achievement_id = state["pending_tool"]["arguments"]["achievement_id"]
         scope = achievement_scope(state)
         if scope is not None and achievement_id not in scope:
-            raise ValueError("成果超出当前授权范围")
+            return {
+                "action_status": "needs_input",
+                "final_answer": "成果超出当前限定范围，请重新选择。",
+            }
         async with AsyncSessionFactory() as session:
             item = await session.scalar(
                 select(Achievement).where(
@@ -131,7 +160,10 @@ class BusinessSubgraphs(DomainWorkflows):
                 )
             )
             if item is None:
-                raise ValueError("成果不存在或不可访问")
+                return {
+                    "action_status": "needs_input",
+                    "final_answer": "成果不存在或不可访问，请重新选择有权限的成果。",
+                }
             chunks = [
                 chunk
                 for chunk in chunk_achievement(item, settings.chunk_size, settings.chunk_overlap)

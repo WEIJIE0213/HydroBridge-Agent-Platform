@@ -30,6 +30,26 @@ class RetrievalHit(BaseModel):
     payload: dict[str, Any] = Field(default_factory=dict)
 
 
+class RetrievalResults(list[RetrievalHit]):
+    """Per-call metadata survives an empty result; never store it on the shared service."""
+
+    def __init__(self, hits=(), *, backend="", fallback_reason=""):
+        super().__init__(hits)
+        self.backend = backend
+        self.fallback_reason = fallback_reason
+
+
+def retrieval_notices(hits) -> list[str]:
+    degraded = getattr(hits, "backend", "") == "local_fallback" or any(
+        hit.payload.get("retrieval_backend") == "local_fallback" for hit in hits
+    )
+    return (
+        ["检索已降级为本地检索，结果覆盖与排序可能受影响，建议服务恢复后重新查询。"]
+        if degraded
+        else []
+    )
+
+
 def reciprocal_rank_fusion(rankings: list[list[dict]], k: int = 60) -> list[dict]:
     scores: dict[str, float] = defaultdict(float)
     documents = {}
@@ -203,7 +223,7 @@ class RetrievalService:
         # PG remains the authority for ACL, approval and version even when ES lags.
         ids = {row["achievement_id"] for row in rows}
         if not ids:
-            return []
+            return RetrievalResults(backend=source, fallback_reason=fallback_reason)
         achievements = {
             item.id: item
             for item in (
@@ -300,7 +320,7 @@ class RetrievalService:
         for hit in hits:
             hit.payload["chunks"] = hit.payload["chunks"][:4]
         hits.sort(key=lambda h: (-h.reranker_score, -h.score, h.achievement_id))
-        return hits[:limit]
+        return RetrievalResults(hits[:limit], backend=source, fallback_reason=fallback_reason)
 
     async def _elastic_search(self, query, organization_id, constraints, achievement_ids, mode):
         provider = get_embedding_provider()

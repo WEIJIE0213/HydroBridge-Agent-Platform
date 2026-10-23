@@ -13,6 +13,7 @@ from app.agents.schemas import (
 )
 from app.core.logging import get_logger
 from app.services.chunking import chunk_achievement
+from app.services.retrieval import retrieval_notices
 
 logger = get_logger("matching")
 
@@ -127,6 +128,7 @@ class EvidenceMatchingWorkflow:
         constraints: dict,
         checks: list[ConstraintCheck],
         all_chunks: list[dict],
+        warnings: list[str],
     ) -> list[ConstraintCheck]:
         """RAG evidence check for constraints that field rules could not decide."""
         unknown = [c.constraint for c in checks if c.status == "unknown"]
@@ -153,7 +155,9 @@ class EvidenceMatchingWorkflow:
             )
         except Exception as exc:
             logger.warning("constraint_evidence_retrieval_failed", error_type=type(exc).__name__)
+            warnings.append("部分约束的补充取证失败，已使用现有片段核验；证据不足的约束保持未知。")
             scoped = []
+        warnings.extend(retrieval_notices(scoped))
         for item in scoped:
             collect(item.payload.get("chunks", []))
         collect(hit.payload.get("chunks", []))
@@ -161,9 +165,7 @@ class EvidenceMatchingWorkflow:
             return checks
         payload = {
             "achievement": achievement.title,
-            "constraints": [
-                {"constraint": key, "expected": constraints[key]} for key in unknown
-            ],
+            "constraints": [{"constraint": key, "expected": constraints[key]} for key in unknown],
             "evidence": [
                 {"chunk_id": chunk_id, "field": chunk["field"], "text": chunk["text"]}
                 for chunk_id, chunk in pool.items()
@@ -207,6 +209,7 @@ class EvidenceMatchingWorkflow:
             achievement_ids=scope,
             limit=10,
         )
+        warnings = retrieval_notices(hits)
         records = {
             a.id: a
             for a in (
@@ -239,6 +242,7 @@ class EvidenceMatchingWorkflow:
                     constraints=constraints,
                     checks=checks,
                     all_chunks=all_chunks,
+                    warnings=warnings,
                 )
             cited = {c.get("chunk_id", c.get("id")) for c in evidence}
             for check in checks:
@@ -285,6 +289,7 @@ class EvidenceMatchingWorkflow:
             item.rank = rank
         return [h.model_dump() for h in hits], MatchAssessmentBatch(
             generation_mode="evidence_workflow",
+            retrieval_warnings=list(dict.fromkeys(warnings)),
             results=assessments,
             overall_summary=(
                 "已按成果聚合检索片段并重排；硬约束先按字段规则核验，"
