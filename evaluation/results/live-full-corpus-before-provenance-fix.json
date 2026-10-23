@@ -1,0 +1,1804 @@
+{
+  "mode": "real-http-api-and-configured-llm",
+  "runs": [
+    {
+      "id": "2be47bba-85fe-45b2-8d43-a298fd93810f",
+      "created_at": "2026-10-18T18:01:24.084184Z",
+      "updated_at": "2026-10-18T18:01:42.690506Z",
+      "thread_id": "ea217062-ee68-4f54-aaae-88935bf4311d",
+      "run_sequence": 1,
+      "conversation_id": "ea217062-ee68-4f54-aaae-88935bf4311d",
+      "user_id": "b3d0a152-28c6-49ec-8486-dfe5ad03207d",
+      "task_type": "qa",
+      "status": "completed",
+      "current_agent": null,
+      "current_step": "completed",
+      "input_payload": {
+        "message": "【全库验收】请仅依据所选成果原始材料回答：超长顶管施工创造的单洞施工纪录是多少米？遇到岩石隧洞卡管时有哪些脱困措施？请逐字引用证据，并标明来源。",
+        "context": {
+          "achievement_ids": [
+            "c34b328e-5196-58fe-8556-c970285fde6b"
+          ]
+        },
+        "organization_id": "928fbefd-2e39-4802-a4b5-4b03411c720e"
+      },
+      "output_payload": {
+        "answer": "创造了单洞3224m岩石顶管施工纪录。 [1]\n\n> 创造了单洞3224m岩石顶管施工纪录\n\n复杂地质环境下卡管脱困处置技术包括卡管定位、开孔清渣、应急处置措施及临时中继站安装等。 [2]\n\n> 首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术\n",
+        "citations": [
+          {
+            "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+            "url": "",
+            "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+            "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+            "version": 1,
+            "field": "document:27b3cd2e75b29ea0:0",
+            "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+            "locator": "DOC 正文及表格（LibreOffice 转换）",
+            "start": 12341,
+            "end": 12908,
+            "quote": "创造了单洞3224m岩石顶管施工纪录",
+            "sources": [
+              {
+                "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                "title": "djby.doc",
+                "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+              }
+            ]
+          },
+          {
+            "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+            "url": "",
+            "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+            "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+            "version": 1,
+            "field": "document:27b3cd2e75b29ea0:0",
+            "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+            "locator": "DOC 正文及表格（LibreOffice 转换）",
+            "start": 12341,
+            "end": 12908,
+            "quote": "首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术",
+            "sources": [
+              {
+                "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                "title": "djby.doc",
+                "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+              }
+            ]
+          }
+        ],
+        "verification": {},
+        "assessments": [],
+        "achievement_evaluation": {},
+        "requirement": {},
+        "requirement_id": null,
+        "research_ingestion": {},
+        "ingested_achievement_ids": [],
+        "artifact_id": "cbf1ef29-d7db-4cc7-abf2-2b2ca5171576",
+        "selected_achievement_ids": [
+          "c34b328e-5196-58fe-8556-c970285fde6b"
+        ],
+        "scope_is_set": true,
+        "rag": {
+          "answer": "创造了单洞3224m岩石顶管施工纪录。 [1]\n\n> 创造了单洞3224m岩石顶管施工纪录\n\n复杂地质环境下卡管脱困处置技术包括卡管定位、开孔清渣、应急处置措施及临时中继站安装等。 [2]\n\n> 首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术\n",
+          "citations": [
+            {
+              "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+              "url": "",
+              "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+              "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+              "version": 1,
+              "field": "document:27b3cd2e75b29ea0:0",
+              "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+              "locator": "DOC 正文及表格（LibreOffice 转换）",
+              "start": 12341,
+              "end": 12908,
+              "quote": "创造了单洞3224m岩石顶管施工纪录",
+              "sources": [
+                {
+                  "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                  "title": "djby.doc",
+                  "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                }
+              ]
+            },
+            {
+              "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+              "url": "",
+              "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+              "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+              "version": 1,
+              "field": "document:27b3cd2e75b29ea0:0",
+              "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+              "locator": "DOC 正文及表格（LibreOffice 转换）",
+              "start": 12341,
+              "end": 12908,
+              "quote": "首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术",
+              "sources": [
+                {
+                  "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                  "title": "djby.doc",
+                  "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                }
+              ]
+            }
+          ],
+          "sufficient": true,
+          "queries": [
+            "超长顶管施工单洞施工纪录多少米 岩石隧洞卡管脱困措施"
+          ],
+          "rounds": 1,
+          "achievement_ids": [
+            "c34b328e-5196-58fe-8556-c970285fde6b"
+          ],
+          "mode": "grounded_llm"
+        },
+        "tools": [
+          "search_achievements"
+        ]
+      },
+      "error_code": null,
+      "error_message": "",
+      "total_input_tokens": 4748,
+      "total_output_tokens": 2106,
+      "total_cost": 0.0,
+      "latency_ms": 18373,
+      "graph_version": "2.0.0-single-agent"
+    },
+    {
+      "id": "99655cda-f6aa-4da1-86b4-264d351bc833",
+      "created_at": "2026-10-18T18:01:44.570731Z",
+      "updated_at": "2026-10-18T18:02:09.716676Z",
+      "thread_id": "ea217062-ee68-4f54-aaae-88935bf4311d",
+      "run_sequence": 2,
+      "conversation_id": "ea217062-ee68-4f54-aaae-88935bf4311d",
+      "user_id": "b3d0a152-28c6-49ec-8486-dfe5ad03207d",
+      "task_type": "qa",
+      "status": "completed",
+      "current_agent": null,
+      "current_step": "completed",
+      "input_payload": {
+        "message": "【全库验收追问】这些原件有没有明确承诺这项成果在2030年的采购单价和年收入？如无明确证据，请说明未知，不要推算或虚构数字。",
+        "context": {},
+        "organization_id": "928fbefd-2e39-4802-a4b5-4b03411c720e"
+      },
+      "output_payload": {
+        "answer": "证据仍不足：证据中未出现“2030年采购单价”相关内容。；证据中未出现“年收入”或“承诺”的具体数值或条款。",
+        "citations": [],
+        "verification": {},
+        "assessments": [],
+        "achievement_evaluation": {},
+        "requirement": {},
+        "requirement_id": null,
+        "research_ingestion": {},
+        "ingested_achievement_ids": [],
+        "artifact_id": "cc3ab11c-fdc0-42ee-81b4-225af3169d52",
+        "selected_achievement_ids": [
+          "c34b328e-5196-58fe-8556-c970285fde6b"
+        ],
+        "scope_is_set": true,
+        "rag": {
+          "answer": "证据仍不足：证据中未出现“2030年采购单价”相关内容。；证据中未出现“年收入”或“承诺”的具体数值或条款。",
+          "citations": [],
+          "sufficient": false,
+          "queries": [
+            "2030年采购单价 年收入 承诺",
+            "2030年 采购单价 年收入 承诺"
+          ],
+          "rounds": 2,
+          "achievement_ids": [
+            "c34b328e-5196-58fe-8556-c970285fde6b"
+          ],
+          "mode": "grounded_llm"
+        },
+        "tools": [
+          "search_achievements"
+        ]
+      },
+      "error_code": null,
+      "error_message": "",
+      "total_input_tokens": 8845,
+      "total_output_tokens": 2296,
+      "total_cost": 0.0,
+      "latency_ms": 25128,
+      "graph_version": "2.0.0-single-agent"
+    },
+    {
+      "id": "b5e825e4-1d15-42fb-b67f-621a26597051",
+      "created_at": "2026-10-18T18:02:10.767375Z",
+      "updated_at": "2026-10-18T18:02:29.477320Z",
+      "thread_id": "82e094a2-d8aa-454d-8aee-763533a86d10",
+      "run_sequence": 1,
+      "conversation_id": "82e094a2-d8aa-454d-8aee-763533a86d10",
+      "user_id": "b3d0a152-28c6-49ec-8486-dfe5ad03207d",
+      "task_type": "qa",
+      "status": "completed",
+      "current_agent": null,
+      "current_step": "completed",
+      "input_payload": {
+        "message": "【全库验收】请在文档库检索分布式光纤输水管道渗漏监测的成果，说明原文给出的单机最大监测距离是多少，以及怎样定位渗漏。请逐字引用原文。",
+        "context": {},
+        "organization_id": "928fbefd-2e39-4802-a4b5-4b03411c720e"
+      },
+      "output_payload": {
+        "answer": "该分布式光纤管道安全预警系统监测距离为单通道35km。 [1]\n\n> （1） 监测距离： 单通道 35km 。\n\n单套设备覆盖35km。 [2]\n\n> 该技术特征： 使用光缆作为传感器和信号传输通道 ， 单套设备覆盖 35km ，安全事件秒级响应和米级定位精度 。\n\n漏点定位精度为1~2m。 [3]\n\n> （4） 漏点定位精度： 1~2m 。\n\n该技术适用于压力输水管道泄漏监测。 [4]\n\n> 适用于 DN4000及以下的钢管 、球管 、混凝土管 、玻璃钢管等压力输水管道入侵预警 ，泄漏 、 不均匀沉降监测 ，PCCP管断丝监测 。\n",
+        "citations": [
+          {
+            "title": "分布式光纤管道安全预警系统",
+            "url": "",
+            "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+            "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+            "version": 2,
+            "field": "abstract",
+            "document_id": null,
+            "locator": "",
+            "start": 0,
+            "end": 646,
+            "quote": "（1） 监测距离： 单通道 35km 。",
+            "sources": [
+              {
+                "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                "title": "水利推广-成果查询20250217.xlsx",
+                "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+              },
+              {
+                "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+              },
+              {
+                "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                "title": "111.xlsx",
+                "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+              },
+              {
+                "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                "title": "水利推广-成果查询20250217.pdf",
+                "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+              },
+              {
+                "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                "title": "水利推广-成果查询20250217.htm",
+                "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+              }
+            ]
+          },
+          {
+            "title": "分布式光纤管道安全预警系统",
+            "url": "",
+            "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+            "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+            "version": 2,
+            "field": "abstract",
+            "document_id": null,
+            "locator": "",
+            "start": 0,
+            "end": 646,
+            "quote": "该技术特征： 使用光缆作为传感器和信号传输通道 ， 单套设备覆盖 35km ，安全事件秒级响应和米级定位精度 。",
+            "sources": [
+              {
+                "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                "title": "水利推广-成果查询20250217.xlsx",
+                "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+              },
+              {
+                "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+              },
+              {
+                "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                "title": "111.xlsx",
+                "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+              },
+              {
+                "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                "title": "水利推广-成果查询20250217.pdf",
+                "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+              },
+              {
+                "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                "title": "水利推广-成果查询20250217.htm",
+                "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+              }
+            ]
+          },
+          {
+            "title": "分布式光纤管道安全预警系统",
+            "url": "",
+            "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+            "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+            "version": 2,
+            "field": "abstract",
+            "document_id": null,
+            "locator": "",
+            "start": 0,
+            "end": 646,
+            "quote": "（4） 漏点定位精度： 1~2m 。",
+            "sources": [
+              {
+                "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                "title": "水利推广-成果查询20250217.xlsx",
+                "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+              },
+              {
+                "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+              },
+              {
+                "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                "title": "111.xlsx",
+                "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+              },
+              {
+                "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                "title": "水利推广-成果查询20250217.pdf",
+                "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+              },
+              {
+                "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                "title": "水利推广-成果查询20250217.htm",
+                "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+              }
+            ]
+          },
+          {
+            "title": "分布式光纤管道安全预警系统",
+            "url": "",
+            "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+            "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+            "version": 2,
+            "field": "abstract",
+            "document_id": null,
+            "locator": "",
+            "start": 0,
+            "end": 646,
+            "quote": "适用于 DN4000及以下的钢管 、球管 、混凝土管 、玻璃钢管等压力输水管道入侵预警 ，泄漏 、 不均匀沉降监测 ，PCCP管断丝监测 。",
+            "sources": [
+              {
+                "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                "title": "水利推广-成果查询20250217.xlsx",
+                "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+              },
+              {
+                "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+              },
+              {
+                "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                "title": "111.xlsx",
+                "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+              },
+              {
+                "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                "title": "水利推广-成果查询20250217.pdf",
+                "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+              },
+              {
+                "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                "title": "水利推广-成果查询20250217.htm",
+                "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+              }
+            ]
+          }
+        ],
+        "verification": {},
+        "assessments": [],
+        "achievement_evaluation": {},
+        "requirement": {},
+        "requirement_id": null,
+        "research_ingestion": {},
+        "ingested_achievement_ids": [],
+        "artifact_id": "9d54f9f1-dcdc-4894-b724-b8ed10e61758",
+        "selected_achievement_ids": [
+          "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+          "a00796c5-fe7c-5193-a810-869ffffd72a7",
+          "12420ee8-d143-580c-b73c-9a1bcaf4061c",
+          "dd38d848-e8db-5602-99b1-a97735ea2808",
+          "477bcf3a-e628-5369-9432-cb2a0316ace7"
+        ],
+        "scope_is_set": true,
+        "rag": {
+          "answer": "该分布式光纤管道安全预警系统监测距离为单通道35km。 [1]\n\n> （1） 监测距离： 单通道 35km 。\n\n单套设备覆盖35km。 [2]\n\n> 该技术特征： 使用光缆作为传感器和信号传输通道 ， 单套设备覆盖 35km ，安全事件秒级响应和米级定位精度 。\n\n漏点定位精度为1~2m。 [3]\n\n> （4） 漏点定位精度： 1~2m 。\n\n该技术适用于压力输水管道泄漏监测。 [4]\n\n> 适用于 DN4000及以下的钢管 、球管 、混凝土管 、玻璃钢管等压力输水管道入侵预警 ，泄漏 、 不均匀沉降监测 ，PCCP管断丝监测 。\n",
+          "citations": [
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "abstract",
+              "document_id": null,
+              "locator": "",
+              "start": 0,
+              "end": 646,
+              "quote": "（1） 监测距离： 单通道 35km 。",
+              "sources": [
+                {
+                  "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                  "title": "水利推广-成果查询20250217.xlsx",
+                  "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                  "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                },
+                {
+                  "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                  "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                  "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                  "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                },
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                },
+                {
+                  "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                  "title": "水利推广-成果查询20250217.pdf",
+                  "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                  "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                },
+                {
+                  "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                  "title": "水利推广-成果查询20250217.htm",
+                  "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                  "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                }
+              ]
+            },
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "abstract",
+              "document_id": null,
+              "locator": "",
+              "start": 0,
+              "end": 646,
+              "quote": "该技术特征： 使用光缆作为传感器和信号传输通道 ， 单套设备覆盖 35km ，安全事件秒级响应和米级定位精度 。",
+              "sources": [
+                {
+                  "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                  "title": "水利推广-成果查询20250217.xlsx",
+                  "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                  "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                },
+                {
+                  "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                  "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                  "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                  "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                },
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                },
+                {
+                  "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                  "title": "水利推广-成果查询20250217.pdf",
+                  "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                  "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                },
+                {
+                  "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                  "title": "水利推广-成果查询20250217.htm",
+                  "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                  "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                }
+              ]
+            },
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "abstract",
+              "document_id": null,
+              "locator": "",
+              "start": 0,
+              "end": 646,
+              "quote": "（4） 漏点定位精度： 1~2m 。",
+              "sources": [
+                {
+                  "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                  "title": "水利推广-成果查询20250217.xlsx",
+                  "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                  "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                },
+                {
+                  "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                  "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                  "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                  "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                },
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                },
+                {
+                  "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                  "title": "水利推广-成果查询20250217.pdf",
+                  "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                  "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                },
+                {
+                  "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                  "title": "水利推广-成果查询20250217.htm",
+                  "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                  "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                }
+              ]
+            },
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "abstract",
+              "document_id": null,
+              "locator": "",
+              "start": 0,
+              "end": 646,
+              "quote": "适用于 DN4000及以下的钢管 、球管 、混凝土管 、玻璃钢管等压力输水管道入侵预警 ，泄漏 、 不均匀沉降监测 ，PCCP管断丝监测 。",
+              "sources": [
+                {
+                  "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                  "title": "水利推广-成果查询20250217.xlsx",
+                  "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                  "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                },
+                {
+                  "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                  "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                  "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                  "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                },
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                },
+                {
+                  "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                  "title": "水利推广-成果查询20250217.pdf",
+                  "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                  "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                },
+                {
+                  "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                  "title": "水利推广-成果查询20250217.htm",
+                  "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                  "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                }
+              ]
+            }
+          ],
+          "sufficient": true,
+          "queries": [
+            "分布式光纤输水管道渗漏监测 单机最大监测距离 渗漏定位"
+          ],
+          "rounds": 1,
+          "achievement_ids": [
+            "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+            "a00796c5-fe7c-5193-a810-869ffffd72a7",
+            "12420ee8-d143-580c-b73c-9a1bcaf4061c",
+            "dd38d848-e8db-5602-99b1-a97735ea2808",
+            "477bcf3a-e628-5369-9432-cb2a0316ace7"
+          ],
+          "mode": "grounded_llm"
+        },
+        "tools": [
+          "search_achievements"
+        ]
+      },
+      "error_code": null,
+      "error_message": "",
+      "total_input_tokens": 13019,
+      "total_output_tokens": 1988,
+      "total_cost": 0.0,
+      "latency_ms": 18695,
+      "graph_version": "2.0.0-single-agent"
+    }
+  ],
+  "checks": [
+    {
+      "run_id": "2be47bba-85fe-45b2-8d43-a298fd93810f",
+      "citations_checked": 2,
+      "originals_downloaded": [
+        {
+          "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+          "filename": "djby.doc",
+          "sha256": "27b3cd2e75b29ea08b03de269553902e32280196a3d618b65aeceb02fa15e903",
+          "locator": "DOC 正文及表格（LibreOffice 转换）"
+        }
+      ],
+      "report_sha256_verified": true
+    },
+    {
+      "run_id": "99655cda-f6aa-4da1-86b4-264d351bc833",
+      "citations_checked": 0,
+      "originals_downloaded": [],
+      "report_sha256_verified": true
+    },
+    {
+      "run_id": "b5e825e4-1d15-42fb-b67f-621a26597051",
+      "citations_checked": 4,
+      "originals_downloaded": [],
+      "report_sha256_verified": true
+    }
+  ],
+  "readiness": {
+    "status": "ready",
+    "checks": {
+      "database": true,
+      "redis": {
+        "runtime": true,
+        "cache": true
+      },
+      "elasticsearch": true,
+      "minio": true,
+      "tavily_configured": true,
+      "model_configured": true,
+      "bge": {
+        "status": "ready",
+        "device": "cuda",
+        "embedding_model": "BAAI/bge-m3",
+        "reranker_model": "BAAI/bge-reranker-v2-m3",
+        "dimension": 1024,
+        "max_length": 1024,
+        "batch_size": 8
+      }
+    }
+  },
+  "traces": [
+    {
+      "run": {
+        "id": "2be47bba-85fe-45b2-8d43-a298fd93810f",
+        "created_at": "2026-10-18T18:01:24.084184Z",
+        "updated_at": "2026-10-18T18:01:42.690506Z",
+        "thread_id": "ea217062-ee68-4f54-aaae-88935bf4311d",
+        "run_sequence": 1,
+        "conversation_id": "ea217062-ee68-4f54-aaae-88935bf4311d",
+        "user_id": "b3d0a152-28c6-49ec-8486-dfe5ad03207d",
+        "task_type": "qa",
+        "status": "completed",
+        "current_agent": null,
+        "current_step": "completed",
+        "input_payload": {
+          "message": "【全库验收】请仅依据所选成果原始材料回答：超长顶管施工创造的单洞施工纪录是多少米？遇到岩石隧洞卡管时有哪些脱困措施？请逐字引用证据，并标明来源。",
+          "context": {
+            "achievement_ids": [
+              "c34b328e-5196-58fe-8556-c970285fde6b"
+            ]
+          },
+          "organization_id": "928fbefd-2e39-4802-a4b5-4b03411c720e"
+        },
+        "output_payload": {
+          "answer": "创造了单洞3224m岩石顶管施工纪录。 [1]\n\n> 创造了单洞3224m岩石顶管施工纪录\n\n复杂地质环境下卡管脱困处置技术包括卡管定位、开孔清渣、应急处置措施及临时中继站安装等。 [2]\n\n> 首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术\n",
+          "citations": [
+            {
+              "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+              "url": "",
+              "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+              "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+              "version": 1,
+              "field": "document:27b3cd2e75b29ea0:0",
+              "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+              "locator": "DOC 正文及表格（LibreOffice 转换）",
+              "start": 12341,
+              "end": 12908,
+              "quote": "创造了单洞3224m岩石顶管施工纪录",
+              "sources": [
+                {
+                  "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                  "title": "djby.doc",
+                  "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                }
+              ]
+            },
+            {
+              "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+              "url": "",
+              "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+              "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+              "version": 1,
+              "field": "document:27b3cd2e75b29ea0:0",
+              "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+              "locator": "DOC 正文及表格（LibreOffice 转换）",
+              "start": 12341,
+              "end": 12908,
+              "quote": "首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术",
+              "sources": [
+                {
+                  "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                  "title": "djby.doc",
+                  "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                }
+              ]
+            }
+          ],
+          "verification": {},
+          "assessments": [],
+          "achievement_evaluation": {},
+          "requirement": {},
+          "requirement_id": null,
+          "research_ingestion": {},
+          "ingested_achievement_ids": [],
+          "artifact_id": "cbf1ef29-d7db-4cc7-abf2-2b2ca5171576",
+          "selected_achievement_ids": [
+            "c34b328e-5196-58fe-8556-c970285fde6b"
+          ],
+          "scope_is_set": true,
+          "rag": {
+            "answer": "创造了单洞3224m岩石顶管施工纪录。 [1]\n\n> 创造了单洞3224m岩石顶管施工纪录\n\n复杂地质环境下卡管脱困处置技术包括卡管定位、开孔清渣、应急处置措施及临时中继站安装等。 [2]\n\n> 首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术\n",
+            "citations": [
+              {
+                "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+                "url": "",
+                "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+                "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+                "version": 1,
+                "field": "document:27b3cd2e75b29ea0:0",
+                "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+                "locator": "DOC 正文及表格（LibreOffice 转换）",
+                "start": 12341,
+                "end": 12908,
+                "quote": "创造了单洞3224m岩石顶管施工纪录",
+                "sources": [
+                  {
+                    "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                    "title": "djby.doc",
+                    "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                    "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                  }
+                ]
+              },
+              {
+                "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+                "url": "",
+                "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+                "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+                "version": 1,
+                "field": "document:27b3cd2e75b29ea0:0",
+                "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+                "locator": "DOC 正文及表格（LibreOffice 转换）",
+                "start": 12341,
+                "end": 12908,
+                "quote": "首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术",
+                "sources": [
+                  {
+                    "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                    "title": "djby.doc",
+                    "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                    "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                  }
+                ]
+              }
+            ],
+            "sufficient": true,
+            "queries": [
+              "超长顶管施工单洞施工纪录多少米 岩石隧洞卡管脱困措施"
+            ],
+            "rounds": 1,
+            "achievement_ids": [
+              "c34b328e-5196-58fe-8556-c970285fde6b"
+            ],
+            "mode": "grounded_llm"
+          },
+          "tools": [
+            "search_achievements"
+          ]
+        },
+        "error_code": null,
+        "error_message": "",
+        "total_input_tokens": 4748,
+        "total_output_tokens": 2106,
+        "total_cost": 0.0,
+        "latency_ms": 18373,
+        "graph_version": "2.0.0-single-agent"
+      },
+      "steps": [
+        {
+          "id": "db6a9609-900c-43b5-afd5-ec9e967fe2eb",
+          "created_at": "2026-10-18T18:01:24.552023Z",
+          "updated_at": "2026-10-18T18:01:27.528235Z",
+          "run_id": "2be47bba-85fe-45b2-8d43-a298fd93810f",
+          "sequence": 1,
+          "agent_name": "hydrobridge_agent",
+          "node_name": "hydrobridge_agent",
+          "status": "completed",
+          "input_summary": {
+            "task_type": "qa",
+            "iteration": 0
+          },
+          "output_summary": {
+            "tool": "search_achievements",
+            "iteration": 0
+          },
+          "started_at": "2026-10-18T18:01:24.548086+00:00",
+          "finished_at": "2026-10-18T18:01:27.527653+00:00",
+          "latency_ms": 2979,
+          "retry_count": 0,
+          "error_message": ""
+        },
+        {
+          "id": "52dd8d71-5a47-41d7-93a2-8b1e0835f6eb",
+          "created_at": "2026-10-18T18:01:27.537502Z",
+          "updated_at": "2026-10-18T18:01:42.638496Z",
+          "run_id": "2be47bba-85fe-45b2-8d43-a298fd93810f",
+          "sequence": 2,
+          "agent_name": "tools",
+          "node_name": "tools",
+          "status": "completed",
+          "input_summary": {
+            "task_type": "qa",
+            "iteration": 0
+          },
+          "output_summary": {
+            "tool": "search_achievements"
+          },
+          "started_at": "2026-10-18T18:01:27.536832+00:00",
+          "finished_at": "2026-10-18T18:01:42.638342+00:00",
+          "latency_ms": 15101,
+          "retry_count": 0,
+          "error_message": ""
+        }
+      ],
+      "tool_calls": [
+        {
+          "id": "57e4522d-117e-4909-8ff3-8d65bdc37ed1",
+          "created_at": "2026-10-18T18:01:27.553009Z",
+          "updated_at": "2026-10-18T18:01:42.633120Z",
+          "run_id": "2be47bba-85fe-45b2-8d43-a298fd93810f",
+          "step_id": "52dd8d71-5a47-41d7-93a2-8b1e0835f6eb",
+          "tool_name": "search_achievements",
+          "status": "completed",
+          "input_payload": {
+            "query": "超长顶管施工单洞施工纪录多少米 岩石隧洞卡管脱困措施",
+            "achievement_ids": [
+              "c34b328e-5196-58fe-8556-c970285fde6b"
+            ]
+          },
+          "output_summary": {
+            "result": {
+              "answer": "创造了单洞3224m岩石顶管施工纪录。 [1]\n\n> 创造了单洞3224m岩石顶管施工纪录\n\n复杂地质环境下卡管脱困处置技术包括卡管定位、开孔清渣、应急处置措施及临时中继站安装等。 [2]\n\n> 首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术\n",
+              "citations": [
+                {
+                  "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+                  "url": "",
+                  "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+                  "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+                  "version": 1,
+                  "field": "document:27b3cd2e75b29ea0:0",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+                  "locator": "DOC 正文及表格（LibreOffice 转换）",
+                  "start": 12341,
+                  "end": 12908,
+                  "quote": "创造了单洞3224m岩石顶管施工纪录",
+                  "sources": [
+                    {
+                      "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                      "title": "djby.doc",
+                      "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                      "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                    }
+                  ]
+                },
+                {
+                  "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+                  "url": "",
+                  "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+                  "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+                  "version": 1,
+                  "field": "document:27b3cd2e75b29ea0:0",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+                  "locator": "DOC 正文及表格（LibreOffice 转换）",
+                  "start": 12341,
+                  "end": 12908,
+                  "quote": "首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术",
+                  "sources": [
+                    {
+                      "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                      "title": "djby.doc",
+                      "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                      "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                    }
+                  ]
+                }
+              ],
+              "sufficient": true,
+              "queries": [
+                "超长顶管施工单洞施工纪录多少米 岩石隧洞卡管脱困措施"
+              ],
+              "rounds": 1,
+              "achievement_ids": [
+                "c34b328e-5196-58fe-8556-c970285fde6b"
+              ],
+              "mode": "grounded_llm"
+            }
+          },
+          "latency_ms": 15074,
+          "retry_count": 0,
+          "error_code": null,
+          "error_message": ""
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": "99655cda-f6aa-4da1-86b4-264d351bc833",
+        "created_at": "2026-10-18T18:01:44.570731Z",
+        "updated_at": "2026-10-18T18:02:09.716676Z",
+        "thread_id": "ea217062-ee68-4f54-aaae-88935bf4311d",
+        "run_sequence": 2,
+        "conversation_id": "ea217062-ee68-4f54-aaae-88935bf4311d",
+        "user_id": "b3d0a152-28c6-49ec-8486-dfe5ad03207d",
+        "task_type": "qa",
+        "status": "completed",
+        "current_agent": null,
+        "current_step": "completed",
+        "input_payload": {
+          "message": "【全库验收追问】这些原件有没有明确承诺这项成果在2030年的采购单价和年收入？如无明确证据，请说明未知，不要推算或虚构数字。",
+          "context": {},
+          "organization_id": "928fbefd-2e39-4802-a4b5-4b03411c720e"
+        },
+        "output_payload": {
+          "answer": "证据仍不足：证据中未出现“2030年采购单价”相关内容。；证据中未出现“年收入”或“承诺”的具体数值或条款。",
+          "citations": [],
+          "verification": {},
+          "assessments": [],
+          "achievement_evaluation": {},
+          "requirement": {},
+          "requirement_id": null,
+          "research_ingestion": {},
+          "ingested_achievement_ids": [],
+          "artifact_id": "cc3ab11c-fdc0-42ee-81b4-225af3169d52",
+          "selected_achievement_ids": [
+            "c34b328e-5196-58fe-8556-c970285fde6b"
+          ],
+          "scope_is_set": true,
+          "rag": {
+            "answer": "证据仍不足：证据中未出现“2030年采购单价”相关内容。；证据中未出现“年收入”或“承诺”的具体数值或条款。",
+            "citations": [],
+            "sufficient": false,
+            "queries": [
+              "2030年采购单价 年收入 承诺",
+              "2030年 采购单价 年收入 承诺"
+            ],
+            "rounds": 2,
+            "achievement_ids": [
+              "c34b328e-5196-58fe-8556-c970285fde6b"
+            ],
+            "mode": "grounded_llm"
+          },
+          "tools": [
+            "search_achievements"
+          ]
+        },
+        "error_code": null,
+        "error_message": "",
+        "total_input_tokens": 8845,
+        "total_output_tokens": 2296,
+        "total_cost": 0.0,
+        "latency_ms": 25128,
+        "graph_version": "2.0.0-single-agent"
+      },
+      "steps": [
+        {
+          "id": "d589a50c-7cff-432a-9ea8-6b5d9942fa4c",
+          "created_at": "2026-10-18T18:01:44.637676Z",
+          "updated_at": "2026-10-18T18:01:47.415660Z",
+          "run_id": "99655cda-f6aa-4da1-86b4-264d351bc833",
+          "sequence": 1,
+          "agent_name": "hydrobridge_agent",
+          "node_name": "hydrobridge_agent",
+          "status": "completed",
+          "input_summary": {
+            "task_type": "qa",
+            "iteration": 0
+          },
+          "output_summary": {
+            "tool": "search_achievements",
+            "iteration": 0
+          },
+          "started_at": "2026-10-18T18:01:44.636616+00:00",
+          "finished_at": "2026-10-18T18:01:47.415478+00:00",
+          "latency_ms": 2778,
+          "retry_count": 0,
+          "error_message": ""
+        },
+        {
+          "id": "8bb949a4-31d8-497e-8b91-ab737362f4c2",
+          "created_at": "2026-10-18T18:01:47.423446Z",
+          "updated_at": "2026-10-18T18:02:09.684556Z",
+          "run_id": "99655cda-f6aa-4da1-86b4-264d351bc833",
+          "sequence": 2,
+          "agent_name": "tools",
+          "node_name": "tools",
+          "status": "completed",
+          "input_summary": {
+            "task_type": "qa",
+            "iteration": 0
+          },
+          "output_summary": {
+            "tool": "search_achievements"
+          },
+          "started_at": "2026-10-18T18:01:47.422778+00:00",
+          "finished_at": "2026-10-18T18:02:09.684393+00:00",
+          "latency_ms": 22261,
+          "retry_count": 0,
+          "error_message": ""
+        }
+      ],
+      "tool_calls": [
+        {
+          "id": "569f5007-2107-40f8-a2a0-c37d12849500",
+          "created_at": "2026-10-18T18:01:47.434813Z",
+          "updated_at": "2026-10-18T18:02:09.678538Z",
+          "run_id": "99655cda-f6aa-4da1-86b4-264d351bc833",
+          "step_id": "8bb949a4-31d8-497e-8b91-ab737362f4c2",
+          "tool_name": "search_achievements",
+          "status": "completed",
+          "input_payload": {
+            "query": "2030年采购单价 年收入 承诺",
+            "achievement_ids": [
+              "c34b328e-5196-58fe-8556-c970285fde6b"
+            ]
+          },
+          "output_summary": {
+            "result": {
+              "answer": "证据仍不足：证据中未出现“2030年采购单价”相关内容。；证据中未出现“年收入”或“承诺”的具体数值或条款。",
+              "citations": [],
+              "sufficient": false,
+              "queries": [
+                "2030年采购单价 年收入 承诺",
+                "2030年 采购单价 年收入 承诺"
+              ],
+              "rounds": 2,
+              "achievement_ids": [
+                "c34b328e-5196-58fe-8556-c970285fde6b"
+              ],
+              "mode": "grounded_llm"
+            }
+          },
+          "latency_ms": 22240,
+          "retry_count": 0,
+          "error_code": null,
+          "error_message": ""
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": "b5e825e4-1d15-42fb-b67f-621a26597051",
+        "created_at": "2026-10-18T18:02:10.767375Z",
+        "updated_at": "2026-10-18T18:02:29.477320Z",
+        "thread_id": "82e094a2-d8aa-454d-8aee-763533a86d10",
+        "run_sequence": 1,
+        "conversation_id": "82e094a2-d8aa-454d-8aee-763533a86d10",
+        "user_id": "b3d0a152-28c6-49ec-8486-dfe5ad03207d",
+        "task_type": "qa",
+        "status": "completed",
+        "current_agent": null,
+        "current_step": "completed",
+        "input_payload": {
+          "message": "【全库验收】请在文档库检索分布式光纤输水管道渗漏监测的成果，说明原文给出的单机最大监测距离是多少，以及怎样定位渗漏。请逐字引用原文。",
+          "context": {},
+          "organization_id": "928fbefd-2e39-4802-a4b5-4b03411c720e"
+        },
+        "output_payload": {
+          "answer": "该分布式光纤管道安全预警系统监测距离为单通道35km。 [1]\n\n> （1） 监测距离： 单通道 35km 。\n\n单套设备覆盖35km。 [2]\n\n> 该技术特征： 使用光缆作为传感器和信号传输通道 ， 单套设备覆盖 35km ，安全事件秒级响应和米级定位精度 。\n\n漏点定位精度为1~2m。 [3]\n\n> （4） 漏点定位精度： 1~2m 。\n\n该技术适用于压力输水管道泄漏监测。 [4]\n\n> 适用于 DN4000及以下的钢管 、球管 、混凝土管 、玻璃钢管等压力输水管道入侵预警 ，泄漏 、 不均匀沉降监测 ，PCCP管断丝监测 。\n",
+          "citations": [
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "abstract",
+              "document_id": null,
+              "locator": "",
+              "start": 0,
+              "end": 646,
+              "quote": "（1） 监测距离： 单通道 35km 。",
+              "sources": [
+                {
+                  "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                  "title": "水利推广-成果查询20250217.xlsx",
+                  "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                  "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                },
+                {
+                  "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                  "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                  "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                  "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                },
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                },
+                {
+                  "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                  "title": "水利推广-成果查询20250217.pdf",
+                  "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                  "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                },
+                {
+                  "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                  "title": "水利推广-成果查询20250217.htm",
+                  "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                  "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                }
+              ]
+            },
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "abstract",
+              "document_id": null,
+              "locator": "",
+              "start": 0,
+              "end": 646,
+              "quote": "该技术特征： 使用光缆作为传感器和信号传输通道 ， 单套设备覆盖 35km ，安全事件秒级响应和米级定位精度 。",
+              "sources": [
+                {
+                  "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                  "title": "水利推广-成果查询20250217.xlsx",
+                  "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                  "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                },
+                {
+                  "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                  "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                  "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                  "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                },
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                },
+                {
+                  "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                  "title": "水利推广-成果查询20250217.pdf",
+                  "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                  "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                },
+                {
+                  "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                  "title": "水利推广-成果查询20250217.htm",
+                  "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                  "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                }
+              ]
+            },
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "abstract",
+              "document_id": null,
+              "locator": "",
+              "start": 0,
+              "end": 646,
+              "quote": "（4） 漏点定位精度： 1~2m 。",
+              "sources": [
+                {
+                  "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                  "title": "水利推广-成果查询20250217.xlsx",
+                  "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                  "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                },
+                {
+                  "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                  "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                  "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                  "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                },
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                },
+                {
+                  "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                  "title": "水利推广-成果查询20250217.pdf",
+                  "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                  "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                },
+                {
+                  "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                  "title": "水利推广-成果查询20250217.htm",
+                  "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                  "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                }
+              ]
+            },
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "abstract",
+              "document_id": null,
+              "locator": "",
+              "start": 0,
+              "end": 646,
+              "quote": "适用于 DN4000及以下的钢管 、球管 、混凝土管 、玻璃钢管等压力输水管道入侵预警 ，泄漏 、 不均匀沉降监测 ，PCCP管断丝监测 。",
+              "sources": [
+                {
+                  "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                  "title": "水利推广-成果查询20250217.xlsx",
+                  "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                  "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                },
+                {
+                  "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                  "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                  "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                  "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                },
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                },
+                {
+                  "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                  "title": "水利推广-成果查询20250217.pdf",
+                  "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                  "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                },
+                {
+                  "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                  "title": "水利推广-成果查询20250217.htm",
+                  "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                  "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                }
+              ]
+            }
+          ],
+          "verification": {},
+          "assessments": [],
+          "achievement_evaluation": {},
+          "requirement": {},
+          "requirement_id": null,
+          "research_ingestion": {},
+          "ingested_achievement_ids": [],
+          "artifact_id": "9d54f9f1-dcdc-4894-b724-b8ed10e61758",
+          "selected_achievement_ids": [
+            "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+            "a00796c5-fe7c-5193-a810-869ffffd72a7",
+            "12420ee8-d143-580c-b73c-9a1bcaf4061c",
+            "dd38d848-e8db-5602-99b1-a97735ea2808",
+            "477bcf3a-e628-5369-9432-cb2a0316ace7"
+          ],
+          "scope_is_set": true,
+          "rag": {
+            "answer": "该分布式光纤管道安全预警系统监测距离为单通道35km。 [1]\n\n> （1） 监测距离： 单通道 35km 。\n\n单套设备覆盖35km。 [2]\n\n> 该技术特征： 使用光缆作为传感器和信号传输通道 ， 单套设备覆盖 35km ，安全事件秒级响应和米级定位精度 。\n\n漏点定位精度为1~2m。 [3]\n\n> （4） 漏点定位精度： 1~2m 。\n\n该技术适用于压力输水管道泄漏监测。 [4]\n\n> 适用于 DN4000及以下的钢管 、球管 、混凝土管 、玻璃钢管等压力输水管道入侵预警 ，泄漏 、 不均匀沉降监测 ，PCCP管断丝监测 。\n",
+            "citations": [
+              {
+                "title": "分布式光纤管道安全预警系统",
+                "url": "",
+                "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+                "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                "version": 2,
+                "field": "abstract",
+                "document_id": null,
+                "locator": "",
+                "start": 0,
+                "end": 646,
+                "quote": "（1） 监测距离： 单通道 35km 。",
+                "sources": [
+                  {
+                    "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                    "title": "水利推广-成果查询20250217.xlsx",
+                    "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                    "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                  },
+                  {
+                    "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                    "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                    "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                    "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                  },
+                  {
+                    "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                    "title": "111.xlsx",
+                    "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                    "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                  },
+                  {
+                    "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                    "title": "水利推广-成果查询20250217.pdf",
+                    "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                    "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                  },
+                  {
+                    "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                    "title": "水利推广-成果查询20250217.htm",
+                    "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                    "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                  }
+                ]
+              },
+              {
+                "title": "分布式光纤管道安全预警系统",
+                "url": "",
+                "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+                "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                "version": 2,
+                "field": "abstract",
+                "document_id": null,
+                "locator": "",
+                "start": 0,
+                "end": 646,
+                "quote": "该技术特征： 使用光缆作为传感器和信号传输通道 ， 单套设备覆盖 35km ，安全事件秒级响应和米级定位精度 。",
+                "sources": [
+                  {
+                    "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                    "title": "水利推广-成果查询20250217.xlsx",
+                    "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                    "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                  },
+                  {
+                    "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                    "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                    "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                    "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                  },
+                  {
+                    "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                    "title": "111.xlsx",
+                    "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                    "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                  },
+                  {
+                    "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                    "title": "水利推广-成果查询20250217.pdf",
+                    "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                    "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                  },
+                  {
+                    "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                    "title": "水利推广-成果查询20250217.htm",
+                    "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                    "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                  }
+                ]
+              },
+              {
+                "title": "分布式光纤管道安全预警系统",
+                "url": "",
+                "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+                "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                "version": 2,
+                "field": "abstract",
+                "document_id": null,
+                "locator": "",
+                "start": 0,
+                "end": 646,
+                "quote": "（4） 漏点定位精度： 1~2m 。",
+                "sources": [
+                  {
+                    "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                    "title": "水利推广-成果查询20250217.xlsx",
+                    "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                    "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                  },
+                  {
+                    "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                    "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                    "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                    "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                  },
+                  {
+                    "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                    "title": "111.xlsx",
+                    "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                    "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                  },
+                  {
+                    "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                    "title": "水利推广-成果查询20250217.pdf",
+                    "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                    "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                  },
+                  {
+                    "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                    "title": "水利推广-成果查询20250217.htm",
+                    "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                    "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                  }
+                ]
+              },
+              {
+                "title": "分布式光纤管道安全预警系统",
+                "url": "",
+                "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+                "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                "version": 2,
+                "field": "abstract",
+                "document_id": null,
+                "locator": "",
+                "start": 0,
+                "end": 646,
+                "quote": "适用于 DN4000及以下的钢管 、球管 、混凝土管 、玻璃钢管等压力输水管道入侵预警 ，泄漏 、 不均匀沉降监测 ，PCCP管断丝监测 。",
+                "sources": [
+                  {
+                    "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                    "title": "水利推广-成果查询20250217.xlsx",
+                    "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                    "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                  },
+                  {
+                    "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                    "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                    "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                    "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                  },
+                  {
+                    "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                    "title": "111.xlsx",
+                    "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                    "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                  },
+                  {
+                    "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                    "title": "水利推广-成果查询20250217.pdf",
+                    "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                    "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                  },
+                  {
+                    "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                    "title": "水利推广-成果查询20250217.htm",
+                    "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                    "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                  }
+                ]
+              }
+            ],
+            "sufficient": true,
+            "queries": [
+              "分布式光纤输水管道渗漏监测 单机最大监测距离 渗漏定位"
+            ],
+            "rounds": 1,
+            "achievement_ids": [
+              "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "a00796c5-fe7c-5193-a810-869ffffd72a7",
+              "12420ee8-d143-580c-b73c-9a1bcaf4061c",
+              "dd38d848-e8db-5602-99b1-a97735ea2808",
+              "477bcf3a-e628-5369-9432-cb2a0316ace7"
+            ],
+            "mode": "grounded_llm"
+          },
+          "tools": [
+            "search_achievements"
+          ]
+        },
+        "error_code": null,
+        "error_message": "",
+        "total_input_tokens": 13019,
+        "total_output_tokens": 1988,
+        "total_cost": 0.0,
+        "latency_ms": 18695,
+        "graph_version": "2.0.0-single-agent"
+      },
+      "steps": [
+        {
+          "id": "17354b97-fff5-4ef8-8a3c-d6ccfa71f01b",
+          "created_at": "2026-10-18T18:02:10.822464Z",
+          "updated_at": "2026-10-18T18:02:12.765344Z",
+          "run_id": "b5e825e4-1d15-42fb-b67f-621a26597051",
+          "sequence": 1,
+          "agent_name": "hydrobridge_agent",
+          "node_name": "hydrobridge_agent",
+          "status": "completed",
+          "input_summary": {
+            "task_type": "qa",
+            "iteration": 0
+          },
+          "output_summary": {
+            "tool": "search_achievements",
+            "iteration": 0
+          },
+          "started_at": "2026-10-18T18:02:10.821295+00:00",
+          "finished_at": "2026-10-18T18:02:12.765139+00:00",
+          "latency_ms": 1943,
+          "retry_count": 0,
+          "error_message": ""
+        },
+        {
+          "id": "07508c21-f097-4aa9-9240-4d494a888d33",
+          "created_at": "2026-10-18T18:02:12.776994Z",
+          "updated_at": "2026-10-18T18:02:29.442863Z",
+          "run_id": "b5e825e4-1d15-42fb-b67f-621a26597051",
+          "sequence": 2,
+          "agent_name": "tools",
+          "node_name": "tools",
+          "status": "completed",
+          "input_summary": {
+            "task_type": "qa",
+            "iteration": 0
+          },
+          "output_summary": {
+            "tool": "search_achievements"
+          },
+          "started_at": "2026-10-18T18:02:12.776217+00:00",
+          "finished_at": "2026-10-18T18:02:29.442706+00:00",
+          "latency_ms": 16666,
+          "retry_count": 0,
+          "error_message": ""
+        }
+      ],
+      "tool_calls": [
+        {
+          "id": "d047946c-8782-4794-80f4-4fb86808d312",
+          "created_at": "2026-10-18T18:02:12.805986Z",
+          "updated_at": "2026-10-18T18:02:29.434626Z",
+          "run_id": "b5e825e4-1d15-42fb-b67f-621a26597051",
+          "step_id": "07508c21-f097-4aa9-9240-4d494a888d33",
+          "tool_name": "search_achievements",
+          "status": "completed",
+          "input_payload": {
+            "query": "分布式光纤输水管道渗漏监测 单机最大监测距离 渗漏定位",
+            "achievement_ids": null
+          },
+          "output_summary": {
+            "result": {
+              "answer": "该分布式光纤管道安全预警系统监测距离为单通道35km。 [1]\n\n> （1） 监测距离： 单通道 35km 。\n\n单套设备覆盖35km。 [2]\n\n> 该技术特征： 使用光缆作为传感器和信号传输通道 ， 单套设备覆盖 35km ，安全事件秒级响应和米级定位精度 。\n\n漏点定位精度为1~2m。 [3]\n\n> （4） 漏点定位精度： 1~2m 。\n\n该技术适用于压力输水管道泄漏监测。 [4]\n\n> 适用于 DN4000及以下的钢管 、球管 、混凝土管 、玻璃钢管等压力输水管道入侵预警 ，泄漏 、 不均匀沉降监测 ，PCCP管断丝监测 。\n",
+              "citations": [
+                {
+                  "title": "分布式光纤管道安全预警系统",
+                  "url": "",
+                  "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+                  "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                  "version": 2,
+                  "field": "abstract",
+                  "document_id": null,
+                  "locator": "",
+                  "start": 0,
+                  "end": 646,
+                  "quote": "（1） 监测距离： 单通道 35km 。",
+                  "sources": [
+                    {
+                      "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                      "title": "水利推广-成果查询20250217.xlsx",
+                      "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                      "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                    },
+                    {
+                      "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                      "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                      "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                      "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                    },
+                    {
+                      "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                      "title": "111.xlsx",
+                      "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                      "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                    },
+                    {
+                      "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                      "title": "水利推广-成果查询20250217.pdf",
+                      "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                      "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                    },
+                    {
+                      "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                      "title": "水利推广-成果查询20250217.htm",
+                      "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                      "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                    }
+                  ]
+                },
+                {
+                  "title": "分布式光纤管道安全预警系统",
+                  "url": "",
+                  "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+                  "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                  "version": 2,
+                  "field": "abstract",
+                  "document_id": null,
+                  "locator": "",
+                  "start": 0,
+                  "end": 646,
+                  "quote": "该技术特征： 使用光缆作为传感器和信号传输通道 ， 单套设备覆盖 35km ，安全事件秒级响应和米级定位精度 。",
+                  "sources": [
+                    {
+                      "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                      "title": "水利推广-成果查询20250217.xlsx",
+                      "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                      "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                    },
+                    {
+                      "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                      "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                      "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                      "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                    },
+                    {
+                      "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                      "title": "111.xlsx",
+                      "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                      "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                    },
+                    {
+                      "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                      "title": "水利推广-成果查询20250217.pdf",
+                      "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                      "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                    },
+                    {
+                      "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                      "title": "水利推广-成果查询20250217.htm",
+                      "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                      "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                    }
+                  ]
+                },
+                {
+                  "title": "分布式光纤管道安全预警系统",
+                  "url": "",
+                  "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+                  "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                  "version": 2,
+                  "field": "abstract",
+                  "document_id": null,
+                  "locator": "",
+                  "start": 0,
+                  "end": 646,
+                  "quote": "（4） 漏点定位精度： 1~2m 。",
+                  "sources": [
+                    {
+                      "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                      "title": "水利推广-成果查询20250217.xlsx",
+                      "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                      "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                    },
+                    {
+                      "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                      "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                      "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                      "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                    },
+                    {
+                      "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                      "title": "111.xlsx",
+                      "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                      "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                    },
+                    {
+                      "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                      "title": "水利推广-成果查询20250217.pdf",
+                      "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                      "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                    },
+                    {
+                      "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                      "title": "水利推广-成果查询20250217.htm",
+                      "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                      "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                    }
+                  ]
+                },
+                {
+                  "title": "分布式光纤管道安全预警系统",
+                  "url": "",
+                  "chunk_id": "e6b9e627-c313-59f1-bef4-03b243c4b6d5",
+                  "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                  "version": 2,
+                  "field": "abstract",
+                  "document_id": null,
+                  "locator": "",
+                  "start": 0,
+                  "end": 646,
+                  "quote": "适用于 DN4000及以下的钢管 、球管 、混凝土管 、玻璃钢管等压力输水管道入侵预警 ，泄漏 、 不均匀沉降监测 ，PCCP管断丝监测 。",
+                  "sources": [
+                    {
+                      "id": "297d7d86-8357-47c6-85a5-ac9d792445d4",
+                      "title": "水利推广-成果查询20250217.xlsx",
+                      "url": "/api/v1/documents/add89bba-cb8b-5e11-a167-52714cbc33a9/download",
+                      "document_id": "add89bba-cb8b-5e11-a167-52714cbc33a9"
+                    },
+                    {
+                      "id": "03ffb434-f90b-450f-a06f-528e55086e76",
+                      "title": "水利推广 - 成果查询 20250217_内容调整.xlsx",
+                      "url": "/api/v1/documents/a0103dfa-d1fe-534f-a698-fc82924e4b37/download",
+                      "document_id": "a0103dfa-d1fe-534f-a698-fc82924e4b37"
+                    },
+                    {
+                      "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                      "title": "111.xlsx",
+                      "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                      "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                    },
+                    {
+                      "id": "4db2052b-2197-4f28-ad92-0307702da56e",
+                      "title": "水利推广-成果查询20250217.pdf",
+                      "url": "/api/v1/documents/0712e9d0-6c37-53c2-86ae-292ebedb1f5c/download",
+                      "document_id": "0712e9d0-6c37-53c2-86ae-292ebedb1f5c"
+                    },
+                    {
+                      "id": "765bc739-db3e-4b37-aa8b-515b8c7e6c36",
+                      "title": "水利推广-成果查询20250217.htm",
+                      "url": "/api/v1/documents/21e32475-f568-5de2-8ef1-a90e16b630ba/download",
+                      "document_id": "21e32475-f568-5de2-8ef1-a90e16b630ba"
+                    }
+                  ]
+                }
+              ],
+              "sufficient": true,
+              "queries": [
+                "分布式光纤输水管道渗漏监测 单机最大监测距离 渗漏定位"
+              ],
+              "rounds": 1,
+              "achievement_ids": [
+                "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                "a00796c5-fe7c-5193-a810-869ffffd72a7",
+                "12420ee8-d143-580c-b73c-9a1bcaf4061c",
+                "dd38d848-e8db-5602-99b1-a97735ea2808",
+                "477bcf3a-e628-5369-9432-cb2a0316ace7"
+              ],
+              "mode": "grounded_llm"
+            }
+          },
+          "latency_ms": 16622,
+          "retry_count": 0,
+          "error_code": null,
+          "error_message": ""
+        }
+      ]
+    }
+  ],
+  "unknown_answer_for_manual_review": "证据仍不足：证据中未出现“2030年采购单价”相关内容。；证据中未出现“年收入”或“承诺”的具体数值或条款。"
+}

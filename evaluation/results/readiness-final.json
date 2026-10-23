@@ -1,0 +1,23 @@
+{
+  "status": "ready",
+  "checks": {
+    "database": true,
+    "redis": {
+      "runtime": true,
+      "cache": true
+    },
+    "elasticsearch": true,
+    "minio": true,
+    "tavily_configured": true,
+    "model_configured": true,
+    "bge": {
+      "status": "ready",
+      "device": "cuda",
+      "embedding_model": "BAAI/bge-m3",
+      "reranker_model": "BAAI/bge-reranker-v2-m3",
+      "dimension": 1024,
+      "max_length": 1024,
+      "batch_size": 8
+    }
+  }
+}

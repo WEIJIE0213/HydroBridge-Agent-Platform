@@ -1,0 +1,1344 @@
+{
+  "mode": "real-http-api-and-configured-llm",
+  "runs": [
+    {
+      "id": "0a68df67-20d4-4114-bd27-8f817cebe287",
+      "created_at": "2026-10-18T18:04:43.985969Z",
+      "updated_at": "2026-10-18T18:05:05.266812Z",
+      "thread_id": "86d9d457-fb8e-4f1b-95ff-0e9e20baa93b",
+      "run_sequence": 1,
+      "conversation_id": "86d9d457-fb8e-4f1b-95ff-0e9e20baa93b",
+      "user_id": "b3d0a152-28c6-49ec-8486-dfe5ad03207d",
+      "task_type": "qa",
+      "status": "completed",
+      "current_agent": null,
+      "current_step": "completed",
+      "input_payload": {
+        "message": "【全库验收】请仅依据所选成果原始材料回答：超长顶管施工创造的单洞施工纪录是多少米？遇到岩石隧洞卡管时有哪些脱困措施？请逐字引用证据，并标明来源。",
+        "context": {
+          "achievement_ids": [
+            "c34b328e-5196-58fe-8556-c970285fde6b"
+          ]
+        },
+        "organization_id": "928fbefd-2e39-4802-a4b5-4b03411c720e"
+      },
+      "output_payload": {
+        "answer": "单洞3224m岩石顶管施工纪录。 [1]\n\n> 创造了单洞3224m岩石顶管施工纪录\n\n卡管脱困处置技术包括卡管定位、开孔清渣、应急处置措施及临时中继站安装等。 [2]\n\n> 首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术\n",
+        "citations": [
+          {
+            "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+            "url": "",
+            "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+            "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+            "version": 1,
+            "field": "document:27b3cd2e75b29ea0:0",
+            "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+            "locator": "DOC 正文及表格（LibreOffice 转换）",
+            "start": 12341,
+            "end": 12908,
+            "quote": "创造了单洞3224m岩石顶管施工纪录",
+            "sources": [
+              {
+                "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                "title": "djby.doc",
+                "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+              }
+            ]
+          },
+          {
+            "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+            "url": "",
+            "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+            "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+            "version": 1,
+            "field": "document:27b3cd2e75b29ea0:0",
+            "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+            "locator": "DOC 正文及表格（LibreOffice 转换）",
+            "start": 12341,
+            "end": 12908,
+            "quote": "首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术",
+            "sources": [
+              {
+                "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                "title": "djby.doc",
+                "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+              }
+            ]
+          }
+        ],
+        "verification": {},
+        "assessments": [],
+        "achievement_evaluation": {},
+        "requirement": {},
+        "requirement_id": null,
+        "research_ingestion": {},
+        "ingested_achievement_ids": [],
+        "artifact_id": "f83847a5-fd31-454a-8301-cdb75aa787b5",
+        "selected_achievement_ids": [
+          "c34b328e-5196-58fe-8556-c970285fde6b"
+        ],
+        "scope_is_set": true,
+        "rag": {
+          "answer": "单洞3224m岩石顶管施工纪录。 [1]\n\n> 创造了单洞3224m岩石顶管施工纪录\n\n卡管脱困处置技术包括卡管定位、开孔清渣、应急处置措施及临时中继站安装等。 [2]\n\n> 首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术\n",
+          "citations": [
+            {
+              "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+              "url": "",
+              "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+              "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+              "version": 1,
+              "field": "document:27b3cd2e75b29ea0:0",
+              "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+              "locator": "DOC 正文及表格（LibreOffice 转换）",
+              "start": 12341,
+              "end": 12908,
+              "quote": "创造了单洞3224m岩石顶管施工纪录",
+              "sources": [
+                {
+                  "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                  "title": "djby.doc",
+                  "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                }
+              ]
+            },
+            {
+              "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+              "url": "",
+              "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+              "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+              "version": 1,
+              "field": "document:27b3cd2e75b29ea0:0",
+              "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+              "locator": "DOC 正文及表格（LibreOffice 转换）",
+              "start": 12341,
+              "end": 12908,
+              "quote": "首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术",
+              "sources": [
+                {
+                  "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                  "title": "djby.doc",
+                  "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                }
+              ]
+            }
+          ],
+          "sufficient": true,
+          "queries": [
+            "超长顶管施工 单洞施工纪录 米 岩石隧洞卡管 脱困措施"
+          ],
+          "rounds": 1,
+          "achievement_ids": [
+            "c34b328e-5196-58fe-8556-c970285fde6b"
+          ],
+          "mode": "grounded_llm"
+        },
+        "tools": [
+          "search_achievements"
+        ]
+      },
+      "error_code": null,
+      "error_message": "",
+      "total_input_tokens": 4751,
+      "total_output_tokens": 2306,
+      "total_cost": 0.0,
+      "latency_ms": 21073,
+      "graph_version": "2.0.0-single-agent"
+    },
+    {
+      "id": "e3601a5e-6329-4f56-b856-3416f7a8a19d",
+      "created_at": "2026-10-18T18:05:06.514100Z",
+      "updated_at": "2026-10-18T18:05:41.310737Z",
+      "thread_id": "86d9d457-fb8e-4f1b-95ff-0e9e20baa93b",
+      "run_sequence": 2,
+      "conversation_id": "86d9d457-fb8e-4f1b-95ff-0e9e20baa93b",
+      "user_id": "b3d0a152-28c6-49ec-8486-dfe5ad03207d",
+      "task_type": "qa",
+      "status": "completed",
+      "current_agent": null,
+      "current_step": "completed",
+      "input_payload": {
+        "message": "【全库验收追问】这些原件有没有明确承诺这项成果在2030年的采购单价和年收入？如无明确证据，请说明未知，不要推算或虚构数字。",
+        "context": {},
+        "organization_id": "928fbefd-2e39-4802-a4b5-4b03411c720e"
+      },
+      "output_payload": {
+        "answer": "该成果登记表中自我转化效益的收入、净利润、实交税金、出口创汇、节约资金均为0万元。 [1]\n\n> 5．自我转化效益(万元)         |  收入 | 净利润 | 实交税金 | 出口创汇 | 节约资金\n | 0 | 0 | 0 | 0 | 0\n\n证据仍不足：证据中未出现“2030年采购单价”“单价承诺”“收入承诺”等字段或数值。；证据中仅有“自我转化效益（收入、净利润等）均为0”的当前登记数据，不能回答2030年采购单价、年收入以及单价/收入承诺。",
+        "citations": [
+          {
+            "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+            "url": "",
+            "chunk_id": "58ee8a6a-4bfd-533b-908c-21c0582cf893",
+            "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+            "version": 1,
+            "field": "document:27b3cd2e75b29ea0:0",
+            "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+            "locator": "DOC 正文及表格（LibreOffice 转换）",
+            "start": 8453,
+            "end": 9146,
+            "quote": "5．自我转化效益(万元)         |  收入 | 净利润 | 实交税金 | 出口创汇 | 节约资金\n | 0 | 0 | 0 | 0 | 0",
+            "sources": [
+              {
+                "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                "title": "djby.doc",
+                "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+              }
+            ]
+          }
+        ],
+        "verification": {},
+        "assessments": [],
+        "achievement_evaluation": {},
+        "requirement": {},
+        "requirement_id": null,
+        "research_ingestion": {},
+        "ingested_achievement_ids": [],
+        "artifact_id": "266c7475-eaac-4953-87c9-12cd9639e895",
+        "selected_achievement_ids": [
+          "c34b328e-5196-58fe-8556-c970285fde6b"
+        ],
+        "scope_is_set": true,
+        "rag": {
+          "answer": "该成果登记表中自我转化效益的收入、净利润、实交税金、出口创汇、节约资金均为0万元。 [1]\n\n> 5．自我转化效益(万元)         |  收入 | 净利润 | 实交税金 | 出口创汇 | 节约资金\n | 0 | 0 | 0 | 0 | 0\n\n证据仍不足：证据中未出现“2030年采购单价”“单价承诺”“收入承诺”等字段或数值。；证据中仅有“自我转化效益（收入、净利润等）均为0”的当前登记数据，不能回答2030年采购单价、年收入以及单价/收入承诺。",
+          "citations": [
+            {
+              "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+              "url": "",
+              "chunk_id": "58ee8a6a-4bfd-533b-908c-21c0582cf893",
+              "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+              "version": 1,
+              "field": "document:27b3cd2e75b29ea0:0",
+              "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+              "locator": "DOC 正文及表格（LibreOffice 转换）",
+              "start": 8453,
+              "end": 9146,
+              "quote": "5．自我转化效益(万元)         |  收入 | 净利润 | 实交税金 | 出口创汇 | 节约资金\n | 0 | 0 | 0 | 0 | 0",
+              "sources": [
+                {
+                  "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                  "title": "djby.doc",
+                  "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                }
+              ]
+            }
+          ],
+          "sufficient": false,
+          "queries": [
+            "2030年采购单价、年收入、单价承诺、收入承诺",
+            "2030年采购单价 年收入 单价承诺 收入承诺"
+          ],
+          "rounds": 2,
+          "achievement_ids": [
+            "c34b328e-5196-58fe-8556-c970285fde6b"
+          ],
+          "mode": "grounded_llm"
+        },
+        "tools": [
+          "search_achievements"
+        ]
+      },
+      "error_code": null,
+      "error_message": "",
+      "total_input_tokens": 9473,
+      "total_output_tokens": 3607,
+      "total_cost": 0.0,
+      "latency_ms": 34779,
+      "graph_version": "2.0.0-single-agent"
+    },
+    {
+      "id": "ded5b6c3-4579-40ed-bcd0-5886ffccdce8",
+      "created_at": "2026-10-18T18:06:34.941470Z",
+      "updated_at": "2026-10-18T18:06:59.929825Z",
+      "thread_id": "ce127fbd-8d88-4028-aa2e-9d209c5aea21",
+      "run_sequence": 1,
+      "conversation_id": "ce127fbd-8d88-4028-aa2e-9d209c5aea21",
+      "user_id": "b3d0a152-28c6-49ec-8486-dfe5ad03207d",
+      "task_type": "qa",
+      "status": "completed",
+      "current_agent": null,
+      "current_step": "completed",
+      "input_payload": {
+        "message": "【全库验收】请在文档库检索分布式光纤输水管道渗漏监测的成果，说明原文给出的单机最大监测距离是多少，以及怎样定位渗漏。请逐字引用原文。",
+        "context": {},
+        "organization_id": "928fbefd-2e39-4802-a4b5-4b03411c720e"
+      },
+      "output_payload": {
+        "answer": "单套设备覆盖35km，技术指标中监测距离为单通道35km。 [1]\n\n> 单套设备覆盖 35km ，安全事件秒级响应和米级\n定位精度 。\n\n技术指标\n\n（1）   监测距离：   单通道 35km 。\n\n渗漏监测定位采用分布式光纤传感技术，具体技术手段包括马赫曾德干涉、相干光时域反射、布里渊光时域分析，并以时空形态特征挖掘和人工智能模式识别为核心。 [2]\n\n> 该技术以“ 分布式光纤传感” 为技术基础 ，   以马赫曾德干\n涉 、相干光时域反射 、布里渊光时 域分析为具体技术手段\n,   以时空形态特征挖掘 、人工智能模式识别为技术核心 ，\n通过感知 、传 输 、处理 、分析传感光缆全线声场波动信息\n、应力应变信息 ，挖掘信号内在语义特征 ，   实现长距 离输\n调水管道 7×24h入侵监测 、泄漏监测 、沉降监测 、断丝监\n测 。\n\n漏点定位精度为1~2m。 [3]\n\n> （4）   漏点定位精度：   1~2m 。\n",
+        "citations": [
+          {
+            "title": "分布式光纤管道安全预警系统",
+            "url": "",
+            "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+            "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+            "version": 2,
+            "field": "document:d95f5e9dc7667e86:0",
+            "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+            "locator": "Sheet1!行138:139（序号31）",
+            "start": 0,
+            "end": 680,
+            "quote": "单套设备覆盖 35km ，安全事件秒级响应和米级\n定位精度 。\n\n技术指标\n\n（1）   监测距离：   单通道 35km 。",
+            "sources": [
+              {
+                "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                "title": "111.xlsx",
+                "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+              }
+            ]
+          },
+          {
+            "title": "分布式光纤管道安全预警系统",
+            "url": "",
+            "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+            "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+            "version": 2,
+            "field": "document:d95f5e9dc7667e86:0",
+            "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+            "locator": "Sheet1!行138:139（序号31）",
+            "start": 0,
+            "end": 680,
+            "quote": "该技术以“ 分布式光纤传感” 为技术基础 ，   以马赫曾德干\n涉 、相干光时域反射 、布里渊光时 域分析为具体技术手段\n,   以时空形态特征挖掘 、人工智能模式识别为技术核心 ，\n通过感知 、传 输 、处理 、分析传感光缆全线声场波动信息\n、应力应变信息 ，挖掘信号内在语义特征 ，   实现长距 离输\n调水管道 7×24h入侵监测 、泄漏监测 、沉降监测 、断丝监\n测 。",
+            "sources": [
+              {
+                "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                "title": "111.xlsx",
+                "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+              }
+            ]
+          },
+          {
+            "title": "分布式光纤管道安全预警系统",
+            "url": "",
+            "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+            "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+            "version": 2,
+            "field": "document:d95f5e9dc7667e86:0",
+            "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+            "locator": "Sheet1!行138:139（序号31）",
+            "start": 0,
+            "end": 680,
+            "quote": "（4）   漏点定位精度：   1~2m 。",
+            "sources": [
+              {
+                "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                "title": "111.xlsx",
+                "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+              }
+            ]
+          }
+        ],
+        "verification": {},
+        "assessments": [],
+        "achievement_evaluation": {},
+        "requirement": {},
+        "requirement_id": null,
+        "research_ingestion": {},
+        "ingested_achievement_ids": [],
+        "artifact_id": "d1a31cfa-43cf-4bc0-9a5f-34ee3b42ddf4",
+        "selected_achievement_ids": [
+          "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+          "12420ee8-d143-580c-b73c-9a1bcaf4061c",
+          "a00796c5-fe7c-5193-a810-869ffffd72a7",
+          "477bcf3a-e628-5369-9432-cb2a0316ace7",
+          "7cee5280-119e-5973-a0a6-42dbf22d7af1"
+        ],
+        "scope_is_set": true,
+        "rag": {
+          "answer": "单套设备覆盖35km，技术指标中监测距离为单通道35km。 [1]\n\n> 单套设备覆盖 35km ，安全事件秒级响应和米级\n定位精度 。\n\n技术指标\n\n（1）   监测距离：   单通道 35km 。\n\n渗漏监测定位采用分布式光纤传感技术，具体技术手段包括马赫曾德干涉、相干光时域反射、布里渊光时域分析，并以时空形态特征挖掘和人工智能模式识别为核心。 [2]\n\n> 该技术以“ 分布式光纤传感” 为技术基础 ，   以马赫曾德干\n涉 、相干光时域反射 、布里渊光时 域分析为具体技术手段\n,   以时空形态特征挖掘 、人工智能模式识别为技术核心 ，\n通过感知 、传 输 、处理 、分析传感光缆全线声场波动信息\n、应力应变信息 ，挖掘信号内在语义特征 ，   实现长距 离输\n调水管道 7×24h入侵监测 、泄漏监测 、沉降监测 、断丝监\n测 。\n\n漏点定位精度为1~2m。 [3]\n\n> （4）   漏点定位精度：   1~2m 。\n",
+          "citations": [
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "document:d95f5e9dc7667e86:0",
+              "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+              "locator": "Sheet1!行138:139（序号31）",
+              "start": 0,
+              "end": 680,
+              "quote": "单套设备覆盖 35km ，安全事件秒级响应和米级\n定位精度 。\n\n技术指标\n\n（1）   监测距离：   单通道 35km 。",
+              "sources": [
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                }
+              ]
+            },
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "document:d95f5e9dc7667e86:0",
+              "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+              "locator": "Sheet1!行138:139（序号31）",
+              "start": 0,
+              "end": 680,
+              "quote": "该技术以“ 分布式光纤传感” 为技术基础 ，   以马赫曾德干\n涉 、相干光时域反射 、布里渊光时 域分析为具体技术手段\n,   以时空形态特征挖掘 、人工智能模式识别为技术核心 ，\n通过感知 、传 输 、处理 、分析传感光缆全线声场波动信息\n、应力应变信息 ，挖掘信号内在语义特征 ，   实现长距 离输\n调水管道 7×24h入侵监测 、泄漏监测 、沉降监测 、断丝监\n测 。",
+              "sources": [
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                }
+              ]
+            },
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "document:d95f5e9dc7667e86:0",
+              "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+              "locator": "Sheet1!行138:139（序号31）",
+              "start": 0,
+              "end": 680,
+              "quote": "（4）   漏点定位精度：   1~2m 。",
+              "sources": [
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                }
+              ]
+            }
+          ],
+          "sufficient": true,
+          "queries": [
+            "分布式光纤输水管道渗漏监测，单机最大监测距离，渗漏定位方法"
+          ],
+          "rounds": 1,
+          "achievement_ids": [
+            "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+            "12420ee8-d143-580c-b73c-9a1bcaf4061c",
+            "a00796c5-fe7c-5193-a810-869ffffd72a7",
+            "477bcf3a-e628-5369-9432-cb2a0316ace7",
+            "7cee5280-119e-5973-a0a6-42dbf22d7af1"
+          ],
+          "mode": "grounded_llm"
+        },
+        "tools": [
+          "search_achievements"
+        ]
+      },
+      "error_code": null,
+      "error_message": "",
+      "total_input_tokens": 12527,
+      "total_output_tokens": 2912,
+      "total_cost": 0.0,
+      "latency_ms": 24973,
+      "graph_version": "2.0.0-single-agent"
+    }
+  ],
+  "checks": [
+    {
+      "run_id": "0a68df67-20d4-4114-bd27-8f817cebe287",
+      "citations_checked": 2,
+      "originals_downloaded": [
+        {
+          "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+          "filename": "djby.doc",
+          "sha256": "27b3cd2e75b29ea08b03de269553902e32280196a3d618b65aeceb02fa15e903",
+          "locator": "DOC 正文及表格（LibreOffice 转换）"
+        }
+      ],
+      "report_sha256_verified": true
+    },
+    {
+      "run_id": "e3601a5e-6329-4f56-b856-3416f7a8a19d",
+      "citations_checked": 1,
+      "originals_downloaded": [
+        {
+          "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+          "filename": "djby.doc",
+          "sha256": "27b3cd2e75b29ea08b03de269553902e32280196a3d618b65aeceb02fa15e903",
+          "locator": "DOC 正文及表格（LibreOffice 转换）"
+        }
+      ],
+      "report_sha256_verified": true
+    },
+    {
+      "run_id": "ded5b6c3-4579-40ed-bcd0-5886ffccdce8",
+      "citations_checked": 3,
+      "originals_downloaded": [
+        {
+          "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+          "filename": "111.xlsx",
+          "sha256": "d95f5e9dc7667e869259a84cac1da64522fe722ae1a4967553ab297c050ac673",
+          "locator": "Sheet1!行138:139（序号31）"
+        }
+      ],
+      "report_sha256_verified": true
+    }
+  ],
+  "readiness": {
+    "status": "ready",
+    "checks": {
+      "database": true,
+      "redis": {
+        "runtime": true,
+        "cache": true
+      },
+      "elasticsearch": true,
+      "minio": true,
+      "tavily_configured": true,
+      "model_configured": true,
+      "bge": {
+        "status": "ready",
+        "device": "cuda",
+        "embedding_model": "BAAI/bge-m3",
+        "reranker_model": "BAAI/bge-reranker-v2-m3",
+        "dimension": 1024,
+        "max_length": 1024,
+        "batch_size": 8
+      }
+    }
+  },
+  "traces": [
+    {
+      "run": {
+        "id": "0a68df67-20d4-4114-bd27-8f817cebe287",
+        "created_at": "2026-10-18T18:04:43.985969Z",
+        "updated_at": "2026-10-18T18:05:05.266812Z",
+        "thread_id": "86d9d457-fb8e-4f1b-95ff-0e9e20baa93b",
+        "run_sequence": 1,
+        "conversation_id": "86d9d457-fb8e-4f1b-95ff-0e9e20baa93b",
+        "user_id": "b3d0a152-28c6-49ec-8486-dfe5ad03207d",
+        "task_type": "qa",
+        "status": "completed",
+        "current_agent": null,
+        "current_step": "completed",
+        "input_payload": {
+          "message": "【全库验收】请仅依据所选成果原始材料回答：超长顶管施工创造的单洞施工纪录是多少米？遇到岩石隧洞卡管时有哪些脱困措施？请逐字引用证据，并标明来源。",
+          "context": {
+            "achievement_ids": [
+              "c34b328e-5196-58fe-8556-c970285fde6b"
+            ]
+          },
+          "organization_id": "928fbefd-2e39-4802-a4b5-4b03411c720e"
+        },
+        "output_payload": {
+          "answer": "单洞3224m岩石顶管施工纪录。 [1]\n\n> 创造了单洞3224m岩石顶管施工纪录\n\n卡管脱困处置技术包括卡管定位、开孔清渣、应急处置措施及临时中继站安装等。 [2]\n\n> 首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术\n",
+          "citations": [
+            {
+              "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+              "url": "",
+              "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+              "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+              "version": 1,
+              "field": "document:27b3cd2e75b29ea0:0",
+              "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+              "locator": "DOC 正文及表格（LibreOffice 转换）",
+              "start": 12341,
+              "end": 12908,
+              "quote": "创造了单洞3224m岩石顶管施工纪录",
+              "sources": [
+                {
+                  "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                  "title": "djby.doc",
+                  "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                }
+              ]
+            },
+            {
+              "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+              "url": "",
+              "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+              "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+              "version": 1,
+              "field": "document:27b3cd2e75b29ea0:0",
+              "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+              "locator": "DOC 正文及表格（LibreOffice 转换）",
+              "start": 12341,
+              "end": 12908,
+              "quote": "首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术",
+              "sources": [
+                {
+                  "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                  "title": "djby.doc",
+                  "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                }
+              ]
+            }
+          ],
+          "verification": {},
+          "assessments": [],
+          "achievement_evaluation": {},
+          "requirement": {},
+          "requirement_id": null,
+          "research_ingestion": {},
+          "ingested_achievement_ids": [],
+          "artifact_id": "f83847a5-fd31-454a-8301-cdb75aa787b5",
+          "selected_achievement_ids": [
+            "c34b328e-5196-58fe-8556-c970285fde6b"
+          ],
+          "scope_is_set": true,
+          "rag": {
+            "answer": "单洞3224m岩石顶管施工纪录。 [1]\n\n> 创造了单洞3224m岩石顶管施工纪录\n\n卡管脱困处置技术包括卡管定位、开孔清渣、应急处置措施及临时中继站安装等。 [2]\n\n> 首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术\n",
+            "citations": [
+              {
+                "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+                "url": "",
+                "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+                "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+                "version": 1,
+                "field": "document:27b3cd2e75b29ea0:0",
+                "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+                "locator": "DOC 正文及表格（LibreOffice 转换）",
+                "start": 12341,
+                "end": 12908,
+                "quote": "创造了单洞3224m岩石顶管施工纪录",
+                "sources": [
+                  {
+                    "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                    "title": "djby.doc",
+                    "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                    "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                  }
+                ]
+              },
+              {
+                "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+                "url": "",
+                "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+                "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+                "version": 1,
+                "field": "document:27b3cd2e75b29ea0:0",
+                "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+                "locator": "DOC 正文及表格（LibreOffice 转换）",
+                "start": 12341,
+                "end": 12908,
+                "quote": "首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术",
+                "sources": [
+                  {
+                    "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                    "title": "djby.doc",
+                    "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                    "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                  }
+                ]
+              }
+            ],
+            "sufficient": true,
+            "queries": [
+              "超长顶管施工 单洞施工纪录 米 岩石隧洞卡管 脱困措施"
+            ],
+            "rounds": 1,
+            "achievement_ids": [
+              "c34b328e-5196-58fe-8556-c970285fde6b"
+            ],
+            "mode": "grounded_llm"
+          },
+          "tools": [
+            "search_achievements"
+          ]
+        },
+        "error_code": null,
+        "error_message": "",
+        "total_input_tokens": 4751,
+        "total_output_tokens": 2306,
+        "total_cost": 0.0,
+        "latency_ms": 21073,
+        "graph_version": "2.0.0-single-agent"
+      },
+      "steps": [
+        {
+          "id": "6aae8dc0-218d-4fbf-a094-930f1967eb4a",
+          "created_at": "2026-10-18T18:04:44.391792Z",
+          "updated_at": "2026-10-18T18:04:46.830350Z",
+          "run_id": "0a68df67-20d4-4114-bd27-8f817cebe287",
+          "sequence": 1,
+          "agent_name": "hydrobridge_agent",
+          "node_name": "hydrobridge_agent",
+          "status": "completed",
+          "input_summary": {
+            "task_type": "qa",
+            "iteration": 0
+          },
+          "output_summary": {
+            "tool": "search_achievements",
+            "iteration": 0
+          },
+          "started_at": "2026-10-18T18:04:44.389418+00:00",
+          "finished_at": "2026-10-18T18:04:46.829652+00:00",
+          "latency_ms": 2440,
+          "retry_count": 0,
+          "error_message": ""
+        },
+        {
+          "id": "6e402171-0682-43de-aecc-4f0c216a1f53",
+          "created_at": "2026-10-18T18:04:46.838564Z",
+          "updated_at": "2026-10-18T18:05:05.224514Z",
+          "run_id": "0a68df67-20d4-4114-bd27-8f817cebe287",
+          "sequence": 2,
+          "agent_name": "tools",
+          "node_name": "tools",
+          "status": "completed",
+          "input_summary": {
+            "task_type": "qa",
+            "iteration": 0
+          },
+          "output_summary": {
+            "tool": "search_achievements"
+          },
+          "started_at": "2026-10-18T18:04:46.837872+00:00",
+          "finished_at": "2026-10-18T18:05:05.224287+00:00",
+          "latency_ms": 18386,
+          "retry_count": 0,
+          "error_message": ""
+        }
+      ],
+      "tool_calls": [
+        {
+          "id": "696810d0-7257-48af-bf96-5fff582cf06e",
+          "created_at": "2026-10-18T18:04:46.854670Z",
+          "updated_at": "2026-10-18T18:05:05.215845Z",
+          "run_id": "0a68df67-20d4-4114-bd27-8f817cebe287",
+          "step_id": "6e402171-0682-43de-aecc-4f0c216a1f53",
+          "tool_name": "search_achievements",
+          "status": "completed",
+          "input_payload": {
+            "query": "超长顶管施工 单洞施工纪录 米 岩石隧洞卡管 脱困措施",
+            "achievement_ids": [
+              "c34b328e-5196-58fe-8556-c970285fde6b"
+            ]
+          },
+          "output_summary": {
+            "result": {
+              "answer": "单洞3224m岩石顶管施工纪录。 [1]\n\n> 创造了单洞3224m岩石顶管施工纪录\n\n卡管脱困处置技术包括卡管定位、开孔清渣、应急处置措施及临时中继站安装等。 [2]\n\n> 首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术\n",
+              "citations": [
+                {
+                  "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+                  "url": "",
+                  "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+                  "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+                  "version": 1,
+                  "field": "document:27b3cd2e75b29ea0:0",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+                  "locator": "DOC 正文及表格（LibreOffice 转换）",
+                  "start": 12341,
+                  "end": 12908,
+                  "quote": "创造了单洞3224m岩石顶管施工纪录",
+                  "sources": [
+                    {
+                      "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                      "title": "djby.doc",
+                      "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                      "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                    }
+                  ]
+                },
+                {
+                  "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+                  "url": "",
+                  "chunk_id": "a162366d-0d42-52c2-bb3d-fb77115ba761",
+                  "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+                  "version": 1,
+                  "field": "document:27b3cd2e75b29ea0:0",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+                  "locator": "DOC 正文及表格（LibreOffice 转换）",
+                  "start": 12341,
+                  "end": 12908,
+                  "quote": "首创了复杂地质环境下卡管定位、开孔清渣、应急处置措施及临时中继站安装等卡管脱困处置技术",
+                  "sources": [
+                    {
+                      "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                      "title": "djby.doc",
+                      "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                      "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                    }
+                  ]
+                }
+              ],
+              "sufficient": true,
+              "queries": [
+                "超长顶管施工 单洞施工纪录 米 岩石隧洞卡管 脱困措施"
+              ],
+              "rounds": 1,
+              "achievement_ids": [
+                "c34b328e-5196-58fe-8556-c970285fde6b"
+              ],
+              "mode": "grounded_llm"
+            }
+          },
+          "latency_ms": 18357,
+          "retry_count": 0,
+          "error_code": null,
+          "error_message": ""
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": "e3601a5e-6329-4f56-b856-3416f7a8a19d",
+        "created_at": "2026-10-18T18:05:06.514100Z",
+        "updated_at": "2026-10-18T18:05:41.310737Z",
+        "thread_id": "86d9d457-fb8e-4f1b-95ff-0e9e20baa93b",
+        "run_sequence": 2,
+        "conversation_id": "86d9d457-fb8e-4f1b-95ff-0e9e20baa93b",
+        "user_id": "b3d0a152-28c6-49ec-8486-dfe5ad03207d",
+        "task_type": "qa",
+        "status": "completed",
+        "current_agent": null,
+        "current_step": "completed",
+        "input_payload": {
+          "message": "【全库验收追问】这些原件有没有明确承诺这项成果在2030年的采购单价和年收入？如无明确证据，请说明未知，不要推算或虚构数字。",
+          "context": {},
+          "organization_id": "928fbefd-2e39-4802-a4b5-4b03411c720e"
+        },
+        "output_payload": {
+          "answer": "该成果登记表中自我转化效益的收入、净利润、实交税金、出口创汇、节约资金均为0万元。 [1]\n\n> 5．自我转化效益(万元)         |  收入 | 净利润 | 实交税金 | 出口创汇 | 节约资金\n | 0 | 0 | 0 | 0 | 0\n\n证据仍不足：证据中未出现“2030年采购单价”“单价承诺”“收入承诺”等字段或数值。；证据中仅有“自我转化效益（收入、净利润等）均为0”的当前登记数据，不能回答2030年采购单价、年收入以及单价/收入承诺。",
+          "citations": [
+            {
+              "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+              "url": "",
+              "chunk_id": "58ee8a6a-4bfd-533b-908c-21c0582cf893",
+              "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+              "version": 1,
+              "field": "document:27b3cd2e75b29ea0:0",
+              "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+              "locator": "DOC 正文及表格（LibreOffice 转换）",
+              "start": 8453,
+              "end": 9146,
+              "quote": "5．自我转化效益(万元)         |  收入 | 净利润 | 实交税金 | 出口创汇 | 节约资金\n | 0 | 0 | 0 | 0 | 0",
+              "sources": [
+                {
+                  "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                  "title": "djby.doc",
+                  "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                }
+              ]
+            }
+          ],
+          "verification": {},
+          "assessments": [],
+          "achievement_evaluation": {},
+          "requirement": {},
+          "requirement_id": null,
+          "research_ingestion": {},
+          "ingested_achievement_ids": [],
+          "artifact_id": "266c7475-eaac-4953-87c9-12cd9639e895",
+          "selected_achievement_ids": [
+            "c34b328e-5196-58fe-8556-c970285fde6b"
+          ],
+          "scope_is_set": true,
+          "rag": {
+            "answer": "该成果登记表中自我转化效益的收入、净利润、实交税金、出口创汇、节约资金均为0万元。 [1]\n\n> 5．自我转化效益(万元)         |  收入 | 净利润 | 实交税金 | 出口创汇 | 节约资金\n | 0 | 0 | 0 | 0 | 0\n\n证据仍不足：证据中未出现“2030年采购单价”“单价承诺”“收入承诺”等字段或数值。；证据中仅有“自我转化效益（收入、净利润等）均为0”的当前登记数据，不能回答2030年采购单价、年收入以及单价/收入承诺。",
+            "citations": [
+              {
+                "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+                "url": "",
+                "chunk_id": "58ee8a6a-4bfd-533b-908c-21c0582cf893",
+                "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+                "version": 1,
+                "field": "document:27b3cd2e75b29ea0:0",
+                "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+                "locator": "DOC 正文及表格（LibreOffice 转换）",
+                "start": 8453,
+                "end": 9146,
+                "quote": "5．自我转化效益(万元)         |  收入 | 净利润 | 实交税金 | 出口创汇 | 节约资金\n | 0 | 0 | 0 | 0 | 0",
+                "sources": [
+                  {
+                    "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                    "title": "djby.doc",
+                    "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                    "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                  }
+                ]
+              }
+            ],
+            "sufficient": false,
+            "queries": [
+              "2030年采购单价、年收入、单价承诺、收入承诺",
+              "2030年采购单价 年收入 单价承诺 收入承诺"
+            ],
+            "rounds": 2,
+            "achievement_ids": [
+              "c34b328e-5196-58fe-8556-c970285fde6b"
+            ],
+            "mode": "grounded_llm"
+          },
+          "tools": [
+            "search_achievements"
+          ]
+        },
+        "error_code": null,
+        "error_message": "",
+        "total_input_tokens": 9473,
+        "total_output_tokens": 3607,
+        "total_cost": 0.0,
+        "latency_ms": 34779,
+        "graph_version": "2.0.0-single-agent"
+      },
+      "steps": [
+        {
+          "id": "8166bcde-ab41-41e9-a825-913eac64c4d2",
+          "created_at": "2026-10-18T18:05:06.580744Z",
+          "updated_at": "2026-10-18T18:05:09.075921Z",
+          "run_id": "e3601a5e-6329-4f56-b856-3416f7a8a19d",
+          "sequence": 1,
+          "agent_name": "hydrobridge_agent",
+          "node_name": "hydrobridge_agent",
+          "status": "completed",
+          "input_summary": {
+            "task_type": "qa",
+            "iteration": 0
+          },
+          "output_summary": {
+            "tool": "search_achievements",
+            "iteration": 0
+          },
+          "started_at": "2026-10-18T18:05:06.579553+00:00",
+          "finished_at": "2026-10-18T18:05:09.075677+00:00",
+          "latency_ms": 2496,
+          "retry_count": 0,
+          "error_message": ""
+        },
+        {
+          "id": "f5961dba-edde-4447-a19a-0d3741682320",
+          "created_at": "2026-10-18T18:05:09.085717Z",
+          "updated_at": "2026-10-18T18:05:41.276939Z",
+          "run_id": "e3601a5e-6329-4f56-b856-3416f7a8a19d",
+          "sequence": 2,
+          "agent_name": "tools",
+          "node_name": "tools",
+          "status": "completed",
+          "input_summary": {
+            "task_type": "qa",
+            "iteration": 0
+          },
+          "output_summary": {
+            "tool": "search_achievements"
+          },
+          "started_at": "2026-10-18T18:05:09.084978+00:00",
+          "finished_at": "2026-10-18T18:05:41.276735+00:00",
+          "latency_ms": 32191,
+          "retry_count": 0,
+          "error_message": ""
+        }
+      ],
+      "tool_calls": [
+        {
+          "id": "f109166a-9298-46ea-8350-78a00a3ea322",
+          "created_at": "2026-10-18T18:05:09.097611Z",
+          "updated_at": "2026-10-18T18:05:41.270333Z",
+          "run_id": "e3601a5e-6329-4f56-b856-3416f7a8a19d",
+          "step_id": "f5961dba-edde-4447-a19a-0d3741682320",
+          "tool_name": "search_achievements",
+          "status": "completed",
+          "input_payload": {
+            "query": "2030年采购单价、年收入、单价承诺、收入承诺",
+            "achievement_ids": [
+              "c34b328e-5196-58fe-8556-c970285fde6b"
+            ]
+          },
+          "output_summary": {
+            "result": {
+              "answer": "该成果登记表中自我转化效益的收入、净利润、实交税金、出口创汇、节约资金均为0万元。 [1]\n\n> 5．自我转化效益(万元)         |  收入 | 净利润 | 实交税金 | 出口创汇 | 节约资金\n | 0 | 0 | 0 | 0 | 0\n\n证据仍不足：证据中未出现“2030年采购单价”“单价承诺”“收入承诺”等字段或数值。；证据中仅有“自我转化效益（收入、净利润等）均为0”的当前登记数据，不能回答2030年采购单价、年收入以及单价/收入承诺。",
+              "citations": [
+                {
+                  "title": "超长顶管施工输水岩石隧洞关键技术及应用",
+                  "url": "",
+                  "chunk_id": "58ee8a6a-4bfd-533b-908c-21c0582cf893",
+                  "achievement_id": "c34b328e-5196-58fe-8556-c970285fde6b",
+                  "version": 1,
+                  "field": "document:27b3cd2e75b29ea0:0",
+                  "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f",
+                  "locator": "DOC 正文及表格（LibreOffice 转换）",
+                  "start": 8453,
+                  "end": 9146,
+                  "quote": "5．自我转化效益(万元)         |  收入 | 净利润 | 实交税金 | 出口创汇 | 节约资金\n | 0 | 0 | 0 | 0 | 0",
+                  "sources": [
+                    {
+                      "id": "5b18c238-cc45-4750-a851-d0d4ce649395",
+                      "title": "djby.doc",
+                      "url": "/api/v1/documents/5a9a1459-70d5-5291-8a42-05e453a3fe9f/download",
+                      "document_id": "5a9a1459-70d5-5291-8a42-05e453a3fe9f"
+                    }
+                  ]
+                }
+              ],
+              "sufficient": false,
+              "queries": [
+                "2030年采购单价、年收入、单价承诺、收入承诺",
+                "2030年采购单价 年收入 单价承诺 收入承诺"
+              ],
+              "rounds": 2,
+              "achievement_ids": [
+                "c34b328e-5196-58fe-8556-c970285fde6b"
+              ],
+              "mode": "grounded_llm"
+            }
+          },
+          "latency_ms": 32170,
+          "retry_count": 0,
+          "error_code": null,
+          "error_message": ""
+        }
+      ]
+    },
+    {
+      "run": {
+        "id": "ded5b6c3-4579-40ed-bcd0-5886ffccdce8",
+        "created_at": "2026-10-18T18:06:34.941470Z",
+        "updated_at": "2026-10-18T18:06:59.929825Z",
+        "thread_id": "ce127fbd-8d88-4028-aa2e-9d209c5aea21",
+        "run_sequence": 1,
+        "conversation_id": "ce127fbd-8d88-4028-aa2e-9d209c5aea21",
+        "user_id": "b3d0a152-28c6-49ec-8486-dfe5ad03207d",
+        "task_type": "qa",
+        "status": "completed",
+        "current_agent": null,
+        "current_step": "completed",
+        "input_payload": {
+          "message": "【全库验收】请在文档库检索分布式光纤输水管道渗漏监测的成果，说明原文给出的单机最大监测距离是多少，以及怎样定位渗漏。请逐字引用原文。",
+          "context": {},
+          "organization_id": "928fbefd-2e39-4802-a4b5-4b03411c720e"
+        },
+        "output_payload": {
+          "answer": "单套设备覆盖35km，技术指标中监测距离为单通道35km。 [1]\n\n> 单套设备覆盖 35km ，安全事件秒级响应和米级\n定位精度 。\n\n技术指标\n\n（1）   监测距离：   单通道 35km 。\n\n渗漏监测定位采用分布式光纤传感技术，具体技术手段包括马赫曾德干涉、相干光时域反射、布里渊光时域分析，并以时空形态特征挖掘和人工智能模式识别为核心。 [2]\n\n> 该技术以“ 分布式光纤传感” 为技术基础 ，   以马赫曾德干\n涉 、相干光时域反射 、布里渊光时 域分析为具体技术手段\n,   以时空形态特征挖掘 、人工智能模式识别为技术核心 ，\n通过感知 、传 输 、处理 、分析传感光缆全线声场波动信息\n、应力应变信息 ，挖掘信号内在语义特征 ，   实现长距 离输\n调水管道 7×24h入侵监测 、泄漏监测 、沉降监测 、断丝监\n测 。\n\n漏点定位精度为1~2m。 [3]\n\n> （4）   漏点定位精度：   1~2m 。\n",
+          "citations": [
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "document:d95f5e9dc7667e86:0",
+              "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+              "locator": "Sheet1!行138:139（序号31）",
+              "start": 0,
+              "end": 680,
+              "quote": "单套设备覆盖 35km ，安全事件秒级响应和米级\n定位精度 。\n\n技术指标\n\n（1）   监测距离：   单通道 35km 。",
+              "sources": [
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                }
+              ]
+            },
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "document:d95f5e9dc7667e86:0",
+              "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+              "locator": "Sheet1!行138:139（序号31）",
+              "start": 0,
+              "end": 680,
+              "quote": "该技术以“ 分布式光纤传感” 为技术基础 ，   以马赫曾德干\n涉 、相干光时域反射 、布里渊光时 域分析为具体技术手段\n,   以时空形态特征挖掘 、人工智能模式识别为技术核心 ，\n通过感知 、传 输 、处理 、分析传感光缆全线声场波动信息\n、应力应变信息 ，挖掘信号内在语义特征 ，   实现长距 离输\n调水管道 7×24h入侵监测 、泄漏监测 、沉降监测 、断丝监\n测 。",
+              "sources": [
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                }
+              ]
+            },
+            {
+              "title": "分布式光纤管道安全预警系统",
+              "url": "",
+              "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+              "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "version": 2,
+              "field": "document:d95f5e9dc7667e86:0",
+              "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+              "locator": "Sheet1!行138:139（序号31）",
+              "start": 0,
+              "end": 680,
+              "quote": "（4）   漏点定位精度：   1~2m 。",
+              "sources": [
+                {
+                  "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                  "title": "111.xlsx",
+                  "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                }
+              ]
+            }
+          ],
+          "verification": {},
+          "assessments": [],
+          "achievement_evaluation": {},
+          "requirement": {},
+          "requirement_id": null,
+          "research_ingestion": {},
+          "ingested_achievement_ids": [],
+          "artifact_id": "d1a31cfa-43cf-4bc0-9a5f-34ee3b42ddf4",
+          "selected_achievement_ids": [
+            "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+            "12420ee8-d143-580c-b73c-9a1bcaf4061c",
+            "a00796c5-fe7c-5193-a810-869ffffd72a7",
+            "477bcf3a-e628-5369-9432-cb2a0316ace7",
+            "7cee5280-119e-5973-a0a6-42dbf22d7af1"
+          ],
+          "scope_is_set": true,
+          "rag": {
+            "answer": "单套设备覆盖35km，技术指标中监测距离为单通道35km。 [1]\n\n> 单套设备覆盖 35km ，安全事件秒级响应和米级\n定位精度 。\n\n技术指标\n\n（1）   监测距离：   单通道 35km 。\n\n渗漏监测定位采用分布式光纤传感技术，具体技术手段包括马赫曾德干涉、相干光时域反射、布里渊光时域分析，并以时空形态特征挖掘和人工智能模式识别为核心。 [2]\n\n> 该技术以“ 分布式光纤传感” 为技术基础 ，   以马赫曾德干\n涉 、相干光时域反射 、布里渊光时 域分析为具体技术手段\n,   以时空形态特征挖掘 、人工智能模式识别为技术核心 ，\n通过感知 、传 输 、处理 、分析传感光缆全线声场波动信息\n、应力应变信息 ，挖掘信号内在语义特征 ，   实现长距 离输\n调水管道 7×24h入侵监测 、泄漏监测 、沉降监测 、断丝监\n测 。\n\n漏点定位精度为1~2m。 [3]\n\n> （4）   漏点定位精度：   1~2m 。\n",
+            "citations": [
+              {
+                "title": "分布式光纤管道安全预警系统",
+                "url": "",
+                "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+                "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                "version": 2,
+                "field": "document:d95f5e9dc7667e86:0",
+                "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+                "locator": "Sheet1!行138:139（序号31）",
+                "start": 0,
+                "end": 680,
+                "quote": "单套设备覆盖 35km ，安全事件秒级响应和米级\n定位精度 。\n\n技术指标\n\n（1）   监测距离：   单通道 35km 。",
+                "sources": [
+                  {
+                    "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                    "title": "111.xlsx",
+                    "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                    "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                  }
+                ]
+              },
+              {
+                "title": "分布式光纤管道安全预警系统",
+                "url": "",
+                "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+                "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                "version": 2,
+                "field": "document:d95f5e9dc7667e86:0",
+                "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+                "locator": "Sheet1!行138:139（序号31）",
+                "start": 0,
+                "end": 680,
+                "quote": "该技术以“ 分布式光纤传感” 为技术基础 ，   以马赫曾德干\n涉 、相干光时域反射 、布里渊光时 域分析为具体技术手段\n,   以时空形态特征挖掘 、人工智能模式识别为技术核心 ，\n通过感知 、传 输 、处理 、分析传感光缆全线声场波动信息\n、应力应变信息 ，挖掘信号内在语义特征 ，   实现长距 离输\n调水管道 7×24h入侵监测 、泄漏监测 、沉降监测 、断丝监\n测 。",
+                "sources": [
+                  {
+                    "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                    "title": "111.xlsx",
+                    "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                    "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                  }
+                ]
+              },
+              {
+                "title": "分布式光纤管道安全预警系统",
+                "url": "",
+                "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+                "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                "version": 2,
+                "field": "document:d95f5e9dc7667e86:0",
+                "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+                "locator": "Sheet1!行138:139（序号31）",
+                "start": 0,
+                "end": 680,
+                "quote": "（4）   漏点定位精度：   1~2m 。",
+                "sources": [
+                  {
+                    "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                    "title": "111.xlsx",
+                    "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                    "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                  }
+                ]
+              }
+            ],
+            "sufficient": true,
+            "queries": [
+              "分布式光纤输水管道渗漏监测，单机最大监测距离，渗漏定位方法"
+            ],
+            "rounds": 1,
+            "achievement_ids": [
+              "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+              "12420ee8-d143-580c-b73c-9a1bcaf4061c",
+              "a00796c5-fe7c-5193-a810-869ffffd72a7",
+              "477bcf3a-e628-5369-9432-cb2a0316ace7",
+              "7cee5280-119e-5973-a0a6-42dbf22d7af1"
+            ],
+            "mode": "grounded_llm"
+          },
+          "tools": [
+            "search_achievements"
+          ]
+        },
+        "error_code": null,
+        "error_message": "",
+        "total_input_tokens": 12527,
+        "total_output_tokens": 2912,
+        "total_cost": 0.0,
+        "latency_ms": 24973,
+        "graph_version": "2.0.0-single-agent"
+      },
+      "steps": [
+        {
+          "id": "20647975-195a-49ff-9bb0-ba7fe5ad7663",
+          "created_at": "2026-10-18T18:06:34.993257Z",
+          "updated_at": "2026-10-18T18:06:37.189584Z",
+          "run_id": "ded5b6c3-4579-40ed-bcd0-5886ffccdce8",
+          "sequence": 1,
+          "agent_name": "hydrobridge_agent",
+          "node_name": "hydrobridge_agent",
+          "status": "completed",
+          "input_summary": {
+            "task_type": "qa",
+            "iteration": 0
+          },
+          "output_summary": {
+            "tool": "search_achievements",
+            "iteration": 0
+          },
+          "started_at": "2026-10-18T18:06:34.991937+00:00",
+          "finished_at": "2026-10-18T18:06:37.189406+00:00",
+          "latency_ms": 2197,
+          "retry_count": 0,
+          "error_message": ""
+        },
+        {
+          "id": "80070ab2-dbec-44a9-a182-2e5cc12ffae8",
+          "created_at": "2026-10-18T18:06:37.198525Z",
+          "updated_at": "2026-10-18T18:06:59.898414Z",
+          "run_id": "ded5b6c3-4579-40ed-bcd0-5886ffccdce8",
+          "sequence": 2,
+          "agent_name": "tools",
+          "node_name": "tools",
+          "status": "completed",
+          "input_summary": {
+            "task_type": "qa",
+            "iteration": 0
+          },
+          "output_summary": {
+            "tool": "search_achievements"
+          },
+          "started_at": "2026-10-18T18:06:37.197856+00:00",
+          "finished_at": "2026-10-18T18:06:59.898099+00:00",
+          "latency_ms": 22700,
+          "retry_count": 0,
+          "error_message": ""
+        }
+      ],
+      "tool_calls": [
+        {
+          "id": "a23b46f6-14a0-48be-9553-6e9d645944e4",
+          "created_at": "2026-10-18T18:06:37.210348Z",
+          "updated_at": "2026-10-18T18:06:59.891962Z",
+          "run_id": "ded5b6c3-4579-40ed-bcd0-5886ffccdce8",
+          "step_id": "80070ab2-dbec-44a9-a182-2e5cc12ffae8",
+          "tool_name": "search_achievements",
+          "status": "completed",
+          "input_payload": {
+            "query": "分布式光纤输水管道渗漏监测，单机最大监测距离，渗漏定位方法",
+            "achievement_ids": null
+          },
+          "output_summary": {
+            "result": {
+              "answer": "单套设备覆盖35km，技术指标中监测距离为单通道35km。 [1]\n\n> 单套设备覆盖 35km ，安全事件秒级响应和米级\n定位精度 。\n\n技术指标\n\n（1）   监测距离：   单通道 35km 。\n\n渗漏监测定位采用分布式光纤传感技术，具体技术手段包括马赫曾德干涉、相干光时域反射、布里渊光时域分析，并以时空形态特征挖掘和人工智能模式识别为核心。 [2]\n\n> 该技术以“ 分布式光纤传感” 为技术基础 ，   以马赫曾德干\n涉 、相干光时域反射 、布里渊光时 域分析为具体技术手段\n,   以时空形态特征挖掘 、人工智能模式识别为技术核心 ，\n通过感知 、传 输 、处理 、分析传感光缆全线声场波动信息\n、应力应变信息 ，挖掘信号内在语义特征 ，   实现长距 离输\n调水管道 7×24h入侵监测 、泄漏监测 、沉降监测 、断丝监\n测 。\n\n漏点定位精度为1~2m。 [3]\n\n> （4）   漏点定位精度：   1~2m 。\n",
+              "citations": [
+                {
+                  "title": "分布式光纤管道安全预警系统",
+                  "url": "",
+                  "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+                  "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                  "version": 2,
+                  "field": "document:d95f5e9dc7667e86:0",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+                  "locator": "Sheet1!行138:139（序号31）",
+                  "start": 0,
+                  "end": 680,
+                  "quote": "单套设备覆盖 35km ，安全事件秒级响应和米级\n定位精度 。\n\n技术指标\n\n（1）   监测距离：   单通道 35km 。",
+                  "sources": [
+                    {
+                      "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                      "title": "111.xlsx",
+                      "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                      "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                    }
+                  ]
+                },
+                {
+                  "title": "分布式光纤管道安全预警系统",
+                  "url": "",
+                  "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+                  "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                  "version": 2,
+                  "field": "document:d95f5e9dc7667e86:0",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+                  "locator": "Sheet1!行138:139（序号31）",
+                  "start": 0,
+                  "end": 680,
+                  "quote": "该技术以“ 分布式光纤传感” 为技术基础 ，   以马赫曾德干\n涉 、相干光时域反射 、布里渊光时 域分析为具体技术手段\n,   以时空形态特征挖掘 、人工智能模式识别为技术核心 ，\n通过感知 、传 输 、处理 、分析传感光缆全线声场波动信息\n、应力应变信息 ，挖掘信号内在语义特征 ，   实现长距 离输\n调水管道 7×24h入侵监测 、泄漏监测 、沉降监测 、断丝监\n测 。",
+                  "sources": [
+                    {
+                      "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                      "title": "111.xlsx",
+                      "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                      "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                    }
+                  ]
+                },
+                {
+                  "title": "分布式光纤管道安全预警系统",
+                  "url": "",
+                  "chunk_id": "968f2a4b-8ffc-53fe-bb4a-f71c66d6198b",
+                  "achievement_id": "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                  "version": 2,
+                  "field": "document:d95f5e9dc7667e86:0",
+                  "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf",
+                  "locator": "Sheet1!行138:139（序号31）",
+                  "start": 0,
+                  "end": 680,
+                  "quote": "（4）   漏点定位精度：   1~2m 。",
+                  "sources": [
+                    {
+                      "id": "e9d068d7-c0dc-4fde-986e-cc4c66fef9cb",
+                      "title": "111.xlsx",
+                      "url": "/api/v1/documents/af791a2f-bb4d-5ab4-abed-b527993d54cf/download",
+                      "document_id": "af791a2f-bb4d-5ab4-abed-b527993d54cf"
+                    }
+                  ]
+                }
+              ],
+              "sufficient": true,
+              "queries": [
+                "分布式光纤输水管道渗漏监测，单机最大监测距离，渗漏定位方法"
+              ],
+              "rounds": 1,
+              "achievement_ids": [
+                "a4056c92-1bde-5b13-9376-6a97a2cc5b8a",
+                "12420ee8-d143-580c-b73c-9a1bcaf4061c",
+                "a00796c5-fe7c-5193-a810-869ffffd72a7",
+                "477bcf3a-e628-5369-9432-cb2a0316ace7",
+                "7cee5280-119e-5973-a0a6-42dbf22d7af1"
+              ],
+              "mode": "grounded_llm"
+            }
+          },
+          "latency_ms": 22679,
+          "retry_count": 0,
+          "error_code": null,
+          "error_message": ""
+        }
+      ]
+    }
+  ],
+  "unknown_answer_for_manual_review": "该成果登记表中自我转化效益的收入、净利润、实交税金、出口创汇、节约资金均为0万元。 [1]\n\n> 5．自我转化效益(万元)         |  收入 | 净利润 | 实交税金 | 出口创汇 | 节约资金\n | 0 | 0 | 0 | 0 | 0\n\n证据仍不足：证据中未出现“2030年采购单价”“单价承诺”“收入承诺”等字段或数值。；证据中仅有“自我转化效益（收入、净利润等）均为0”的当前登记数据，不能回答2030年采购单价、年收入以及单价/收入承诺。",
+  "passed": true
+}

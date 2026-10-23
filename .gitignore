@@ -83,3 +83,14 @@ reports/
 .idea/
 .vscode/
 Thumbs.db
+
+# Local-only artifacts (kept off GitHub)
+/.claude_stage.tgz
+/.hb_src_snapshot.tgz
+/.test-hydrobridge.db
+/backend/.preview-hydrobridge.db
+/backend/.test-hydrobridge.db-journal
+/TEST.md
+/tmp/
+/output/
+/水利项目/

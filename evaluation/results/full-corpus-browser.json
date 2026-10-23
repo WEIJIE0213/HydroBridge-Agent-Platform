@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "mode": "real-api-no-mocks",
+  "catalogTotal": 3860,
+  "pageSize": 24,
+  "fullLibrarySearch": true,
+  "emptySearch": true,
+  "pagination": true,
+  "downloadFilename": "111.xlsx",
+  "originalSha256": "d95f5e9dc7667e869259a84cac1da64522fe722ae1a4967553ab297c050ac673",
+  "errors": [],
+  "failedResponses": []
+}
