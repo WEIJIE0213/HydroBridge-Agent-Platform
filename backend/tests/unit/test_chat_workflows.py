@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 import pytest
 from sqlalchemy import func, select
@@ -112,9 +113,14 @@ async def test_chat_cannot_bind_another_users_requirement(session, seeded_user):
 
 async def test_ambiguous_evaluation_asks_for_target_without_creating_a_record(session, seeded_user):
     state = await chat_state(session, seeded_user)
-    graph = HydroBridgeGraph(SimpleNamespace(), model=SimpleNamespace(configured=False))
-    result = await graph._start_workflow(state, "evaluation", "评价一下")
-    assert result["agent_route"] == "respond"
+    graph = HydroBridgeGraph(
+        SimpleNamespace(trace=SimpleNamespace()), model=SimpleNamespace(configured=False)
+    )
+    graph._publish = AsyncMock()
+    state["pending_tool"] = {"name": "evaluate_achievement", "arguments": {}}
+    result = await graph.dispatch(state)
+    assert result["action_route"] == "collect"
+    assert result["action_status"] == "needs_input"
     assert "准确名称" in result["final_answer"]
     run = await session.get(AgentRun, state["run_id"])
     await session.refresh(run)

@@ -211,8 +211,8 @@ async def test_rag_stops_after_two_rounds_keeps_scope_and_rejects_false_sufficie
         assert call.kwargs["organization_id"] == "own"
 
 
-def test_agent_exposes_five_tools_and_explicit_empty_scope_is_not_widened():
-    assert len(TOOLS) == 5
+def test_agent_exposes_eight_actions_and_explicit_empty_scope_is_not_widened():
+    assert len(TOOLS) == 8
     assert (
         HydroBridgeGraph._scope(
             {"context": {"achievement_ids": []}, "selected_achievement_ids": ["previous"]}

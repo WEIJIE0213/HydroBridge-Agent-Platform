@@ -303,7 +303,7 @@ class DomainWorkflows:
     async def research_ingestion_node(self, state: AgentState) -> dict[str, Any]:
         agent_name = "research_ingestion_agent"
         await self._publish(state, "agent.started", agent_name)
-        if "ingestion_candidates" in state:
+        if state.get("ingestion_candidates") is not None:
             candidates = list(state.get("ingestion_candidates", []))
         else:
             candidates = self.research_ingestion.score_candidates(

@@ -103,8 +103,8 @@ const prompts = [
 
 const eventLabels: Record<string, string> = {
   "run.created": "任务已创建",
-  "run.started": "工作流开始",
-  "run.resuming": "工作流恢复",
+  "run.started": "任务开始",
+  "run.resuming": "任务恢复",
   "plan.created": "Agent 完成任务规划",
   "agent.started": "Agent 开始处理",
   "agent.completed": "Agent 完成处理",
@@ -121,6 +121,12 @@ const eventLabels: Record<string, string> = {
 const agentNames: Record<string, string> = {
   supervisor: "历史调度记录",
   hydrobridge_agent: "成果助手",
+  context_summary: "对话上下文整理",
+  qa_retrieve: "原文检索",
+  qa_generate: "证据问答生成",
+  qa_validate: "引用与充分性核验",
+  get_achievement: "成果详情",
+  update_requirement: "需求更新",
   tools: "工具执行",
   match_achievements: "成果匹配",
   constraint_validation: "约束核验",

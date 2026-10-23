@@ -165,4 +165,14 @@ class RunTraceService:
                 step.status = "failed"
                 step.finished_at = finished_at
                 step.error_message = message[:20_000]
+            calls = await session.scalars(
+                select(ToolCall).where(
+                    ToolCall.run_id == run_id,
+                    ToolCall.status == "running",
+                )
+            )
+            for call in calls:
+                call.status = "failed"
+                call.error_code = "RUN_INTERRUPTED"
+                call.error_message = message[:20_000]
             await session.commit()

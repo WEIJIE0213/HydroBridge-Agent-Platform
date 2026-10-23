@@ -57,7 +57,9 @@ async def create_evaluation(
         evaluation_version=(version or 0) + 1,
         status="queued",
         rubric_snapshot={
-            "name": rubric.name, "version": rubric.version, "dimensions": rubric.dimensions,
+            "name": rubric.name,
+            "version": rubric.version,
+            "dimensions": rubric.dimensions,
         },
     )
     session.add(record)
@@ -90,8 +92,12 @@ async def create_match(session: AsyncSession, requirement: Requirement) -> Match
         status="queued",
         rubric_snapshot={
             "dimensions": [
-                "scenario_fit", "effectiveness", "maturity", "evidence_quality",
-                "cost_fit", "implementation_risk",
+                "scenario_fit",
+                "effectiveness",
+                "maturity",
+                "evidence_quality",
+                "cost_fit",
+                "implementation_risk",
             ],
             "hard_constraints": requirement.hard_constraints,
         },
@@ -117,13 +123,34 @@ async def bind_workflow(state: AgentState, task_type: str, message: str, context
         if run.user_id != state["user_id"]:
             raise ValueError("无权关联该运行的业务记录")
         saved_context = dict(run.input_payload.get("context", {}))
+        bindings = dict(run.input_payload.get("workflow_bindings", {}))
+        action_id = state.get("action_id")
         action = {
             "evaluation": "achievement_evaluation",
             "requirement_analysis": "requirement_refinement",
             "matching": "requirement_matching",
         }.get(task_type)
         record = None
-        if action and saved_context.get("domain_action") == action:
+        bound = bindings.get(action_id) if action_id else None
+        if bound:
+            if bound.get("domain_action") != action:
+                raise ValueError("本次动作与已绑定业务记录不一致")
+            context = {**context, **bound}
+        elif (
+            action
+            and saved_context.get("domain_action") == action
+            and (not action_id or (state.get("tool_iterations") == 1 and not bindings))
+        ):
+            # Page entry points may create the record before starting the run.
+            if action_id:
+                record_type, key = {
+                    "achievement_evaluation": (AchievementEvaluation, "evaluation_id"),
+                    "requirement_refinement": (RequirementRefinement, "refinement_id"),
+                    "requirement_matching": (MatchRun, "match_id"),
+                }[action]
+                existing = await session.get(record_type, saved_context.get(key))
+                if existing is None or existing.agent_run_id != run.id:
+                    raise ValueError("业务记录不属于当前运行")
             context = {**context, **saved_context}
         elif task_type == "evaluation":
             achievement = await session.get(Achievement, context["achievement_id"])
@@ -163,6 +190,12 @@ async def bind_workflow(state: AgentState, task_type: str, message: str, context
             record.agent_run_id = run.id
             record.status = "running"
         run.task_type = task_type
-        run.input_payload = {**run.input_payload, "context": context}
+        if action_id and action:
+            bindings[action_id] = dict(context)
+        run.input_payload = {
+            **run.input_payload,
+            "context": context,
+            "workflow_bindings": bindings,
+        }
         await session.commit()
         return context

@@ -28,12 +28,13 @@ class AgentState(TypedDict, total=False):
     visited_agents: list[str]
 
     requirement_profile: dict[str, Any]
+    requirement_description: str
     clarification: dict[str, Any]
     search_queries: list[str]
     search_results: list[dict[str, Any]]
     evidence_records: list[dict[str, Any]]
     rejected_sources: list[dict[str, str]]
-    ingestion_candidates: list[dict[str, Any]]
+    ingestion_candidates: list[dict[str, Any]] | None
     ingestion_review_completed: bool
     ingestion_approved_candidate_ids: list[str]
     ingestion_reviewer_id: str | None
@@ -62,3 +63,26 @@ class AgentState(TypedDict, total=False):
     agent_route: str
     workflow_step: str
     rag_result: dict[str, Any]
+    original_request: str
+    requested_task_type: TaskType
+    scope_limit: list[str] | None
+    action_id: str
+    action_status: str
+    action_route: str
+    action_trace: list[Any] | None
+    action_fingerprint: str
+    replayed_action: dict[str, Any]
+    executed_actions: list[str]
+    stop_reason: str
+    conversation_summary: str
+    memory: dict[str, Any]
+    context_prepared: bool
+    rag_query: str
+    rag_scope: list[str] | None
+    rag_evidence: dict[str, Any]
+    rag_queries: list[str]
+    rag_claims: list[dict[str, str]]
+    rag_answer: dict[str, Any]
+    rag_missing: list[str]
+    rag_sufficient: bool
+    rag_next_query: str

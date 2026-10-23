@@ -117,6 +117,10 @@ class Settings(BaseSettings):
     agent_run_timeout_seconds: int = Field(default=600, ge=60, le=3600)
     agent_daily_token_budget: int = Field(default=1_000_000, ge=1_000)
     agent_execution_mode: Literal["inline", "celery"] = "celery"
+    context_history_token_budget: int = Field(default=6_000, ge=1_000, le=32_000)
+    context_summary_token_budget: int = Field(default=1_000, ge=200, le=4_000)
+    context_recent_messages: int = Field(default=8, ge=2, le=40)
+    context_summary_batch_tokens: int = Field(default=6_000, ge=1_000, le=16_000)
 
     otel_exporter_otlp_endpoint: str | None = None
     langsmith_tracing: bool = False
@@ -133,6 +137,8 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_research_ingestion_thresholds(self) -> Settings:
+        if self.context_summary_token_budget >= self.context_history_token_budget:
+            raise ValueError("CONTEXT_SUMMARY_TOKEN_BUDGET must be below history budget")
         if self.chunk_overlap >= self.chunk_size:
             raise ValueError("CHUNK_OVERLAP must be smaller than CHUNK_SIZE")
         if self.research_ingestion_auto_threshold <= self.research_ingestion_review_threshold:

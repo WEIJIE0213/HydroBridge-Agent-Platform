@@ -62,7 +62,7 @@ class AgentRun(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     total_output_tokens: Mapped[int] = mapped_column(Integer, default=0)
     total_cost: Mapped[float] = mapped_column(Float, default=0)
     latency_ms: Mapped[int] = mapped_column(Integer, default=0)
-    graph_version: Mapped[str] = mapped_column(String(80), default="2.0.0-single-agent")
+    graph_version: Mapped[str] = mapped_column(String(80), default="3.0.0-agent-subgraphs")
 
 
 class AgentStep(UUIDPrimaryKeyMixin, TimestampMixin, Base):

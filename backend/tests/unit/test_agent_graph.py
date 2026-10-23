@@ -496,14 +496,14 @@ async def test_update_requirement_clears_stale_constraints_and_checks_owner(sess
             },
         }
     )
-    result = await workflow.tools_node(state)
+    result = await workflow.update_requirement(state)
     await session.refresh(item)
     assert item.raw_input == "泵站低功耗监测"
     assert item.hard_constraints == {} and item.completeness_score == 0 and item.status == "draft"
     assert result["requirement_profile"] == {}
     state["user_id"] = "other-user"
     with pytest.raises(ValueError, match="无权修改"):
-        await workflow.tools_node(state)
+        await workflow.update_requirement(state)
 
 
 async def test_matching_preserves_explicit_empty_scope(matching_catalog):

@@ -1,107 +1,80 @@
-# 架构说明
+# HydroBridge 架构说明
 
-## 设计目标
+当前新运行图版本：`3.0.0-agent-subgraphs`。业务仍分为成果搜寻与评价、需求分析与匹配、成果检索与问答三组。
 
-HydroBridge 不是普通聊天机器人，而是一个可以解释“任务如何被拆解、数据从哪里来、失败后如何恢复、结论是否经过核验”的 Agent 后端项目。核心目标是：
-
-- 业务事实、运行轨迹和成果文件可追溯。
-- 长任务异步执行，浏览器断开不影响任务。
-- 需求信息不足时可暂停并交给人工补充。
-- 外部模型或 Tavily 未配置时仍能离线演示和测试。
-- 缓存、检查点、任务队列与事实数据采用适合各自语义的存储。
-
-## 请求链路
+## 一个主 Agent 与三个业务子图
 
 ```mermaid
-sequenceDiagram
-    participant U as 用户
-    participant W as Web
-    participant A as FastAPI
-    participant M as MySQL
-    participant C as Celery
-    participant G as LangGraph
-    participant R as Redis Runtime
-    participant Q as Qdrant
-    participant O as MinIO
-
-    U->>W: 提交工程问题
-    W->>A: POST /runs
-    A->>M: 创建 Conversation、Run、Message
-    A->>R: 发布 run.created
-    A->>C: 投递任务
-    A-->>W: 202 + run_id
-    W->>A: GET /runs/{id}/events
-    C->>G: 执行状态图
-    G->>R: 保存检查点与事件
-    G->>Q: 混合检索成果
-    G->>M: 写 AgentStep、ToolCall
-    alt 信息不足
-        G->>M: 创建 ApprovalTask
-        G-->>W: waiting_review
-        U->>A: 提交审核决定/补充信息
-        A->>C: resume(run_id)
-        C->>R: 从检查点恢复
-    end
-    G->>O: 保存 final-report.md
-    G->>M: 保存 Artifact 与最终输出
-    G->>R: 发布 run.completed
-    W->>A: 鉴权下载报告
-    A->>O: 读取对象
-    A-->>W: Markdown + SHA-256
+flowchart TD
+    Start[创建运行并交给 Celery] --> Memory[整理历史摘要和近期消息]
+    Memory --> Agent[Agent 根据目标和已有结果决策]
+    Agent -->|选择一个动作| Dispatch[参数校验与动作分派]
+    Dispatch --> Achievement[成果搜寻与评价子图]
+    Dispatch --> Requirement[需求分析与匹配子图]
+    Dispatch --> QA[成果检索与问答子图]
+    Achievement --> Collect[保存动作结果与业务记录]
+    Requirement --> Collect
+    QA --> Collect
+    Collect --> Agent
+    Agent -->|完成或需要用户补充| Respond[汇总各项报告与引用]
+    Respond --> End[保存最终输出]
 ```
 
-## 一致性边界
+主 Agent 使用模型原生 Function Calling 选择一个动作；应用校验动作白名单、Pydantic 参数、权限与成果范围。8 个动作接口分别映射到三个子图，不是8个决策 Agent。显式任务类型只确定首个动作，结果仍需回到主 Agent。
 
-### 创建 Agent 任务
+三个子图均通过 `StateGraph(AgentState).compile()` 编译，再作为主图节点注册，共享状态并继承父图检查点。子图的 `END` 表示返回主图。专业步骤中的历史 `Agent` 类名并不代表另一个自主规划者。
 
-Conversation、用户 Message 和 AgentRun 在一个 MySQL 事务中提交。事务完成后才发布 Redis 事件和投递 Celery，避免消费者拿到不存在的 run。
+| 子图 | 动作和内部步骤 |
+| --- | --- |
+| 成果搜寻与评价 | 搜寻 → 证据整理 → 入库分流及必要的人工审核 → 核验 → 报告；或单项自身评价 → 核验 → 报告 |
+| 需求分析与匹配 | 更新描述；独立分析 → 必要的澄清 → 报告；或分析 → 澄清 → 匹配 → 约束核验 → 报告 |
+| 成果检索与问答 | 结构化详情；或准备范围 → 检索 → 生成 → 逐字引用与充分性校验 → 必要的补检索 → 输出 |
 
-### 成果审核与向量索引
+例如“匹配适合该工程的成果，再比较前两项”，匹配子图返回排序结果、成果 ID、约束状态和记录 ID，Agent 据此选择对比动作。原始任务单独保存在 `original_request`，不会被某次检索查询覆盖。模型停止调用时，`respond` 合并各项报告并统一引用编号，不额外要求模型重写事实。
 
-成果状态变化和 OutboxEvent 在同一个 MySQL 事务提交。Celery 周期性使用抢占、重试和最大重试次数处理 outbox。Qdrant 失败不会让 MySQL 已审核成果“假装未发生”，恢复后可继续补索引。
+默认最多 12 项业务动作；相同参数及范围的重复调用会停止。问答子图最多两轮检索，总运行超时默认600秒；另设图递归上限。模型未配置时只执行可确定的首步，并明确说明没有继续自动规划。`task_completion` 区分正常完成、需要补充和因限制结束的部分结果；运行状态 `completed` 本身不代表所有工程问题都已解决。
 
-### 最终报告
+## 上下文压缩
 
-报告正文写入 MinIO，MySQL 保存对象键、类型、所有者、运行 ID 和 SHA-256。下载必须经过 JWT 鉴权，API 代理 MinIO 内容，不向浏览器暴露内部对象存储地址。
+发送给决策模型的上下文包括：原始目标、当前需求原文及结构化画像、允许的成果范围、历史摘要、预算内近期消息，以及本轮各动作的紧凑结果。问答模型使用同一历史摘要和近期消息，但事实依据必须来自本轮检索证据。
 
-## Redis 拆分
+1. 从上一已完成运行的 `output_payload.memory` 读取摘要和 `through_sequence`。
+2. 读取该覆盖序号之后的已完成轮次消息。历史超出预算时，把较早完整轮次分批增量摘要，保留近期轮次；默认近期边界为8条消息。
+3. 摘要成功后才推进覆盖序号。异常时保留旧摘要及旧序号，使用窗口裁剪降级；原始消息仍在数据库，后续轮次可以重新处理。
+4. 摘要与近期消息的合计估算预算默认6000，摘要预算1000，每批待压缩内容预算6000；对应 `CONTEXT_*` 配置见根目录 README。
+5. 本轮完整动作报告保存在状态和运行输出；后续决策接收短摘录、动作参数摘要、状态、候选 ID 和记录 ID，避免反复传输完整报告。
 
-| 实例 | 数据 | 持久性 | 淘汰策略 | 故障影响 |
-| --- | --- | --- | --- | --- |
-| Redis Runtime | LangGraph 检查点、SSE Stream、Celery Broker/Backend | AOF everysec | noeviction | 新任务暂不可投递；恢复后继续 |
-| Redis Cache | Tavily 搜索缓存 | 可重建 | volatile-lfu | 命中率下降，不破坏业务事实 |
+字符估算不等同于供应商 tokenizer，也不是整个模型输入的硬上限。新问题、结构化业务状态和检索证据有各自大小限制，另行传入。单个近期消息过大时可能裁剪。摘要有损，不能代替原件、授权信息或需求参数；预算、硬约束和成果范围不从摘要中恢复。原始历史不删除。
 
-运行态和缓存分离是刻意设计：缓存需要淘汰，检查点不能被淘汰。
+## 业务保存与恢复
 
-## Agent 状态与恢复
+`Conversation`、用户 `Message` 和 `AgentRun` 先提交 PostgreSQL，再发布事件并投递 Celery。每次主循环动作使用 `run_id:序号` 作为动作 ID，在执行前关联业务记录。页面预先创建的评价、规范化或匹配记录只供当前运行首个对应动作复用。
 
-- 每个 Run 有稳定的 `thread_id`，LangGraph 使用它定位 Redis 检查点。
-- 节点输入输出只保存可序列化、必要的摘要，避免检查点无限膨胀。
-- 人工审核通过 `interrupt` 产生暂停状态；恢复时使用 `Command(resume=...)`。
-- 每个 Agent 节点在 MySQL 写入开始、完成、耗时和错误。
-- 工具调用使用幂等键记录，便于分析重试和避免重复副作用。
-- Run 有最大迭代次数和总超时，取消信号写入 Redis 并在节点边界检查。
+`collect` 在同一数据库事务中保存该动作的业务结果和运行内动作记录。匹配结果、评价版本、需求分析结果各自保存，不等最后一个动作完成才写入。重复收集相同动作不重复创建候选条目；已完成业务记录不会被后续步骤的失败、取消或恢复状态改回未完成。
 
-## 检索
+检查点与业务事务不是同一个事务。已提交动作结果可按动作 ID 与指纹复用，但不能宣称任意外部副作用都恰好执行一次。入库等步骤仍依赖各自的幂等实现。
 
-- Qdrant 中保存稠密向量、稀疏词项向量和必要业务字段。
-- 查询时分别获取候选，使用 Reciprocal Rank Fusion 合并。
-- 领域重排补充“农村饮水、泵站、混凝土、防渗”等水利场景规则。
-- 最终评分与检索分数分离：检索解决召回，评估 Agent 解决场景、成熟度、证据和风险。
-- `KNOWLEDGE_INDEX_VERSION` 变化会触发版本化 outbox 重建，避免代码与旧索引字段不一致。
+主图使用 PostgreSQL 检查点，配置中的 `thread_id` 实际取 `run.id`。会话 ID 用于跨轮历史与业务关联；两者用途不同。人工审核和需求澄清在子图中使用 `interrupt`，用户提交后以 `Command(resume=...)` 恢复同一个运行。澄清后的需求继续在当前子图处理，完成后返回 Agent。
 
-## 安全与可观测性
+新运行保存 v3 图版本；原 v2 运行按原图布局恢复，防止已存在的 `workflow` 等检查点节点失去对应实现。更早的 Redis 检查点不兼容。新版恢复点缺失时会报错，已完成业务记录保留，不能自动重做整轮来掩盖恢复失败。
 
-- 密码使用 Argon2 哈希。
-- Access Token 短期有效，Refresh Token 只存指纹；刷新时轮换并阻断旧令牌重放。
-- 数据接口执行所有权校验，管理员可以跨用户审计。
-- 统一返回安全响应头，OpenAPI 与 Prometheus `/metrics` 可用于本地调试。
-- AgentStep、ToolCall、ModelUsage 和结构化日志共同组成可审计运行轨迹。
+## 检索与存储分工
 
-## 主要技术取舍
+| 组件 | 职责 |
+| --- | --- |
+| PostgreSQL | 成果、版本、精确片段、来源、需求、评价、匹配、对话、动作轨迹、检查点 |
+| Elasticsearch | IK/BM25 与 dense_vector 召回索引，可由事实数据重建 |
+| BGE 服务 | BGE-M3 向量化和 BGE-reranker-v2-m3 重排 |
+| Redis Runtime | Celery broker/backend、SSE Stream、取消信号；AOF、noeviction |
+| Redis Cache | 可重建的外部搜索缓存，volatile-lfu |
+| MinIO | 原始文件和最终 Markdown 报告 |
 
-- 使用 Python：Agent 生态、LangGraph、模型和检索 SDK 最成熟，同时不妨碍完整使用 MySQL/Redis。
-- 使用 LangGraph：需要显式状态、条件路由、中断恢复和持久化，不适合只靠顺序函数调用。
-- 使用 Celery：Agent 运行可能超过 HTTP 生命周期，队列提供重试、并发和 worker 隔离。
-- 使用 Qdrant 而不是把向量塞入 MySQL：向量检索、稀疏检索和过滤能力职责更清晰；MySQL 仍是事实来源。
-- 使用 MinIO：报告与原始文件不适合放进 MySQL 大字段，S3 兼容接口也便于迁移云对象存储。
+成果变更与 Outbox 事件在同一 PostgreSQL 事务提交，worker 幂等更新片段与 Elasticsearch。两路召回经过 RRF、重排和成果聚合，返回前回查 PostgreSQL 的权限、审批、版本和片段哈希。
+
+问答引用必须指向已检索片段，且 quote 在原文中逐字存在；这种校验不能证明模型释义一定正确。需求匹配使用满足、不满足、未知三态约束，排名分数表示检索相关度。成果自身评价与针对某项工程的匹配判断分别保存。
+
+## 可观测性与改造验证范围
+
+AgentStep 记录各步骤，ToolCall 记录动作及重试，ModelUsage 记录模型调用和 token。摘要调用也计入用量。SSE 展示任务进度；完整业务结果和动作列表可从运行输出查阅。
+
+本次改造按要求未运行单元、集成或真实模型测试。交付检查包括改动文件的静态规则检查、Python 语法编译、LangGraph 图构建及子图拓扑检查。静态图构建不执行节点，不连接检索或数据库，不能替代对复合请求、真实模型选择和审核恢复的运行验收。
